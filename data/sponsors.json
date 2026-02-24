@@ -1,0 +1,19 @@
+{
+  "sponsors": [
+    {
+      "id": "notion-q1-2026",
+      "name": "Notion",
+      "tagline": "Build your company wiki, beautifully.",
+      "product_description": "Notion is the all-in-one workspace for docs, projects, and knowledge management.",
+      "cta": "Try Notion free at notion.so/signal",
+      "url": "https://notion.so/signal",
+      "slot": "mid",
+      "editions": ["am"],
+      "voice": "alex",
+      "script": "Quick break to tell you about our friends at Notion. If your team's docs are scattered across Google Docs, Confluence, and random Slack messages — Notion puts it all in one place. Company wiki, project trackers, meeting notes — beautifully organized and actually searchable. Try Notion free at notion.so/signal.",
+      "start_date": "2026-02-24",
+      "end_date": "2026-03-24",
+      "active": true
+    }
+  ]
+}

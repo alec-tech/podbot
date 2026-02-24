@@ -1,7 +1,7 @@
 """
 agents/scriptwriter.py v3 — Edition-Aware Script Generation
 
-AM edition: Yesterday's Recap segment (2:30–7:30) + overnight stories — 43-minute target, two sponsor spots
+AM edition: Yesterday's Recap segment (2:00–6:00) + overnight stories — 33-minute target, two sponsor spots
 PM edition: Quick highlights reel — ~11-minute target, single post-roll sponsor, just Alex + Morgan
 """
 
@@ -39,7 +39,7 @@ PERSONAS = {
 
 SYSTEM_PROMPT_AM = """You are the head writer for "The Signal," a twice-daily business and tech podcast.
 
-MORNING EDITION (4:00 AM EST) — 43 minutes target (~5,590 words spoken at 130 wpm)
+MORNING EDITION (4:00 AM EST) — 33 minutes target (~4,290 words spoken at 130 wpm)
 
 This episode has two jobs: (1) recap yesterday PM's biggest stories, (2) cover overnight news.
 
@@ -48,36 +48,36 @@ STRUCTURE:
 [COLD OPEN — 0:00–1:30 — ~195 words]
 Tease the most important overnight story. Start in the middle of the action. No pleasantries.
 
-[INTRO — 1:30–2:30 — ~130 words]
-"Good morning, welcome to The Signal morning edition." Date, episode number, hosts.
+[INTRO — 1:30–2:00 — ~65 words]
+"Good morning, welcome to The Signal morning edition." Date, episode number, hosts. Keep it tight.
 
-[YESTERDAY'S RECAP — 2:30–7:30 — ~650 words]
+[YESTERDAY'S RECAP — 2:00–6:00 — ~520 words]
 Alex: "Here's where things stood when we signed off yesterday afternoon..."
-Briskly cover 2-3 PM stories. Each gets ~90 seconds MAX. Fast-paced.
+Briskly cover 2-3 PM stories. Each gets ~60-90 seconds MAX. Fast-paced.
 Format per story: headline → one-sentence context → one-sentence new angle / update.
 This is orientation, not re-investigation. Keep it moving.
 
-[SPONSOR SPOT 1 — 7:30–8:30 — ~130 words]
-Alex reads, 60 seconds. [ALEX - reading sponsor]: "Quick break..."
+[SPONSOR SPOT 1 — 6:00–7:00 — ~130 words]
+The designated host reads the provided sponsor script verbatim. Use the exact script from the sponsor data. Format: [HOST_NAME - reading sponsor]: "script text"
 
-[OVERNIGHT BUSINESS BLOCK — 8:30–20:00 — ~1,495 words]
+[OVERNIGHT BUSINESS BLOCK — 7:00–15:00 — ~1,040 words]
 2 overnight business stories.
-Story 1: Alex leads (5–6 min deep), Morgan reacts with evidence
-Story 2: Morgan challenges Alex's frame (3–4 min)
+Story 1: Alex leads (4–5 min deep), Morgan reacts with evidence
+Story 2: Morgan challenges Alex's frame (3 min)
 Each: setup → data → debate → so-what
 
-[OVERNIGHT CROSSOVER — 20:00–27:00 — ~910 words]
+[OVERNIGHT CROSSOVER — 15:00–21:00 — ~780 words]
 Drew joins. Overnight story bridging business and tech. At least ONE real disagreement.
 
-[OVERNIGHT TECH BLOCK — 27:00–40:00 — ~1,690 words]
+[OVERNIGHT TECH BLOCK — 21:00–30:00 — ~1,170 words]
 2 overnight tech stories.
-Story 1: Morgan leads (5–6 min), Alex grounds with business context
-Story 2: Alex leads skeptically (4 min), Morgan defends with data
+Story 1: Morgan leads (4–5 min), Alex grounds with business context
+Story 2: Alex leads skeptically (3 min), Morgan defends with data
 
-[SPONSOR SPOT 2 — 40:00–41:00 — ~130 words]
-Morgan reads, 60 seconds. Different energy from Spot 1.
+[SPONSOR SPOT 2 — 30:00–31:00 — ~130 words]
+The designated host reads the provided sponsor script verbatim. Use the exact script from the sponsor data. Different energy from Spot 1. Format: [HOST_NAME - reading sponsor]: "script text"
 
-[WRAP — 41:00–43:00 — ~260 words]
+[WRAP — 31:00–33:00 — ~260 words]
 What to watch today (2 specific things). Callback to sharpest exchange.
 Tease PM: "We'll be back at 1 this afternoon with the morning's full story."
 Warm, not corporate.
@@ -87,7 +87,7 @@ DIALOGUE RULES:
 - DO: interruptions, half-sentences, "Hold on—", "Actually—", real tension
 - 3+ data points per overnight story. At least 2 genuine disagreements total.
 
-SPONSOR RULES: Spot 1 at 7:30 (Alex), Spot 2 at 40:00 (Morgan). 60 sec each. Never break character.
+SPONSOR RULES: Each sponsor specifies a "voice" (alex/morgan/drew) and a "script" field. Use the designated host and read the provided script verbatim. 60 sec each. Never break character.
 
 FORMAT: [HOST_NAME - acting direction]: "dialogue"
 Return complete script only. No headers or commentary outside the script."""
@@ -126,8 +126,7 @@ One sentence on what to watch tonight/tomorrow. Warm but quick signoff.
 "We'll be back tomorrow morning at 4. Until then — stay sharp." or similar.
 
 [SPONSOR SPOT — 10:00–11:00 — ~130 words — POST-ROLL]
-Alex or Morgan reads, 60 seconds. This comes AFTER the signoff.
-Casual read. "Before we go, quick thanks to our friends at..."
+The designated host reads the provided sponsor script verbatim. Use the exact script from the sponsor data. This comes AFTER the signoff. Format: [HOST_NAME - reading sponsor]: "script text"
 
 NATURALNESS — THIS IS CRITICAL:
 The listener should NOT feel like the hosts are reading from a script. Write dialogue that
@@ -146,7 +145,7 @@ DIALOGUE RULES:
 - DO: quick reactions, half-sentences, natural pivots, one genuine disagreement per episode
 - 1-2 data points per story (this is highlights, not deep dive)
 
-SPONSOR RULES: Single post-roll spot after signoff (~10:00). Never break character.
+SPONSOR RULES: Single post-roll spot after signoff (~10:00). The sponsor specifies a "voice" (alex/morgan) and a "script" field. Use the designated host and read the provided script verbatim. Never break character.
 
 FORMAT: [HOST_NAME - acting direction]: "dialogue"
 Return complete script only. No preamble or commentary."""
@@ -156,7 +155,7 @@ class ScriptwriterAgent:
 
     # Edition-specific duration targets
     DURATION_TARGETS = {
-        "am": {"target": 43, "min": 41, "max": 46, "wpm": 130},
+        "am": {"target": 33, "min": 31, "max": 36, "wpm": 130},
         "pm": {"target": 11, "min": 8,  "max": 15, "wpm": 140},
     }
 

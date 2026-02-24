@@ -649,6 +649,139 @@ body {
 }
 .toast.show { transform: translateX(0); }
 .toast-icon { font-size: 14px; flex-shrink: 0; }
+
+/* ── SPONSOR MANAGEMENT ── */
+.sponsor-card {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.2s;
+}
+.sponsor-card::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.sponsor-card.slot-mid::before { background: var(--green); }
+.sponsor-card.slot-outro::before { background: var(--amber); }
+.sponsor-card.slot-post-roll::before { background: var(--blue); }
+.sponsor-card.inactive { opacity: 0.45; }
+.sponsor-card-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+}
+.sponsor-card-name {
+  font-weight: 600; font-size: 13px; color: var(--text);
+}
+.sponsor-slot-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+.ssb-mid { background: var(--green-dim); color: var(--green); }
+.ssb-outro { background: var(--amber-dim); color: var(--amber); }
+.ssb-post-roll { background: var(--blue-dim); color: var(--blue); }
+.sponsor-edition-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(107,122,153,0.12);
+  color: var(--text-dim);
+}
+.sponsor-voice-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: rgba(184,158,255,0.12);
+  color: var(--purple);
+}
+.sponsor-card-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-mute);
+  margin-bottom: 8px;
+}
+.sponsor-card-actions {
+  display: flex; gap: 6px; margin-left: auto;
+  flex-shrink: 0;
+}
+.sponsor-script-preview {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-mute);
+  line-height: 1.6;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-top: 8px;
+  white-space: pre-wrap;
+  max-height: 60px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: max-height 0.3s;
+}
+.sponsor-script-preview.expanded {
+  max-height: 400px;
+}
+.sponsor-toggle {
+  position: relative;
+  width: 36px; height: 20px;
+  background: var(--border2);
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.sponsor-toggle.on { background: var(--green); }
+.sponsor-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+.sponsor-toggle.on::after { transform: translateX(16px); }
+.sponsor-form {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.sponsor-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.sponsor-form-full { grid-column: 1 / -1; }
+.edition-checkbox-grid {
+  display: flex; gap: 10px;
+}
+.edition-checkbox-grid label {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.edition-checkbox-grid input[type="checkbox"] {
+  accent-color: var(--green);
+}
 </style>
 </head>
 
@@ -681,6 +814,10 @@ body {
       <button class="nav-item" onclick="showSection('inject', this)" id="nav-inject">
         <span class="nav-icon">💉</span> Inject Story
         <span class="nav-badge" id="inject-badge" style="display:none;">0</span>
+      </button>
+      <button class="nav-item" onclick="showSection('sponsors', this)" id="nav-sponsors">
+        <span class="nav-icon">💰</span> Sponsors
+        <span class="nav-badge" id="sponsor-badge" style="display:none;">0</span>
       </button>
       <button class="nav-item" onclick="showSection('history', this)">
         <span class="nav-icon">📁</span> Recent Episodes
@@ -865,6 +1002,28 @@ body {
         </div>
       </div>
     </div>
+
+    <!-- SPONSORS VIEW -->
+    <div class="panel-section" id="section-sponsors">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Active Sponsors</div>
+          <div class="panel-subtitle" id="sponsor-subtitle">Manage sponsor slots, scripts, and voice assignments</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="exportSponsors()">↓ Export JSON</button>
+          <button class="btn btn-primary btn-sm" onclick="showSponsorForm()">＋ Add Sponsor</button>
+        </div>
+      </div>
+      <div class="section-body">
+        <div id="sponsor-form-container"></div>
+        <div id="sponsor-list">
+          <div style="color:var(--text-dim);font-family:var(--mono);font-size:12px;padding:40px 0;text-align:center;">
+            Loading sponsors...
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ── RIGHT PANEL ── -->
@@ -874,6 +1033,15 @@ body {
       <div id="queue-list">
         <div style="color:var(--text-mute);font-family:var(--mono);font-size:11px;text-align:center;padding:20px 0;">
           No stories in queue
+        </div>
+      </div>
+    </div>
+
+    <div class="right-section">
+      <div class="right-section-title">Active Sponsors</div>
+      <div id="sponsor-summary">
+        <div style="color:var(--text-mute);font-family:var(--mono);font-size:11px;text-align:center;padding:10px 0;">
+          No active sponsors
         </div>
       </div>
     </div>
@@ -918,6 +1086,8 @@ let currentTab = 'url';
 let logLines = [];
 let episodeNum = parseInt(localStorage.getItem('ep_num') || '1');
 let briefData = null;
+let sponsors = [];
+let editingSponsorIdx = null;
 
 const SAMPLE_BRIEF = {
   episode_date: new Date().toISOString().split('T')[0],
@@ -1123,6 +1293,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .finally(() => {
       renderQueue();
+      loadSponsors();
       log_('info', 'Dashboard initialized');
       log_('info', `${injectionQueue.length} stories in injection queue`);
     });
@@ -1392,6 +1563,275 @@ function exportBrief() {
 }
 
 // ══════════════════════════════════════════════════════════════════
+// SPONSORS
+// ══════════════════════════════════════════════════════════════════
+function loadSponsors() {
+  fetch('/data/sponsors.json')
+    .then(r => r.ok ? r.json() : Promise.reject('not ok'))
+    .then(data => {
+      sponsors = data.sponsors || [];
+      localStorage.setItem('sponsors', JSON.stringify(sponsors));
+      renderSponsors();
+      updateSponsorBadge();
+      renderSponsorSummary();
+      log_('success', `Loaded ${sponsors.length} sponsor(s) from sponsors.json`);
+    })
+    .catch(() => {
+      const stored = localStorage.getItem('sponsors');
+      if (stored) {
+        sponsors = JSON.parse(stored);
+      }
+      renderSponsors();
+      updateSponsorBadge();
+      renderSponsorSummary();
+      log_('info', 'Sponsors loaded from localStorage');
+    });
+}
+
+function renderSponsors() {
+  const el = document.getElementById('sponsor-list');
+  if (!sponsors.length) {
+    el.innerHTML = `<div style="color:var(--text-mute);font-family:var(--mono);font-size:12px;text-align:center;padding:40px 0;">
+      No sponsors configured.<br>Click "+ Add Sponsor" to get started.
+    </div>`;
+    return;
+  }
+  el.innerHTML = sponsors.map((s, i) => {
+    const slotClass = `slot-${s.slot || 'mid'}`;
+    const inactiveClass = s.active ? '' : 'inactive';
+    const slotBadge = `ssb-${s.slot || 'mid'}`;
+    const slotLabel = (s.slot || 'mid').replace('-', ' ');
+    const editionBadges = (s.editions || []).map(e =>
+      `<span class="sponsor-edition-badge">${e.toUpperCase()}</span>`
+    ).join(' ');
+    const voiceNames = {alex: 'Alex Chen', morgan: 'Morgan Lee', drew: 'Drew Vasquez'};
+    const voiceBadge = s.voice ? `<span class="sponsor-voice-badge">${voiceNames[s.voice] || s.voice}</span>` : '';
+    const dateRange = `${s.start_date || '—'} → ${s.end_date || '—'}`;
+    const scriptPreview = s.script ? `<div class="sponsor-script-preview" onclick="this.classList.toggle('expanded')" title="Click to expand">${escapeHtml(s.script)}</div>` : '';
+    return `
+      <div class="sponsor-card ${slotClass} ${inactiveClass}">
+        <div class="sponsor-card-header">
+          <span class="sponsor-card-name">${escapeHtml(s.name)}</span>
+          <span class="sponsor-slot-badge ${slotBadge}">${slotLabel}</span>
+          ${editionBadges}
+          ${voiceBadge}
+          <div class="sponsor-card-actions">
+            <button class="btn btn-ghost btn-sm" onclick="showSponsorForm(${i})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteSponsor(${i})">Delete</button>
+            <button class="sponsor-toggle ${s.active ? 'on' : ''}" onclick="toggleSponsorActive(${i})" title="${s.active ? 'Active' : 'Inactive'}"></button>
+          </div>
+        </div>
+        <div class="sponsor-card-meta">${escapeHtml(s.tagline || '')} · ${dateRange}</div>
+        ${scriptPreview}
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function showSponsorForm(idx) {
+  editingSponsorIdx = idx !== undefined ? idx : null;
+  const s = idx !== undefined ? sponsors[idx] : {};
+  const isEdit = idx !== undefined;
+  const container = document.getElementById('sponsor-form-container');
+  const voiceNames = {alex: 'Alex Chen', morgan: 'Morgan Lee', drew: 'Drew Vasquez'};
+  container.innerHTML = `
+    <div class="sponsor-form">
+      <div style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);margin-bottom:16px;">
+        ${isEdit ? 'Edit Sponsor' : 'Add New Sponsor'}
+      </div>
+      <div class="sponsor-form-grid">
+        <div class="inject-form-group">
+          <label class="inject-label">Sponsor Name *</label>
+          <input type="text" class="inject-input" id="sp-name" value="${escapeHtml(s.name || '')}" placeholder="e.g. Notion" />
+        </div>
+        <div class="inject-form-group">
+          <label class="inject-label">URL</label>
+          <input type="url" class="inject-input" id="sp-url" value="${escapeHtml(s.url || '')}" placeholder="https://notion.so/signal" />
+        </div>
+        <div class="inject-form-group sponsor-form-full">
+          <label class="inject-label">Tagline</label>
+          <input type="text" class="inject-input" id="sp-tagline" value="${escapeHtml(s.tagline || '')}" placeholder="Build your company wiki, beautifully." />
+        </div>
+        <div class="inject-form-group sponsor-form-full">
+          <label class="inject-label">Product Description</label>
+          <input type="text" class="inject-input" id="sp-description" value="${escapeHtml(s.product_description || '')}" placeholder="Notion is the all-in-one workspace for..." />
+        </div>
+        <div class="inject-form-group sponsor-form-full">
+          <label class="inject-label">CTA Line</label>
+          <input type="text" class="inject-input" id="sp-cta" value="${escapeHtml(s.cta || '')}" placeholder="Try Notion free at notion.so/signal" />
+        </div>
+        <div class="inject-form-group">
+          <label class="inject-label">Slot</label>
+          <select class="inject-select" id="sp-slot">
+            <option value="mid" ${s.slot === 'mid' ? 'selected' : ''}>Mid</option>
+            <option value="outro" ${s.slot === 'outro' ? 'selected' : ''}>Outro</option>
+            <option value="post-roll" ${s.slot === 'post-roll' ? 'selected' : ''}>Post-roll</option>
+          </select>
+        </div>
+        <div class="inject-form-group">
+          <label class="inject-label">Voice</label>
+          <select class="inject-select" id="sp-voice">
+            <option value="alex" ${s.voice === 'alex' ? 'selected' : ''}>Alex Chen</option>
+            <option value="morgan" ${s.voice === 'morgan' ? 'selected' : ''}>Morgan Lee</option>
+            <option value="drew" ${s.voice === 'drew' ? 'selected' : ''}>Drew Vasquez</option>
+          </select>
+        </div>
+        <div class="inject-form-group">
+          <label class="inject-label">Editions</label>
+          <div class="edition-checkbox-grid">
+            <label><input type="checkbox" id="sp-ed-am" ${(s.editions || []).includes('am') ? 'checked' : ''}> AM</label>
+            <label><input type="checkbox" id="sp-ed-pm" ${(s.editions || []).includes('pm') ? 'checked' : ''}> PM</label>
+          </div>
+        </div>
+        <div class="inject-form-group">
+          <label class="inject-label">Active</label>
+          <div style="padding-top:4px;">
+            <label style="display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--text-dim);cursor:pointer;">
+              <input type="checkbox" id="sp-active" ${s.active !== false ? 'checked' : ''} style="accent-color:var(--green);"> Active
+            </label>
+          </div>
+        </div>
+        <div class="inject-form-group">
+          <label class="inject-label">Start Date</label>
+          <input type="date" class="inject-input" id="sp-start" value="${s.start_date || ''}" />
+        </div>
+        <div class="inject-form-group">
+          <label class="inject-label">End Date</label>
+          <input type="date" class="inject-input" id="sp-end" value="${s.end_date || ''}" />
+        </div>
+        <div class="inject-form-group sponsor-form-full">
+          <label class="inject-label">Script (ad copy for the voice to read)</label>
+          <textarea class="inject-textarea" id="sp-script" style="min-height:120px;" placeholder="Quick break to tell you about our friends at...">${escapeHtml(s.script || '')}</textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="btn btn-primary" onclick="saveSponsor()">💾 ${isEdit ? 'Update' : 'Save'} Sponsor</button>
+        <button class="btn btn-ghost" onclick="cancelSponsorForm()">Cancel</button>
+      </div>
+    </div>
+  `;
+  container.scrollIntoView({behavior: 'smooth'});
+}
+
+function cancelSponsorForm() {
+  document.getElementById('sponsor-form-container').innerHTML = '';
+  editingSponsorIdx = null;
+}
+
+function saveSponsor() {
+  const name = document.getElementById('sp-name').value.trim();
+  if (!name) {
+    toast('⚠ Sponsor name is required', 'warn');
+    return;
+  }
+  const editions = [];
+  if (document.getElementById('sp-ed-am').checked) editions.push('am');
+  if (document.getElementById('sp-ed-pm').checked) editions.push('pm');
+
+  const sponsor = {
+    id: editingSponsorIdx !== null ? sponsors[editingSponsorIdx].id : name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now(),
+    name,
+    tagline: document.getElementById('sp-tagline').value.trim(),
+    product_description: document.getElementById('sp-description').value.trim(),
+    cta: document.getElementById('sp-cta').value.trim(),
+    url: document.getElementById('sp-url').value.trim(),
+    slot: document.getElementById('sp-slot').value,
+    editions,
+    voice: document.getElementById('sp-voice').value,
+    script: document.getElementById('sp-script').value.trim(),
+    start_date: document.getElementById('sp-start').value,
+    end_date: document.getElementById('sp-end').value,
+    active: document.getElementById('sp-active').checked,
+  };
+
+  if (editingSponsorIdx !== null) {
+    sponsors[editingSponsorIdx] = sponsor;
+    log_('success', `Updated sponsor: ${name}`);
+    toast(`✓ Sponsor "${name}" updated`, 'success');
+  } else {
+    sponsors.push(sponsor);
+    log_('success', `Added sponsor: ${name}`);
+    toast(`✓ Sponsor "${name}" added`, 'success');
+  }
+
+  localStorage.setItem('sponsors', JSON.stringify(sponsors));
+  cancelSponsorForm();
+  renderSponsors();
+  updateSponsorBadge();
+  renderSponsorSummary();
+}
+
+function deleteSponsor(idx) {
+  const name = sponsors[idx].name;
+  if (!confirm(`Delete sponsor "${name}"? This cannot be undone.`)) return;
+  sponsors.splice(idx, 1);
+  localStorage.setItem('sponsors', JSON.stringify(sponsors));
+  renderSponsors();
+  updateSponsorBadge();
+  renderSponsorSummary();
+  log_('warn', `Deleted sponsor: ${name}`);
+  toast(`🗑 Sponsor "${name}" deleted`, 'warn');
+}
+
+function toggleSponsorActive(idx) {
+  sponsors[idx].active = !sponsors[idx].active;
+  localStorage.setItem('sponsors', JSON.stringify(sponsors));
+  renderSponsors();
+  updateSponsorBadge();
+  renderSponsorSummary();
+  const status = sponsors[idx].active ? 'activated' : 'deactivated';
+  log_('info', `Sponsor ${sponsors[idx].name} ${status}`);
+  toast(`${sponsors[idx].active ? '✓' : '⏸'} ${sponsors[idx].name} ${status}`, 'info');
+}
+
+function updateSponsorBadge() {
+  const active = sponsors.filter(s => s.active).length;
+  const badge = document.getElementById('sponsor-badge');
+  badge.textContent = active;
+  badge.style.display = active > 0 ? 'flex' : 'none';
+}
+
+function renderSponsorSummary() {
+  const el = document.getElementById('sponsor-summary');
+  const active = sponsors.filter(s => s.active);
+  if (!active.length) {
+    el.innerHTML = `<div style="color:var(--text-mute);font-family:var(--mono);font-size:11px;text-align:center;padding:10px 0;">No active sponsors</div>`;
+    return;
+  }
+  el.innerHTML = active.map(s => {
+    const slotBadge = `ssb-${s.slot || 'mid'}`;
+    const slotLabel = (s.slot || 'mid').replace('-', ' ');
+    return `
+      <div class="queue-item" style="border-left:3px solid ${s.slot === 'mid' ? 'var(--green)' : s.slot === 'outro' ? 'var(--amber)' : 'var(--blue)'};">
+        <div class="qi-headline">${escapeHtml(s.name)}</div>
+        <div class="qi-meta">
+          <span class="sponsor-slot-badge ${slotBadge}">${slotLabel}</span>
+          ${s.voice ? `<span class="sponsor-voice-badge">${s.voice}</span>` : ''}
+          ${(s.editions || []).map(e => `<span class="sponsor-edition-badge">${e.toUpperCase()}</span>`).join(' ')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function exportSponsors() {
+  const data = {sponsors};
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sponsors.json';
+  a.click();
+  toast('↓ sponsors.json exported', 'info');
+  log_('info', 'Exported sponsors.json');
+}
+
+// ══════════════════════════════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════════════════════════════
 function showSection(name, btn) {
@@ -1400,6 +1840,7 @@ function showSection(name, btn) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (btn) btn.classList.add('active');
   if (name === 'history') renderHistory();
+  if (name === 'sponsors') renderSponsors();
   return false;
 }
 
