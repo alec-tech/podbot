@@ -657,6 +657,7 @@ body {
 <!-- ── TOPBAR ── -->
 <div class="topbar">
   <div class="topbar-left">
+    <a href="/index.html" style="text-decoration:none;font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-right:12px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--text-dim)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">&larr; Back to Site</a>
     <div class="topbar-logo">The Signal</div>
     <div class="topbar-title">Editorial Dashboard</div>
   </div>
@@ -999,6 +1000,68 @@ const SAMPLE_BRIEF = {
   ]
 };
 
+const SAMPLE_BRIEF_PM = {
+  episode_date: new Date().toISOString().split('T')[0],
+  edition: "pm",
+  show_theme: "Evening wrap: the biggest moves from today's markets and the tech stories that will carry into tomorrow",
+  business_stories: [
+    {
+      rank: 1, type: "quick",
+      podcast_headline: "Markets Close Mixed as Fed Minutes Reveal Internal Disagreement on Rate Path",
+      source: "Reuters",
+      url: "#",
+      context: "The S&P 500 finished flat while the Nasdaq gained 0.4% after Fed minutes showed a 7-5 split on the pace of future rate adjustments. Bond yields dipped slightly on the dovish lean.",
+      extrapolation: "The split signals uncertainty, not direction — markets will remain volatile until the March meeting clarifies the committee's stance.",
+      talking_points: ["Why the 7-5 split matters more than the consensus statement", "Bond market reaction vs. equity reaction"],
+      estimated_minutes: 2, lead_host: "alex", injected: false
+    },
+    {
+      rank: 2, type: "quick",
+      podcast_headline: "Stripe's Profitability Announcement Reshapes the Late-Stage Startup Landscape",
+      source: "TechCrunch",
+      url: "#",
+      context: "Stripe's first profitable quarter ($1.4B net income) is sending ripples through the late-stage startup world. Secondary market prices for other pre-IPO unicorns moved within hours.",
+      extrapolation: "This creates a new benchmark: if Stripe can be profitable without going public, the IPO pressure valve loosens for every well-run private company.",
+      talking_points: ["Secondary market implications", "What this means for other unicorns"],
+      estimated_minutes: 2, lead_host: "alex", injected: false
+    }
+  ],
+  overlap_stories: [
+    {
+      rank: 1, type: "quick",
+      podcast_headline: "Microsoft's $80B AI Capex Commitment Is Now Officially the Largest Single Corporate Infrastructure Bet in History",
+      source: "Financial Times",
+      url: "#",
+      context: "Following this morning's deep dive, the market has now fully digested Microsoft's announcement. Azure forward bookings are reportedly up 30% since the news broke.",
+      extrapolation: "The AM edition covered the 'why' — the PM update is the 'so what': enterprise customers are voting with their wallets.",
+      talking_points: ["AM follow-up: market reaction", "Azure booking surge"],
+      estimated_minutes: 2, lead_host: "alex", injected: false
+    }
+  ],
+  tech_stories: [
+    {
+      rank: 1, type: "quick",
+      podcast_headline: "Anthropic's Interpretability Paper Gets 10,000 Citations in 8 Hours — Fastest in AI History",
+      source: "MIT Technology Review",
+      url: "#",
+      context: "The paper from this morning's AM edition is now the fastest-cited AI research paper ever. Multiple labs have already announced follow-up research directions.",
+      extrapolation: "This validates the interpretability-first approach and may redirect significant research funding toward mechanistic understanding.",
+      talking_points: ["Speed of academic response", "Research funding implications"],
+      estimated_minutes: 2, lead_host: "morgan", injected: false
+    },
+    {
+      rank: 2, type: "quick",
+      podcast_headline: "Meta's Memory Layer Update Hits 100M Users in First 6 Hours of Rollout",
+      source: "The Verge",
+      url: "#",
+      context: "The cross-session memory feature covered in today's AM edition has already been activated by over 100 million users across Messenger, Instagram, and WhatsApp.",
+      extrapolation: "Adoption speed suggests users want persistent AI — the privacy debate is about to get much louder.",
+      talking_points: ["Adoption metrics", "Privacy backlash potential"],
+      estimated_minutes: 2, lead_host: "morgan", injected: false
+    }
+  ]
+};
+
 // ══════════════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════════════
@@ -1007,11 +1070,62 @@ document.addEventListener('DOMContentLoaded', () => {
     month: 'short', day: 'numeric', year: 'numeric'
   });
   document.getElementById('ep-badge').textContent = `EP. ${String(episodeNum).padStart(3,'0')}`;
-  loadBrief(SAMPLE_BRIEF);
-  renderQueue();
-  log_('info', 'Dashboard initialized');
-  log_('success', 'Brief loaded — 3 business, 1 overlap, 3 tech');
-  log_('info', `${injectionQueue.length} stories in injection queue`);
+
+  // Try loading from episodes.json, fall back to sample briefs
+  fetch('/episodes.json')
+    .then(r => r.ok ? r.json() : Promise.reject('not ok'))
+    .then(data => {
+      if (Array.isArray(data) && data.length > 0) {
+        const latest = data[0];
+        // Build a brief-like structure from the latest episode
+        const briefFromEpisode = {
+          episode_date: latest.date,
+          edition: latest.edition || 'am',
+          show_theme: latest.theme || latest.title,
+          business_stories: (latest.business_stories || []).map((s, i) => ({
+            rank: i + 1, type: 'medium',
+            podcast_headline: s.headline,
+            source: 'Published episode',
+            context: s.excerpt,
+            talking_points: [],
+            estimated_minutes: 3, lead_host: 'alex', injected: false
+          })),
+          overlap_stories: (latest.overlap_stories || []).map((s, i) => ({
+            rank: i + 1, type: 'medium',
+            podcast_headline: s.headline,
+            source: 'Published episode',
+            context: s.excerpt,
+            talking_points: [],
+            estimated_minutes: 3, lead_host: 'alex', injected: false
+          })),
+          tech_stories: (latest.tech_stories || []).map((s, i) => ({
+            rank: i + 1, type: 'medium',
+            podcast_headline: s.headline,
+            source: 'Published episode',
+            context: s.excerpt,
+            talking_points: [],
+            estimated_minutes: 3, lead_host: 'morgan', injected: false
+          }))
+        };
+        loadBrief(briefFromEpisode);
+        log_('success', `Loaded latest episode (EP ${latest.episode_num}) from episodes.json`);
+      } else {
+        throw new Error('empty');
+      }
+    })
+    .catch(() => {
+      // Auto-select AM or PM sample based on time of day
+      const hour = new Date().getHours();
+      const brief = hour >= 14 ? SAMPLE_BRIEF_PM : SAMPLE_BRIEF;
+      const edition = hour >= 14 ? 'PM' : 'AM';
+      loadBrief(brief);
+      log_('info', `Using sample ${edition} brief (no episodes.json found)`);
+    })
+    .finally(() => {
+      renderQueue();
+      log_('info', 'Dashboard initialized');
+      log_('info', `${injectionQueue.length} stories in injection queue`);
+    });
 });
 
 // ══════════════════════════════════════════════════════════════════
@@ -1290,12 +1404,39 @@ function showSection(name, btn) {
 }
 
 function renderHistory() {
-  // In production: fetch from /api/episodes
-  document.getElementById('history-body').innerHTML = `
-    <div style="color:var(--text-dim);font-family:var(--mono);font-size:12px;">
-      Connect to episodes.json or your API to load episode history here.
-    </div>
-  `;
+  const body = document.getElementById('history-body');
+  body.innerHTML = '<div style="color:var(--text-dim);font-family:var(--mono);font-size:12px;">Loading episodes...</div>';
+
+  fetch('/episodes.json')
+    .then(r => r.ok ? r.json() : Promise.reject('not ok'))
+    .then(data => {
+      if (!Array.isArray(data) || data.length === 0) throw new Error('empty');
+      body.innerHTML = data.slice(0, 20).map(ep => {
+        const editionColor = ep.edition === 'pm' ? 'var(--blue)' : 'var(--amber)';
+        const editionBg = ep.edition === 'pm' ? 'var(--blue-dim)' : 'var(--amber-dim)';
+        const editionLabel = (ep.edition || 'am').toUpperCase();
+        const storyCount = (ep.business_stories?.length || 0) + (ep.overlap_stories?.length || 0) + (ep.tech_stories?.length || 0);
+        return `
+          <div style="padding:14px 16px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;background:var(--panel2);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+              <span style="font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:0.06em;">EP. ${String(ep.episode_num).padStart(3,'0')}</span>
+              <span style="font-family:var(--mono);font-size:9px;color:${editionColor};background:${editionBg};border:1px solid ${editionColor}33;padding:1px 6px;border-radius:3px;">${editionLabel}</span>
+              <span style="font-family:var(--mono);font-size:10px;color:var(--text-mute);margin-left:auto;">${ep.date}</span>
+            </div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);line-height:1.4;">${ep.title}</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--text-mute);margin-top:6px;">${storyCount} stories · ${ep.duration_display}</div>
+          </div>
+        `;
+      }).join('');
+    })
+    .catch(() => {
+      body.innerHTML = `
+        <div style="color:var(--text-mute);font-family:var(--mono);font-size:12px;text-align:center;padding:40px 0;">
+          No episodes published yet.<br>
+          <span style="color:var(--text-dim);font-size:11px;">Episodes will appear here once the pipeline produces its first episode.</span>
+        </div>
+      `;
+    });
 }
 
 // ══════════════════════════════════════════════════════════════════

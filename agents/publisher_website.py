@@ -27,10 +27,11 @@ def generate_episode_json(brief: dict, script_data: dict, metadata: dict,
     companies = extract_companies_from_brief(brief)
     
     # Build chapter list with real timestamps based on show structure
-    chapters = build_chapters(sponsors)
-    
-    # Estimate duration in seconds (43 min target)
-    duration_seconds = int(script_data.get("estimated_minutes", 43) * 60)
+    chapters = build_chapters(sponsors, edition=edition)
+
+    # Estimate duration in seconds (11 min for PM, 43 min for AM)
+    default_minutes = 11 if edition == "pm" else 43
+    duration_seconds = int(script_data.get("estimated_minutes", default_minutes) * 60)
     mins = duration_seconds // 60
     secs = duration_seconds % 60
     
@@ -58,12 +59,23 @@ def generate_episode_json(brief: dict, script_data: dict, metadata: dict,
     }
 
 
-def build_chapters(sponsors: list) -> list:
-    """Build chapter timestamps based on standard 43-min show structure"""
+def build_chapters(sponsors: list, edition: str = "am") -> list:
+    """Build chapter timestamps based on show structure (AM: 43-min, PM: 11-min)"""
+    if edition == "pm":
+        post_sponsor = next((s for s in sponsors if s.get("slot") == "post-roll"), None)
+        return [
+            {"time": 0,   "label": "Intro"},
+            {"time": 30,  "label": "Business Headlines"},
+            {"time": 270, "label": "Crossover Moment"},
+            {"time": 330, "label": "Tech Headlines"},
+            {"time": 570, "label": "Looking Forward"},
+            {"time": 600, "label": f"Post-Roll: {post_sponsor['name']}" if post_sponsor and post_sponsor.get('name') != 'SPONSOR_PLACEHOLDER' else "Post-Roll Sponsor"},
+        ]
+
     mid_sponsor = next((s for s in sponsors if s.get("slot") == "mid"), None)
     outro_sponsor = next((s for s in sponsors if s.get("slot") == "outro"), None)
-    
-    chapters = [
+
+    return [
         {"time": 0,    "label": "Cold Open"},
         {"time": 90,   "label": "Intro"},
         {"time": 150,  "label": "Business Block"},
@@ -73,7 +85,6 @@ def build_chapters(sponsors: list) -> list:
         {"time": 2400, "label": f"Pre-Outro: {outro_sponsor['name']}" if outro_sponsor and outro_sponsor.get('name') != 'SPONSOR_PLACEHOLDER' else "Pre-Outro Sponsor"},
         {"time": 2460, "label": "Wrap & What to Watch"}
     ]
-    return chapters
 
 
 def determine_categories(brief: dict) -> list:

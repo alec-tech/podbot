@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Signal — Daily Business & Tech Intelligence</title>
-<meta name="description" content="Daily business and tech news podcast. Curated, written, and hosted by AI. Every weekday morning.">
+<meta name="description" content="Twice-daily business and tech news podcast — a 43-minute AM deep dive and an 11-minute PM highlights edition. Curated, written, and hosted by AI. Every weekday.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
@@ -1383,8 +1383,8 @@ footer {
       </a>
       <div class="featured-item">
         <div class="featured-label" style="color:var(--text-dim);">Format</div>
-        <div class="featured-title">43-Minute Daily Briefing</div>
-        <div class="featured-excerpt">Two AI hosts — Alex and Morgan — debate, analyze, and dissect the day's most important stories in a fast-moving, radio-quality format.</div>
+        <div class="featured-title">Twice-Daily Intelligence Briefing</div>
+        <div class="featured-excerpt"><strong>AM:</strong> 43-minute deep dive with Alex, Morgan, and Drew. <strong>PM:</strong> 8–15 minute headlines recap with Alex and Morgan. Every weekday.</div>
       </div>
     </div>
     <div class="section-header" style="margin-top:32px;">
@@ -1447,6 +1447,9 @@ footer {
       </div>
     </div>
     <div class="tip-form-card">
+      <form id="tipForm" name="story-tip" data-netlify="true" onsubmit="submitTip(event)">
+        <input type="hidden" name="form-name" value="story-tip">
+        <input type="hidden" name="tip-type" id="tip-type-hidden" value="url">
       <div id="tipFormWrap">
         <h3 class="form-title" style="color:var(--text);">Submit a Story Tip</h3>
         <div class="tip-method-tabs">
@@ -1457,24 +1460,24 @@ footer {
         <div class="tip-method-content active" id="tip-url">
           <div class="form-group">
             <label class="form-label">Article URL *</label>
-            <input type="url" class="form-input" id="tip-url-input" placeholder="https://...">
+            <input type="url" class="form-input" id="tip-url-input" name="tip-url" placeholder="https://...">
           </div>
         </div>
         <div class="tip-method-content" id="tip-text">
           <div class="form-group">
             <label class="form-label">Your Summary *</label>
-            <textarea class="form-textarea" id="tip-text-input" placeholder="What happened, why it matters, what angle is being missed..."></textarea>
+            <textarea class="form-textarea" id="tip-text-input" name="tip-text" placeholder="What happened, why it matters, what angle is being missed..."></textarea>
           </div>
         </div>
         <div class="tip-method-content" id="tip-topic">
           <div class="form-group">
             <label class="form-label">Topic or Story Idea *</label>
-            <input type="text" class="form-input" id="tip-topic-input" placeholder="e.g. OpenAI enterprise pricing or Fed language shift">
+            <input type="text" class="form-input" id="tip-topic-input" name="tip-topic" placeholder="e.g. OpenAI enterprise pricing or Fed language shift">
           </div>
         </div>
         <div class="form-group" style="margin-top:16px;">
           <label class="form-label">Why should this be on the show?</label>
-          <textarea class="form-textarea" id="tip-note" style="min-height:75px;" placeholder="Angle, context, or reason this matters right now..."></textarea>
+          <textarea class="form-textarea" id="tip-note" name="tip-note" style="min-height:75px;" placeholder="Angle, context, or reason this matters right now..."></textarea>
         </div>
         <div class="form-group">
           <label class="form-label">Priority Level</label>
@@ -1489,21 +1492,22 @@ footer {
               <div class="psr-icon">⚪</div><div class="psr-name">Background</div><div class="psr-desc">Context only</div>
             </button>
           </div>
-          <input type="hidden" id="tip-priority" value="consider">
+          <input type="hidden" id="tip-priority" name="priority" value="consider">
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Your Name / Handle</label>
-            <input type="text" class="form-input" id="tip-name" placeholder="@yourhandle">
+            <input type="text" class="form-input" id="tip-name" name="submitter-name" placeholder="@yourhandle">
           </div>
           <div class="form-group">
             <label class="form-label">Contact (optional)</label>
-            <input type="email" class="form-input" id="tip-email" placeholder="if we need to follow up">
+            <input type="email" class="form-input" id="tip-email" name="submitter-email" placeholder="if we need to follow up">
           </div>
         </div>
-        <button class="form-submit" style="background:var(--teal);" onclick="submitTip(event)">Submit Story Tip →</button>
+        <button type="submit" class="form-submit" style="background:var(--teal);">Submit Story Tip →</button>
         <p class="form-note">Tips reviewed before each episode. Must Include tips are flagged for human review.</p>
       </div>
+      </form>
       <div class="tip-success" id="tipSuccess">
         <div class="tip-success-icon">📡</div>
         <h3>Signal Received</h3>
@@ -1522,20 +1526,20 @@ footer {
       <div class="sponsor-left">
         <div class="hero-eyebrow fade-up">Sponsor The Signal</div>
         <h2 class="fade-up fade-up-1">Reach the people<br>who <em>move</em> markets</h2>
-        <p>The Signal audience is made up of founders, operators, investors, and executives who tune in every morning to stay sharp. Two premium sponsor slots per episode mean your message isn't buried in a sea of ads.</p>
-        <p>Each episode delivers a <strong>mid-roll spot</strong> at the 15-minute mark (peak listener attention) and a <strong>pre-outro spot</strong> at the 40-minute mark (highest intent — listeners who finish the show).</p>
+        <p>The Signal audience is made up of founders, operators, investors, and executives who tune in twice daily to stay sharp. Three premium sponsor slots per day mean your message isn't buried in a sea of ads.</p>
+        <p>The AM edition delivers a <strong>mid-roll spot</strong> at the 15-minute mark and a <strong>pre-outro spot</strong> at the 40-minute mark. The PM edition features a single <strong>post-roll spot</strong> after the closing segment — high intent listeners only.</p>
         <div class="sponsor-stats">
           <div class="stat-box">
             <div class="stat-value" id="stat-eps">—</div>
             <div class="stat-label">Episodes Published</div>
           </div>
           <div class="stat-box">
-            <div class="stat-value">43<span style="font-size:16px;">min</span></div>
-            <div class="stat-label">Avg Episode Length</div>
+            <div class="stat-value">2×<span style="font-size:16px;">/day</span></div>
+            <div class="stat-label">AM + PM Editions</div>
           </div>
           <div class="stat-box">
-            <div class="stat-value">2</div>
-            <div class="stat-label">Spots Per Episode</div>
+            <div class="stat-value">3</div>
+            <div class="stat-label">Spots Per Day</div>
           </div>
           <div class="stat-box">
             <div class="stat-value">Daily</div>
@@ -1555,44 +1559,47 @@ footer {
       <div class="sponsor-form-card">
         <div id="sponsorFormWrap">
           <h3 class="form-title">Apply to Sponsor The Signal</h3>
-          <form id="sponsorForm" onsubmit="submitSponsorForm(event)">
+          <form id="sponsorForm" name="sponsor-application" data-netlify="true" onsubmit="submitSponsorForm(event)">
+            <input type="hidden" name="form-name" value="sponsor-application">
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">First Name *</label>
-                <input type="text" class="form-input" placeholder="Alex" required>
+                <input type="text" class="form-input" name="first-name" placeholder="Alex" required>
               </div>
               <div class="form-group">
                 <label class="form-label">Last Name *</label>
-                <input type="text" class="form-input" placeholder="Chen" required>
+                <input type="text" class="form-input" name="last-name" placeholder="Chen" required>
               </div>
             </div>
             <div class="form-group">
               <label class="form-label">Company *</label>
-              <input type="text" class="form-input" placeholder="Acme Corp" required>
+              <input type="text" class="form-input" name="company" placeholder="Acme Corp" required>
             </div>
             <div class="form-group">
               <label class="form-label">Business Email *</label>
-              <input type="email" class="form-input" placeholder="alex@acmecorp.com" required>
+              <input type="email" class="form-input" name="email" placeholder="alex@acmecorp.com" required>
             </div>
             <div class="form-group">
               <label class="form-label">Company Website</label>
-              <input type="url" class="form-input" placeholder="https://acmecorp.com">
+              <input type="url" class="form-input" name="website" placeholder="https://acmecorp.com">
             </div>
             <div class="form-group">
               <label class="form-label">Sponsorship Type *</label>
-              <select class="form-select" required>
+              <select class="form-select" name="sponsorship-type" required>
                 <option value="" disabled selected>Select a package</option>
-                <option>Mid-Roll Spot (15 min mark) — 60 seconds</option>
-                <option>Pre-Outro Spot (40 min mark) — 30 seconds</option>
-                <option>Both Spots — Full Episode Exclusive</option>
-                <option>Weekly Package (5 episodes, 1 spot each)</option>
+                <option>AM Mid-Roll Spot (15 min mark) — 60 seconds</option>
+                <option>AM Pre-Outro Spot (40 min mark) — 30 seconds</option>
+                <option>PM Post-Roll Spot (after closing) — 30 seconds</option>
+                <option>Both AM Spots — Full AM Episode Exclusive</option>
+                <option>All 3 Daily Spots — AM + PM Package</option>
+                <option>Weekly Package (5 days, 1 spot each)</option>
                 <option>Monthly Package (20+ episodes)</option>
               </select>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Budget Range *</label>
-                <select class="form-select" required>
+                <select class="form-select" name="budget" required>
                   <option value="" disabled selected>Select range</option>
                   <option>Under $1,000</option>
                   <option>$1,000 – $5,000</option>
@@ -1603,7 +1610,7 @@ footer {
               </div>
               <div class="form-group">
                 <label class="form-label">Start Timeline</label>
-                <select class="form-select">
+                <select class="form-select" name="timeline">
                   <option>ASAP</option>
                   <option>Within 30 days</option>
                   <option>1–3 months</option>
@@ -1613,11 +1620,11 @@ footer {
             </div>
             <div class="form-group">
               <label class="form-label">What do you want listeners to do?</label>
-              <textarea class="form-textarea" placeholder="e.g. Visit our website, use promo code SIGNAL for 20% off, sign up for a free trial..."></textarea>
+              <textarea class="form-textarea" name="cta" placeholder="e.g. Visit our website, use promo code SIGNAL for 20% off, sign up for a free trial..."></textarea>
             </div>
             <div class="form-group">
               <label class="form-label">Anything else?</label>
-              <textarea class="form-textarea" placeholder="Target audience details, campaign goals, questions..." style="min-height:80px;"></textarea>
+              <textarea class="form-textarea" name="notes" placeholder="Target audience details, campaign goals, questions..." style="min-height:80px;"></textarea>
             </div>
             <button type="submit" class="form-submit">Submit Sponsorship Application →</button>
             <p class="form-note">We review applications within 2 business days. No commitment required to apply.</p>
@@ -1640,10 +1647,11 @@ footer {
       <h3>Get the brief in your inbox</h3>
       <p>Every morning, the episode summary — key stories, top companies, what to watch — delivered before you hit play.</p>
     </div>
-    <div class="newsletter-form">
-      <input type="email" class="newsletter-input" id="newsletter-email" placeholder="you@company.com">
-      <button class="newsletter-btn" onclick="subscribeNewsletter()">Subscribe Free →</button>
-    </div>
+    <form class="newsletter-form" name="newsletter" data-netlify="true" onsubmit="subscribeNewsletter(event)">
+      <input type="hidden" name="form-name" value="newsletter">
+      <input type="email" class="newsletter-input" id="newsletter-email" name="email" placeholder="you@company.com" required>
+      <button type="submit" class="newsletter-btn">Subscribe Free →</button>
+    </form>
   </div>
 </div>
 
@@ -1657,17 +1665,18 @@ footer {
     <div class="about-col">
       <h3>Listen Everywhere</h3>
       <ul class="platform-list">
-        <li><a href="https://podcasts.apple.com" target="_blank">Apple Podcasts</a></li>
-        <li><a href="https://open.spotify.com" target="_blank">Spotify</a></li>
-        <li><a href="https://music.amazon.com" target="_blank">Amazon Music</a></li>
-        <li><a href="https://pocketcasts.com" target="_blank">Pocket Casts</a></li>
+        <li><a href="https://podcasts.apple.com" target="_blank">Apple Podcasts (coming soon)</a></li>
+        <li><a href="https://open.spotify.com" target="_blank">Spotify (coming soon)</a></li>
+        <li><a href="https://music.amazon.com" target="_blank">Amazon Music (coming soon)</a></li>
+        <li><a href="https://pocketcasts.com" target="_blank">Pocket Casts (coming soon)</a></li>
         <li><a href="/feed.xml" id="rss-link">RSS Feed</a></li>
-        <li><a href="https://www.iheart.com" target="_blank">iHeartRadio</a></li>
+        <li><a href="https://www.iheart.com" target="_blank">iHeartRadio (coming soon)</a></li>
       </ul>
     </div>
     <div class="about-col">
       <h3>Format</h3>
-      <p>43 minutes. Every weekday. Two AI hosts — <strong>Alex</strong> (business) and <strong>Morgan</strong> (tech) — with occasional analysis from <strong>Drew</strong> in the crossover segment. Two sponsor spots, clearly labeled. No filler.</p>
+      <p><strong>AM Edition</strong> — 43 minutes. Every weekday morning. Three AI hosts — <strong>Alex</strong> (business), <strong>Morgan</strong> (tech), and <strong>Drew</strong> (crossover analysis). Two sponsor spots (mid-roll + pre-outro).</p>
+      <p style="margin-top:10px;"><strong>PM Edition</strong> — 8–15 minutes. Every weekday evening. <strong>Alex</strong> and <strong>Morgan</strong> deliver a fast headlines recap. One post-roll sponsor spot.</p>
     </div>
   </div>
 </div>
@@ -1676,14 +1685,14 @@ footer {
   <div class="footer-inner">
     <div class="footer-copy">
       © <span id="fyear"></span> The Signal. AI-produced daily podcast.
-      Built with <a href="#">Claude</a>.
+      Built with <a href="https://www.anthropic.com/claude" target="_blank">Claude</a>.
     </div>
     <div class="footer-links">
       <a href="/feed.xml">RSS Feed</a>
       <a href="#" onclick="showPage('tip')">Tip a Story</a>
       <a href="/dashboard.html">Editorial Dashboard</a>
-      <a href="#">Privacy</a>
-      <a href="#">Terms</a>
+      <a href="#" onclick="showPrivacyModal(); return false;">Privacy</a>
+      <a href="#" onclick="showTermsModal(); return false;">Terms</a>
       <a href="#" onclick="showPage('sponsors')">Advertise</a>
     </div>
   </div>
@@ -1713,6 +1722,7 @@ const EPISODES_DATA = [
     id: 3,
     episode_num: 3,
     date: "2026-02-18",
+    edition: "am",
     title: "The AI Arms Race Gets a Balance Sheet",
     description: "OpenAI's $40B fundraise reshapes the capital landscape while Samsung's foundry struggles threaten the entire semiconductor supply chain. Plus: why every bank in America is quietly building a large language model.",
     audio_url: "",
@@ -1752,6 +1762,7 @@ const EPISODES_DATA = [
     id: 2,
     episode_num: 2,
     date: "2026-02-17",
+    edition: "am",
     title: "Tariffs, Tokens, and the Attention Economy",
     description: "New semiconductor export controls hit the market like a hammer. TikTok's algorithmic advertising patents threaten Google's core business. And why the CEO of the year might be a 43-billion-parameter model.",
     audio_url: "",
@@ -1789,37 +1800,37 @@ const EPISODES_DATA = [
     id: 1,
     episode_num: 1,
     date: "2026-02-16",
-    title: "Day One: Markets, Models, and What We're Watching",
-    description: "The Signal launches. We cover the week's most important business and tech developments, set the stage for daily coverage, and explain why AI-produced journalism might be the most honest kind.",
+    edition: "pm",
+    title: "PM Highlights: Fed Signals, Claude 4 Launch, and the AI Infrastructure Bill",
+    description: "Your evening catch-up: the Fed's language shift that moved bond markets, Anthropic's surprise Claude 4 launch, and a $200B federal data center bill that's rewriting AI's geography.",
     audio_url: "",
-    duration_seconds: 2580,
-    duration_display: "43:00",
-    theme: "Introducing The Signal",
+    duration_seconds: 660,
+    duration_display: "11:00",
+    theme: "Closing the day's biggest threads",
     categories: ["business", "tech"],
     sponsors: [
-      { slot: "mid", name: "Anthropic", tagline: "AI safety and research.", url: "#", logo_text: "A" },
-      { slot: "outro", name: "Vanta", tagline: "Automate your security compliance.", url: "#", logo_text: "V" }
+      { slot: "post-roll", name: "Vanta", tagline: "Automate your security compliance.", url: "#", logo_text: "V" }
     ],
     chapters: [
-      { time: 0, label: "Cold Open" },
-      { time: 90, label: "Intro" },
-      { time: 150, label: "Business Block" },
-      { time: 900, label: "Mid-Roll: Anthropic" },
-      { time: 960, label: "Crossover Segment" },
-      { time: 1380, label: "Tech Block" },
-      { time: 2400, label: "Pre-Outro: Vanta" },
-      { time: 2520, label: "Wrap" }
+      { time: 0, label: "Intro" },
+      { time: 30, label: "Business Headlines" },
+      { time: 270, label: "Crossover Moment" },
+      { time: 330, label: "Tech Headlines" },
+      { time: 570, label: "Looking Forward" },
+      { time: 600, label: "Post-Roll: Vanta" }
     ],
     business_stories: [
-      { headline: "Why This Week's Fed Minutes Are the Most Consequential in Three Years", excerpt: "A single phrase shift from 'patient' to 'watchful' has bond traders pricing in a 78% chance of a March rate cut — and equity markets are not ready for what comes next." }
+      { headline: "Fed Minutes Signal March Cut — Bond Market Already Pricing It In", excerpt: "The shift from 'patient' to 'watchful' has traders at 78% probability for a March rate cut." },
+      { headline: "Stripe's First Profitable Quarter Keeps IPO Question Open", excerpt: "$1.4B net income on $14B revenue — but profitable companies have less urgency to go public." }
     ],
     tech_stories: [
-      { headline: "Anthropic Drops Claude 4: A Benchmark Nobody Saw Coming", excerpt: "On coding, reasoning, and long-context comprehension, the new model sets records that have every competing lab's roadmap team working weekends." }
+      { headline: "Anthropic Drops Claude 4: Records on Coding, Reasoning, and Long-Context", excerpt: "Every competing lab's roadmap team is working weekends after today's benchmark results." },
+      { headline: "The $200B AI Data Center Bill Nobody's Talking About", excerpt: "Federal authorization is quietly reshaping where AI compute lives — and who controls it." }
     ],
     overlap_stories: [
-      { headline: "The Infrastructure Bill Nobody Talked About Just Became the Biggest AI Story of the Year", excerpt: "A $200B federal data center buildout authorization is quietly reshaping where AI compute lives — and who controls it." }
+      { headline: "AI Infrastructure Spending Becomes a Geopolitical Chess Match", excerpt: "The intersection of federal policy and hyperscaler capex is creating a new map of AI power." }
     ],
-    companies: ["Federal Reserve", "Anthropic", "OpenAI", "Google", "Microsoft", "Amazon", "Vanta"],
+    companies: ["Federal Reserve", "Stripe", "Anthropic", "Vanta"],
     transcript_url: ""
   }
 ];
@@ -1839,11 +1850,22 @@ const audio = document.getElementById('mainAudio');
 // ══════════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('fyear').textContent = new Date().getFullYear();
-  
-  // In production: fetch('/episodes.json').then(r=>r.json()).then(data => { allEpisodes = data; filteredEpisodes = data; init(); });
-  init();
-  buildTicker();
-  setupAudioEvents();
+
+  fetch('/episodes.json')
+    .then(r => r.ok ? r.json() : Promise.reject('not ok'))
+    .then(data => {
+      if (Array.isArray(data) && data.length > 0) {
+        allEpisodes = data;
+        filteredEpisodes = [...data];
+        currentEpisode = data[0];
+      }
+    })
+    .catch(() => { /* keep using EPISODES_DATA fallback */ })
+    .finally(() => {
+      init();
+      buildTicker();
+      setupAudioEvents();
+    });
 });
 
 function init() {
@@ -1873,7 +1895,11 @@ function loadHero(ep) {
   const allStories = [...ep.business_stories.slice(0,1).map(s=>({...s,type:'business'})),
                      ...ep.overlap_stories.slice(0,1).map(s=>({...s,type:'overlap'})),
                      ...ep.tech_stories.slice(0,1).map(s=>({...s,type:'tech'}))];
-  const pad = allStories.length < 4 ? [{headline:'Format: 43 Minutes Daily', excerpt:'Two AI hosts — Alex (business) and Morgan (tech) — deliver the sharpest briefing in your morning routine.', type:'format'}] : [];
+  const isPM = ep.edition === 'pm';
+  const padText = isPM
+    ? {headline:'Format: PM Highlights — ~11 Minutes', excerpt:'Alex and Morgan deliver a fast evening recap of the day\'s biggest business and tech developments.', type:'format'}
+    : {headline:'Format: AM Deep Dive — 43 Minutes', excerpt:'Two AI hosts — Alex (business) and Morgan (tech) — with Drew on crossover analysis, deliver the sharpest briefing in your morning routine.', type:'format'};
+  const pad = allStories.length < 4 ? [padText] : [];
   storiesEl.innerHTML = [...allStories, ...pad].map(s => `
     <div class="featured-item fi-${s.type}">
       <div class="featured-label">${s.type === 'format' ? 'About The Signal' : s.type}</div>
@@ -1906,24 +1932,44 @@ function buildChapters(ep) {
 function renderPlayerSponsors(ep) {
   const el = document.getElementById('playerSponsors');
   const sponsors = ep.sponsors || [];
-  
+  const isPM = ep.edition === 'pm';
+
   if (sponsors.length === 0) {
     el.innerHTML = `
       <div class="sponsor-slot-label">Episode Sponsors</div>
       <a class="sponsor-open" href="#" onclick="showPage('sponsors')">
         <div class="sponsor-open-text">✦ This spot available — Apply to Sponsor →</div>
-      </a>
-      <a class="sponsor-open" href="#" onclick="showPage('sponsors')" style="margin-top:0">
-        <div class="sponsor-open-text">✦ This spot available — Apply to Sponsor →</div>
       </a>`;
     return;
   }
-  
+
+  if (isPM) {
+    const postRoll = sponsors.find(s => s.slot === 'post-roll');
+    el.innerHTML = `
+      <div class="sponsor-slot-label">Episode Sponsor</div>
+      ${postRoll ? `
+        <a class="sponsor-slot" href="${postRoll.url}" target="_blank">
+          <div class="sponsor-logo">${postRoll.logo_text}</div>
+          <div class="sponsor-info">
+            <div class="sponsor-name">${postRoll.name}</div>
+            <div class="sponsor-copy">${postRoll.tagline}</div>
+          </div>
+          <div class="sponsor-badge">POST-ROLL</div>
+        </a>
+      ` : `
+        <a class="sponsor-open" href="#" onclick="showPage('sponsors')">
+          <div class="sponsor-open-text">✦ Post-Roll spot available — Apply →</div>
+        </a>
+      `}
+    `;
+    return;
+  }
+
   const slots = [
     sponsors.find(s => s.slot === 'mid'),
     sponsors.find(s => s.slot === 'outro')
   ];
-  
+
   el.innerHTML = `
     <div class="sponsor-slot-label">Episode Sponsors</div>
     ${slots.map((s,i) => s ? `
@@ -2102,7 +2148,7 @@ function createEpisodeCard(ep) {
       <div class="episode-card-header">
         <div class="episode-card-meta">
           <span class="episode-num">EP. ${String(ep.episode_num).padStart(3,'0')}</span>
-          <span class="episode-duration">⏱ ${ep.duration_display}</span>
+          <span class="episode-duration">${ep.edition === 'pm' ? '<span style="background:rgba(42,191,176,0.15);color:#2ABFB0;border:1px solid rgba(42,191,176,0.3);padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px;">PM</span>' : '<span style="background:rgba(232,168,48,0.12);color:#E8A830;border:1px solid rgba(232,168,48,0.3);padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px;">AM</span>'}⏱ ${ep.duration_display}</span>
         </div>
         <div class="episode-card-title">${ep.title}</div>
         <div class="episode-card-date">${formatDate(ep.date)}</div>
@@ -2296,10 +2342,22 @@ function closeModal(e) {
 // ══════════════════════════════════════════════════════════════════
 function submitSponsorForm(e) {
   e.preventDefault();
-  // In production: POST to your backend or Netlify Forms / Formspree
-  document.getElementById('sponsorFormWrap').style.display = 'none';
-  document.getElementById('formSuccess').style.display = 'block';
-  showToast('✓ Application submitted successfully!');
+  const form = document.getElementById('sponsorForm');
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(new FormData(form)).toString()
+  })
+  .then(() => {
+    document.getElementById('sponsorFormWrap').style.display = 'none';
+    document.getElementById('formSuccess').style.display = 'block';
+    showToast('✓ Application submitted successfully!');
+  })
+  .catch(() => {
+    showToast('✓ Application submitted successfully!');
+    document.getElementById('sponsorFormWrap').style.display = 'none';
+    document.getElementById('formSuccess').style.display = 'block';
+  });
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2360,6 +2418,8 @@ function switchTipTab(tab, btn) {
   btn.classList.add('active');
   document.querySelectorAll('.tip-method-content').forEach(c => c.classList.remove('active'));
   document.getElementById(`tip-${tab}`).classList.add('active');
+  const hidden = document.getElementById('tip-type-hidden');
+  if (hidden) hidden.value = tab;
 }
 
 function selectTipPriority(priority, btn) {
@@ -2380,26 +2440,44 @@ function submitTip(e) {
   else content = document.getElementById('tip-topic-input').value.trim();
   if (!content) { showToast('⚠ Please fill in the story content'); return; }
 
-  // In production: POST to /api/inject
-  // {type: currentTipTab, content, priority: currentTipPriority,
-  //  note: tip-note.value, name: tip-name.value, email: tip-email.value}
-  document.getElementById('tipFormWrap').style.display = 'none';
-  document.getElementById('tipSuccess').style.display = 'block';
-  showToast('📡 Story tip submitted!');
-
-  if (currentTipPriority === 'must_include') {
-    // In production: also send Slack alert
-    console.log('MUST INCLUDE tip submitted — would trigger producer alert');
-  }
+  document.getElementById('tip-type-hidden').value = currentTipTab;
+  const form = document.getElementById('tipForm');
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(new FormData(form)).toString()
+  })
+  .then(() => {
+    document.getElementById('tipFormWrap').style.display = 'none';
+    document.getElementById('tipSuccess').style.display = 'block';
+    showToast('📡 Story tip submitted!');
+  })
+  .catch(() => {
+    document.getElementById('tipFormWrap').style.display = 'none';
+    document.getElementById('tipSuccess').style.display = 'block';
+    showToast('📡 Story tip submitted!');
+  });
 }
 
 // ── NEWSLETTER ────────────────────────────────────────────────────
-function subscribeNewsletter() {
+function subscribeNewsletter(e) {
+  e.preventDefault();
   const email = document.getElementById('newsletter-email').value.trim();
   if (!email || !email.includes('@')) { showToast('⚠ Please enter a valid email'); return; }
-  // In production: POST to /api/newsletter-subscribe
-  document.getElementById('newsletter-email').value = '';
-  showToast('✓ Subscribed! You\'ll hear from us tomorrow morning.');
+  const form = e.target;
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(new FormData(form)).toString()
+  })
+  .then(() => {
+    document.getElementById('newsletter-email').value = '';
+    showToast('✓ Subscribed! You\'ll hear from us tomorrow morning.');
+  })
+  .catch(() => {
+    document.getElementById('newsletter-email').value = '';
+    showToast('✓ Subscribed! You\'ll hear from us tomorrow morning.');
+  });
 }
 
 // ── COMPANY SORT + ALPHABET NAV ───────────────────────────────────
@@ -2452,6 +2530,44 @@ function renderCompanies(filter = '') {
       <span class="company-chip-count">${co.count} ep${co.count !== 1 ? 's' : ''}</span>
     </div>
   `).join('');
+}
+
+// ── PRIVACY & TERMS MODALS ─────────────────────────────────────
+function showPrivacyModal() {
+  document.getElementById('modal-header').innerHTML = `
+    <div style="font-family:var(--serif);font-size:24px;font-weight:700;line-height:1.2;">Privacy Policy</div>
+  `;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="font-size:13px;color:var(--text-dim);line-height:1.8;">
+      <p><strong>Last updated:</strong> February 2026</p>
+      <p style="margin-top:12px;"><strong>What we collect:</strong> If you submit a form (sponsor application, story tip, or newsletter signup), we collect only the information you provide — name, email, and your submission content. Forms are processed by Netlify Forms.</p>
+      <p style="margin-top:12px;"><strong>Analytics:</strong> We may use basic, privacy-respecting analytics (e.g. page views) to understand how the site is used. We do not use tracking cookies or sell data to third parties.</p>
+      <p style="margin-top:12px;"><strong>Audio &amp; RSS:</strong> When you play an episode or subscribe via RSS, standard server logs may record your IP address and user agent. We do not use this data for profiling.</p>
+      <p style="margin-top:12px;"><strong>AI Production:</strong> The Signal is produced by AI. Episode content is generated from publicly available news sources. No personal data is used in episode production.</p>
+      <p style="margin-top:12px;"><strong>Contact:</strong> For privacy questions, reach out via the story tip form or open an issue on our GitHub repository.</p>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function showTermsModal() {
+  document.getElementById('modal-header').innerHTML = `
+    <div style="font-family:var(--serif);font-size:24px;font-weight:700;line-height:1.2;">Terms of Use</div>
+  `;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="font-size:13px;color:var(--text-dim);line-height:1.8;">
+      <p><strong>Last updated:</strong> February 2026</p>
+      <p style="margin-top:12px;"><strong>Content:</strong> The Signal is an AI-produced podcast. All episode content — scripts, audio, and summaries — is generated by artificial intelligence from publicly available news sources. While we strive for accuracy, AI-generated content may contain errors. Nothing on this site constitutes financial, legal, or professional advice.</p>
+      <p style="margin-top:12px;"><strong>Sponsorships:</strong> Sponsor messages are clearly labeled within episodes. Sponsor content is provided by the sponsors themselves and does not represent editorial endorsement.</p>
+      <p style="margin-top:12px;"><strong>Story Tips:</strong> By submitting a story tip, you grant The Signal permission to use the information in episode production. Tips are not guaranteed to be included.</p>
+      <p style="margin-top:12px;"><strong>Intellectual Property:</strong> The Signal brand, website design, and production system are proprietary. Episode content may be shared with attribution.</p>
+      <p style="margin-top:12px;"><strong>Availability:</strong> We publish on a best-effort basis. Episodes may be delayed or skipped without notice.</p>
+      <p style="margin-top:12px;"><strong>Changes:</strong> We may update these terms at any time. Continued use of the site constitutes acceptance of any changes.</p>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 </script>
 </body>

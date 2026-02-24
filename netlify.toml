@@ -1,2 +1,8 @@
 [build]
   publish = "website"
+
+[[headers]]
+  for = "/episodes.json"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Cache-Control = "public, max-age=300"
