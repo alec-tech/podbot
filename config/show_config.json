@@ -2,9 +2,8 @@
   "show": {
     "name": "The Signal",
     "tagline": "Twice-daily business and tech intelligence",
-    "description": "Every weekday: two episodes. The 4 AM edition recaps yesterday and covers overnight news. The 1 PM edition covers the morning. 43 minutes each. No filler.",
+    "description": "Every weekday: two episodes. The 4 AM edition recaps yesterday and covers overnight news (43 min). The 1 PM edition is a quick highlights reel of the morning (11 min). No filler.",
     "host_names": ["Alex Chen", "Morgan Lee", "Drew Vasquez"],
-    "target_duration_minutes": 43,
     "sponsor_slots": 2,
     "language": "en",
     "explicit": false,
@@ -14,6 +13,9 @@
       "am": {
         "publish_time_est": "04:00",
         "publish_time_utc": "09:00",
+        "target_duration_minutes": 43,
+        "min_duration_minutes": 40,
+        "max_duration_minutes": 46,
         "sponsor_slot_1_time": "07:30",
         "sponsor_slot_2_time": "40:00",
         "title_format": "{date} AM - {hook}",
@@ -23,8 +25,10 @@
       "pm": {
         "publish_time_est": "13:00",
         "publish_time_utc": "18:00",
-        "sponsor_slot_1_time": "15:00",
-        "sponsor_slot_2_time": "40:00",
+        "target_duration_minutes": 11,
+        "min_duration_minutes": 8,
+        "max_duration_minutes": 15,
+        "sponsor_slot_1_time": "10:00",
         "title_format": "{date} PM - {hook}",
         "news_window_hours": 10,
         "includes_recap": false
@@ -65,8 +69,10 @@
     "silence_between_lines_seconds": 0.35
   },
   "pipeline": {
-    "min_duration_minutes": 40,
-    "max_duration_minutes": 48,
+    "am_min_duration_minutes": 40,
+    "am_max_duration_minutes": 48,
+    "pm_min_duration_minutes": 8,
+    "pm_max_duration_minutes": 15,
     "retry_attempts": 3,
     "story_cooldown_days": 3,
     "fallback_to_previous_brief": true,

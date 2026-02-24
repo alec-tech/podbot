@@ -134,7 +134,13 @@ def run_pipeline(
     # ═══════════════════════════════════════════════════════════════════════════
     # STAGE 2: SCRIPT
     # ═══════════════════════════════════════════════════════════════════════════
-    log.info(f"\n✍️  STAGE 2: Writing 43-min {edition_label} script...")
+    # Edition-aware duration targets
+    if edition == "pm":
+        script_target, script_min, script_max = 11, 8, 15
+    else:
+        script_target, script_min, script_max = 43, 40, 46
+
+    log.info(f"\n✍️  STAGE 2: Writing {script_target}-min {edition_label} script...")
     writer = ScriptwriterAgent()
     try:
         script = writer.run(brief, episode_num, episode_date, edition)
@@ -142,10 +148,10 @@ def run_pipeline(
         _save_text(script["full_script"], script_path)
         est = script.get("estimated_minutes", 0)
         log.info(f"  ✅ Script: {est:.1f} min estimated")
-        if est < 40:
-            log.warning(f"  ⚠️  {40 - est:.1f} min short of target")
-        elif est > 46:
-            log.warning(f"  ⚠️  {est - 43:.1f} min over target")
+        if est < script_min:
+            log.warning(f"  ⚠️  {script_min - est:.1f} min short of target")
+        elif est > script_max:
+            log.warning(f"  ⚠️  {est - script_target:.1f} min over target")
         else:
             log.info(f"  ✅ Duration QA passed")
     except Exception as e:
@@ -165,14 +171,16 @@ def run_pipeline(
     else:
         log.info(f"\n🎧 STAGE 3: Producing audio...")
         producer = VoiceProducerAgent()
+        audio_min_dur = 5 if edition == "pm" else 25
+        audio_max_dur = 18 if edition == "pm" else 48
         try:
             audio_path = producer.run(script, episode_date, edition)
             dur_min = producer.get_duration(audio_path) / 60
             log.info(f"  ✅ Audio: {audio_path} ({dur_min:.1f} min)")
-            if dur_min < 25:
+            if dur_min < audio_min_dur:
                 _send_alert(f"{edition_label} Ep {episode_num} audio too short ({dur_min:.1f} min)")
                 raise ValueError("Audio too short")
-            elif dur_min > 48:
+            elif dur_min > audio_max_dur:
                 log.warning(f"  ⚠️  Slightly long ({dur_min:.1f} min) — publishing anyway")
         except Exception as e:
             log.error(f"  ❌ Audio failed: {e}")
