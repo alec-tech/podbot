@@ -782,6 +782,50 @@ body {
 .edition-checkbox-grid input[type="checkbox"] {
   accent-color: var(--green);
 }
+/* ── SETTINGS + GITHUB SYNC ── */
+.gh-sync-status {
+  font-family: var(--mono);
+  font-size: 10px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.gh-sync-status.connected { color: var(--green); background: var(--green-dim); }
+.gh-sync-status.disconnected { color: var(--text-mute); background: rgba(107,122,153,0.08); }
+.gh-sync-status.syncing { color: var(--amber); background: var(--amber-dim); }
+.gh-sync-status.error { color: var(--red); background: var(--red-dim); }
+.settings-field { margin-bottom: 14px; }
+.settings-field label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.settings-field input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 8px 10px;
+  outline: none;
+}
+.settings-field input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px var(--green-dim);
+}
+.settings-field .hint {
+  font-size: 10px;
+  color: var(--text-mute);
+  margin-top: 4px;
+  line-height: 1.5;
+}
 </style>
 </head>
 
@@ -821,6 +865,9 @@ body {
       </button>
       <button class="nav-item" onclick="showSection('history', this)">
         <span class="nav-icon">📁</span> Recent Episodes
+      </button>
+      <button class="nav-item" onclick="showSection('settings', this)" id="nav-settings">
+        <span class="nav-icon">⚙</span> Settings
       </button>
     </div>
 
@@ -1024,6 +1071,48 @@ body {
         </div>
       </div>
     </div>
+
+    <!-- SETTINGS VIEW -->
+    <div class="panel-section" id="section-settings">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Settings</div>
+          <div class="panel-subtitle">Configure GitHub sync for sponsor persistence</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div style="max-width:520px;">
+          <div id="gh-connection-status"></div>
+          <div style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);margin-bottom:16px;">GitHub Integration</div>
+          <div style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:16px;">
+            Connect to GitHub to persist sponsor changes directly to your repo. The pipeline will pick up changes on its next run.
+          </div>
+          <div class="settings-field">
+            <label>GitHub Repository</label>
+            <input type="text" id="gh-repo" placeholder="owner/repo (e.g. alec-tech/the-signal)" />
+            <div class="hint">The repo where data/sponsors.json lives</div>
+          </div>
+          <div class="settings-field">
+            <label>Personal Access Token</label>
+            <input type="password" id="gh-token" placeholder="ghp_..." />
+            <div class="hint">
+              Needs "Contents: Read and write" scope only.
+              Create one at GitHub → Settings → Developer settings → Fine-grained tokens.
+              Stored in your browser's localStorage only — never sent anywhere except the GitHub API.
+            </div>
+          </div>
+          <div class="settings-field">
+            <label>Branch</label>
+            <input type="text" id="gh-branch" placeholder="main" />
+            <div class="hint">Branch to commit sponsor changes to (default: main)</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px;">
+            <button class="btn btn-primary" onclick="saveGitHubSettings()">Save Settings</button>
+            <button class="btn btn-ghost" onclick="testGitHubConnection()">Test Connection</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ── RIGHT PANEL ── -->
@@ -1039,6 +1128,7 @@ body {
 
     <div class="right-section">
       <div class="right-section-title">Active Sponsors</div>
+      <div id="gh-sync-indicator"></div>
       <div id="sponsor-summary">
         <div style="color:var(--text-mute);font-family:var(--mono);font-size:11px;text-align:center;padding:10px 0;">
           No active sponsors
@@ -1088,6 +1178,7 @@ let episodeNum = parseInt(localStorage.getItem('ep_num') || '1');
 let briefData = null;
 let sponsors = [];
 let editingSponsorIdx = null;
+let ghSettings = JSON.parse(localStorage.getItem('gh_settings') || '{}');
 
 const SAMPLE_BRIEF = {
   episode_date: new Date().toISOString().split('T')[0],
@@ -1294,6 +1385,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .finally(() => {
       renderQueue();
       loadSponsors();
+      initGitHubSettings();
       log_('info', 'Dashboard initialized');
       log_('info', `${injectionQueue.length} stories in injection queue`);
     });
@@ -1566,6 +1658,29 @@ function exportBrief() {
 // SPONSORS
 // ══════════════════════════════════════════════════════════════════
 function loadSponsors() {
+  // Try GitHub API first (source of truth), then local file, then localStorage
+  if (isGitHubConfigured()) {
+    const { repo, token, branch } = ghSettings;
+    fetch(`https://api.github.com/repos/${repo}/contents/data/sponsors.json?ref=${branch}`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    })
+    .then(r => r.ok ? r.json() : Promise.reject('not ok'))
+    .then(data => {
+      const content = JSON.parse(atob(data.content));
+      sponsors = content.sponsors || [];
+      localStorage.setItem('sponsors', JSON.stringify(sponsors));
+      renderSponsors();
+      updateSponsorBadge();
+      renderSponsorSummary();
+      log_('success', `Loaded ${sponsors.length} sponsor(s) from GitHub (${repo})`);
+    })
+    .catch(() => loadSponsorsLocal());
+  } else {
+    loadSponsorsLocal();
+  }
+}
+
+function loadSponsorsLocal() {
   fetch('/data/sponsors.json')
     .then(r => r.ok ? r.json() : Promise.reject('not ok'))
     .then(data => {
@@ -1765,6 +1880,7 @@ function saveSponsor() {
   renderSponsors();
   updateSponsorBadge();
   renderSponsorSummary();
+  pushSponsorsToGitHub();
 }
 
 function deleteSponsor(idx) {
@@ -1775,6 +1891,7 @@ function deleteSponsor(idx) {
   renderSponsors();
   updateSponsorBadge();
   renderSponsorSummary();
+  pushSponsorsToGitHub();
   log_('warn', `Deleted sponsor: ${name}`);
   toast(`🗑 Sponsor "${name}" deleted`, 'warn');
 }
@@ -1785,6 +1902,7 @@ function toggleSponsorActive(idx) {
   renderSponsors();
   updateSponsorBadge();
   renderSponsorSummary();
+  pushSponsorsToGitHub();
   const status = sponsors[idx].active ? 'activated' : 'deactivated';
   log_('info', `Sponsor ${sponsors[idx].name} ${status}`);
   toast(`${sponsors[idx].active ? '✓' : '⏸'} ${sponsors[idx].name} ${status}`, 'info');
@@ -1829,6 +1947,132 @@ function exportSponsors() {
   a.click();
   toast('↓ sponsors.json exported', 'info');
   log_('info', 'Exported sponsors.json');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// GITHUB SYNC
+// ══════════════════════════════════════════════════════════════════
+function isGitHubConfigured() {
+  return ghSettings.repo && ghSettings.token;
+}
+
+function initGitHubSettings() {
+  const repoEl = document.getElementById('gh-repo');
+  const tokenEl = document.getElementById('gh-token');
+  const branchEl = document.getElementById('gh-branch');
+  if (repoEl) repoEl.value = ghSettings.repo || '';
+  if (tokenEl) tokenEl.value = ghSettings.token || '';
+  if (branchEl) branchEl.value = ghSettings.branch || 'main';
+  updateGitHubSyncIndicator();
+}
+
+function saveGitHubSettings() {
+  ghSettings = {
+    repo: document.getElementById('gh-repo').value.trim(),
+    token: document.getElementById('gh-token').value.trim(),
+    branch: document.getElementById('gh-branch').value.trim() || 'main',
+  };
+  localStorage.setItem('gh_settings', JSON.stringify(ghSettings));
+  updateGitHubSyncIndicator();
+  toast('Settings saved', 'success');
+  log_('success', `GitHub sync configured: ${ghSettings.repo} (${ghSettings.branch})`);
+}
+
+function updateGitHubSyncIndicator() {
+  const el = document.getElementById('gh-sync-indicator');
+  const statusEl = document.getElementById('gh-connection-status');
+  if (isGitHubConfigured()) {
+    if (el) el.innerHTML = `<div class="gh-sync-status connected">● GitHub sync active — ${ghSettings.repo}</div>`;
+    if (statusEl) statusEl.innerHTML = `<div class="gh-sync-status connected" style="margin-bottom:16px;">● Connected to ${ghSettings.repo}</div>`;
+  } else {
+    if (el) el.innerHTML = `<div class="gh-sync-status disconnected">○ GitHub sync not configured — <a href="#" onclick="showSection('settings', document.getElementById('nav-settings'));return false;" style="color:var(--blue);">Set up</a></div>`;
+    if (statusEl) statusEl.innerHTML = `<div class="gh-sync-status disconnected" style="margin-bottom:16px;">○ Not connected</div>`;
+  }
+}
+
+async function testGitHubConnection() {
+  const repo = document.getElementById('gh-repo').value.trim();
+  const token = document.getElementById('gh-token').value.trim();
+  const branch = document.getElementById('gh-branch').value.trim() || 'main';
+  if (!repo || !token) {
+    toast('Enter repo and token first', 'warn');
+    return;
+  }
+  const statusEl = document.getElementById('gh-connection-status');
+  statusEl.innerHTML = `<div class="gh-sync-status syncing" style="margin-bottom:16px;">⟳ Testing connection...</div>`;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/data/sponsors.json?ref=${branch}`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const content = JSON.parse(atob(data.content));
+      const count = (content.sponsors || []).length;
+      statusEl.innerHTML = `<div class="gh-sync-status connected" style="margin-bottom:16px;">● Connected — found ${count} sponsor(s) in repo</div>`;
+      toast('GitHub connection successful', 'success');
+      log_('success', `GitHub test passed: ${repo} — ${count} sponsors found`);
+    } else if (res.status === 404) {
+      statusEl.innerHTML = `<div class="gh-sync-status error" style="margin-bottom:16px;">✕ data/sponsors.json not found in ${repo}. It will be created on first save.</div>`;
+      toast('File not found — will be created on first save', 'warn');
+    } else {
+      const err = await res.json();
+      statusEl.innerHTML = `<div class="gh-sync-status error" style="margin-bottom:16px;">✕ ${res.status}: ${err.message || 'Auth failed'}</div>`;
+      toast(`GitHub error: ${err.message || res.status}`, 'error');
+    }
+  } catch (e) {
+    statusEl.innerHTML = `<div class="gh-sync-status error" style="margin-bottom:16px;">✕ Network error: ${e.message}</div>`;
+    toast('Connection failed', 'error');
+  }
+}
+
+async function pushSponsorsToGitHub() {
+  if (!isGitHubConfigured()) return;
+  const { repo, token, branch } = ghSettings;
+  const indicator = document.getElementById('gh-sync-indicator');
+  if (indicator) indicator.innerHTML = `<div class="gh-sync-status syncing">⟳ Syncing to GitHub...</div>`;
+
+  try {
+    // Get current file SHA (needed for updates)
+    let sha = null;
+    const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/data/sponsors.json?ref=${branch}`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (getRes.ok) {
+      const existing = await getRes.json();
+      sha = existing.sha;
+    }
+
+    // PUT the updated file
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify({ sponsors }, null, 2) + '\n')));
+    const body = {
+      message: `Update sponsors — ${sponsors.filter(s => s.active).length} active`,
+      content,
+      branch,
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/data/sponsors.json`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (putRes.ok) {
+      if (indicator) indicator.innerHTML = `<div class="gh-sync-status connected">● Synced to GitHub — ${ghSettings.repo}</div>`;
+      log_('success', 'Sponsors synced to GitHub');
+    } else {
+      const err = await putRes.json();
+      throw new Error(err.message || putRes.status);
+    }
+  } catch (e) {
+    if (indicator) indicator.innerHTML = `<div class="gh-sync-status error">✕ Sync failed: ${e.message} — <a href="#" onclick="pushSponsorsToGitHub();return false;" style="color:var(--blue);">Retry</a></div>`;
+    log_('error', `GitHub sync failed: ${e.message}`);
+    toast(`GitHub sync failed: ${e.message}`, 'error');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
