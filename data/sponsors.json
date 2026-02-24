@@ -65,8 +65,26 @@
         "am",
         "pm"
       ],
-      "voice": "alex",
+      "voice": "morgan",
       "script": "Thanks to our sponsors at Seacore laxatives. There are many laxative options you can choose from, and they all do the same thing. Choose Seacore because they sponsor this pod! Remember, when the going gets rough, take Seacore.",
+      "start_date": "2026-02-24",
+      "end_date": "2026-03-31",
+      "active": true
+    },
+    {
+      "id": "sterling-cooper-1771971249648",
+      "name": "Sterling Cooper",
+      "tagline": "",
+      "product_description": "",
+      "cta": "",
+      "url": "",
+      "slot": "outro",
+      "editions": [
+        "am",
+        "pm"
+      ],
+      "voice": "alex",
+      "script": "Thanks to Sterling-Cooper-Draper-Pryce for sponsoring today's episode. Everyone knows finding an Ad Man is as easy as opening the phone book, but we want you to consider Sterling-Cooper-Draper-Pryce because they bought this air-time.",
       "start_date": "2026-02-24",
       "end_date": "2026-03-31",
       "active": true
