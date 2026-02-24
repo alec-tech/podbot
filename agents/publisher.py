@@ -91,7 +91,10 @@ Return as JSON."""
         with open(audio_path, 'rb') as audio_file:
             response = requests.post(
                 base_url,
-                headers={"Authorization": f"Token token={api_key}"},
+                headers={
+                    "Authorization": f"Token token={api_key}",
+                    "User-Agent": "TheSignal/1.0",
+                },
                 data={
                     "title": metadata.get("TITLE", "New Episode"),
                     "description": metadata.get("DESCRIPTION", ""),
