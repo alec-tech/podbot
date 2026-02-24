@@ -1,18 +1,56 @@
 {
   "sponsors": [
     {
-      "id": "notion-q1-2026",
-      "name": "Notion",
-      "tagline": "Build your company wiki, beautifully.",
-      "product_description": "Notion is the all-in-one workspace for docs, projects, and knowledge management.",
-      "cta": "Try Notion free at notion.so/signal",
-      "url": "https://notion.so/signal",
-      "slot": "mid",
-      "editions": ["am"],
-      "voice": "alex",
-      "script": "Quick break to tell you about our friends at Notion. If your team's docs are scattered across Google Docs, Confluence, and random Slack messages — Notion puts it all in one place. Company wiki, project trackers, meeting notes — beautifully organized and actually searchable. Try Notion free at notion.so/signal.",
+      "id": "seacore-laxitives-1771970003029",
+      "name": "Seacore Laxitives",
+      "tagline": "When the going gets rough, take Seacore",
+      "product_description": "There are many laxative options you can choose from, and they all do the same thing. Choose Seacore because they sponsor this pod!",
+      "cta": "",
+      "url": "",
+      "slot": "outro",
+      "editions": [
+        "am",
+        "pm"
+      ],
+      "voice": "morgan",
+      "script": "Thanks to our sponsors at Seacore laxatives. There are many laxative options you can choose from, and they all do the same thing. Choose Seacore because they sponsor this pod! Remember, when the going gets rough, take Seacore.",
       "start_date": "2026-02-24",
-      "end_date": "2026-03-24",
+      "end_date": "2026-03-31",
+      "active": true
+    },
+    {
+      "id": "sterling-cooper-1771970182627",
+      "name": "Sterling Cooper",
+      "tagline": "",
+      "product_description": "",
+      "cta": "",
+      "url": "",
+      "slot": "mid",
+      "editions": [
+        "am"
+      ],
+      "voice": "alex",
+      "script": "Thanks to Sterling-Cooper-Draper-Pryce for sponsoring today's episode. Everyone knows finding an Ad Man is as easy as opening the phone book, but we want you to consider Sterling-Cooper-Draper-Pryce because they bought this air-time.",
+      "start_date": "2026-02-24",
+      "end_date": "2026-03-31",
+      "active": true
+    },
+    {
+      "id": "mohawk-airlines-1771970334235",
+      "name": "Mohawk Airlines",
+      "tagline": "",
+      "product_description": "",
+      "cta": "",
+      "url": "",
+      "slot": "post-roll",
+      "editions": [
+        "am",
+        "pm"
+      ],
+      "voice": "alex",
+      "script": "A big \"thank you\" to Mohawk Airlines. Are you flying from Cincinatti to Debuke, or maybe Cincinatti to Wapakoneta? Either way, if you find yourself needing to fly somewhere in the midwest from Cincinatti, consider Mohawk Airlines.",
+      "start_date": "2026-02-24",
+      "end_date": "2026-03-31",
       "active": true
     }
   ]
