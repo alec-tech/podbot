@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Signal — Editorial Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:        #0A0C10;
+  --panel:     #0F1117;
+  --panel2:    #161A24;
+  --border:    #1E2333;
+  --border2:   #2A3147;
+  --green:     #00D26A;
+  --green-dim: rgba(0,210,106,0.12);
+  --amber:     #FFB700;
+  --amber-dim: rgba(255,183,0,0.12);
+  --red:       #FF4444;
+  --red-dim:   rgba(255,68,68,0.12);
+  --blue:      #4D9EFF;
+  --blue-dim:  rgba(77,158,255,0.12);
+  --purple:    #B89EFF;
+  --text:      #E2E8F0;
+  --text-dim:  #6B7A99;
+  --text-mute: #3A4460;
+  --mono:      'IBM Plex Mono', monospace;
+  --sans:      'IBM Plex Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-left {
+  display: flex; align-items: center; gap: 20px;
+}
+.topbar-logo {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: 0.08em;
+  display: flex; align-items: center; gap: 8px;
+}
+.topbar-logo::before {
+  content: '◆';
+  font-size: 10px;
+}
+.topbar-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+.topbar-right {
+  display: flex; align-items: center; gap: 12px;
+}
+.ep-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--amber);
+  background: var(--amber-dim);
+  border: 1px solid rgba(255,183,0,0.25);
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+}
+.status-dot {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11px;
+  color: var(--text-dim);
+}
+.status-dot::before {
+  content: '';
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: blink 3s ease-in-out infinite;
+}
+@keyframes blink {
+  0%, 80%, 100% { opacity: 1; }
+  40% { opacity: 0.3; }
+}
+.btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 7px 16px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+.btn-primary { background: var(--green); color: #000; }
+.btn-primary:hover { background: #00F07A; }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+}
+.btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
+.btn-danger { background: var(--red-dim); border: 1px solid rgba(255,68,68,0.3); color: var(--red); }
+.btn-danger:hover { background: rgba(255,68,68,0.2); }
+.btn-amber { background: var(--amber); color: #000; }
+.btn-amber:hover { background: #FFC930; }
+.btn-sm { padding: 4px 10px; font-size: 10px; }
+
+/* ── MAIN LAYOUT ── */
+.main {
+  display: grid;
+  grid-template-columns: 280px 1fr 340px;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.sidebar-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-mute);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 13px;
+  color: var(--text-dim);
+  border: none; background: none; width: 100%;
+  text-align: left;
+}
+.nav-item:hover { background: var(--panel2); color: var(--text); }
+.nav-item.active { background: var(--green-dim); color: var(--green); }
+.nav-item .nav-icon {
+  font-size: 14px; width: 18px; text-align: center;
+}
+.nav-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10px;
+  background: var(--red);
+  color: #fff;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.pipeline-steps {
+  display: flex; flex-direction: column; gap: 3px;
+}
+.pipeline-step {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.step-num {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  color: var(--text-mute);
+  flex-shrink: 0;
+}
+.pipeline-step.done .step-num { background: var(--green); border-color: var(--green); color: #000; }
+.pipeline-step.active .step-num { background: var(--amber); border-color: var(--amber); color: #000; animation: stepPulse 1.5s ease-in-out infinite; }
+.pipeline-step.pending .step-num { color: var(--text-mute); }
+@keyframes stepPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,183,0,0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(255,183,0,0); }
+}
+.step-label { color: var(--text-dim); font-size: 11px; }
+.pipeline-step.done .step-label { color: var(--green); }
+.pipeline-step.active .step-label { color: var(--amber); }
+.inject-count-ring {
+  width: 100%;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  overflow: hidden;
+}
+.ring-cell {
+  background: var(--panel2);
+  padding: 10px 6px;
+  text-align: center;
+}
+.ring-num {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.ring-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ring-must { color: var(--red); }
+.ring-consider { color: var(--amber); }
+.ring-bg { color: var(--text-dim); }
+
+/* ── CENTER PANEL ── */
+.center {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.panel-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg);
+}
+.panel-title {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.panel-subtitle {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+.panel-section { display: none; }
+.panel-section.active { display: flex; flex-direction: column; flex: 1; }
+.section-body { padding: 20px 24px; flex: 1; }
+
+/* ── BRIEF CARDS ── */
+.brief-theme {
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  border-left: 3px solid var(--green);
+  line-height: 1.5;
+}
+.brief-theme span {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--green);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 6px;
+}
+.story-block {
+  margin-bottom: 24px;
+}
+.block-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.block-label::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: var(--border);
+}
+.bl-business { color: var(--amber); }
+.bl-overlap  { color: var(--purple); }
+.bl-tech     { color: var(--blue); }
+.story-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.story-card:hover { border-color: var(--border2); }
+.story-card.injected { border-left: 3px solid var(--green); }
+.story-card.must-include { border-left: 3px solid var(--red); }
+.story-card-head {
+  padding: 12px 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+  cursor: pointer;
+}
+.story-type-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.tb-deep    { background: rgba(255,183,0,0.15); color: var(--amber); }
+.tb-medium  { background: rgba(77,158,255,0.12); color: var(--blue); }
+.tb-quick   { background: rgba(107,122,153,0.15); color: var(--text-dim); }
+.tb-inject  { background: var(--green-dim); color: var(--green); }
+.story-headline {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+  line-height: 1.4;
+}
+.story-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.story-actions {
+  display: flex; gap: 6px; margin-left: auto;
+  flex-shrink: 0;
+}
+.story-expand {
+  padding: 0 16px 14px;
+  border-top: 1px solid var(--border);
+  display: none;
+}
+.story-expand.open { display: block; padding-top: 14px; }
+.story-field { margin-bottom: 10px; }
+.story-field-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-mute);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.story-field-val {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.talking-points { list-style: none; }
+.talking-points li {
+  padding: 4px 0;
+  padding-left: 14px;
+  position: relative;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.talking-points li::before {
+  content: '→';
+  position: absolute; left: 0;
+  color: var(--text-mute);
+  font-size: 10px;
+}
+.est-min-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--blue);
+  background: var(--blue-dim);
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-left: 8px;
+}
+
+/* ── INJECT PANEL ── */
+.inject-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.inject-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.inject-tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  background: none; border-top: none; border-left: none; border-right: none;
+  border-bottom: 2px solid transparent;
+}
+.inject-tab.active { color: var(--green); border-bottom-color: var(--green); }
+.inject-tab:hover:not(.active) { color: var(--text); background: var(--panel2); }
+.inject-body { padding: 20px; }
+.inject-form-group { margin-bottom: 16px; }
+.inject-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+.inject-input, .inject-textarea, .inject-select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  resize: vertical;
+}
+.inject-input:focus, .inject-textarea:focus, .inject-select:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px var(--green-dim);
+}
+.inject-textarea { min-height: 90px; line-height: 1.6; }
+.inject-select { cursor: pointer; -webkit-appearance: none; }
+.priority-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+}
+.priority-opt {
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 10px 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.priority-opt input { display: none; }
+.priority-opt:has(input:checked) { border-color: currentColor; }
+.priority-opt-must  { color: var(--red); }
+.priority-opt-must:has(input:checked) { background: var(--red-dim); }
+.priority-opt-consider { color: var(--amber); }
+.priority-opt-consider:has(input:checked) { background: var(--amber-dim); }
+.priority-opt-bg { color: var(--text-dim); }
+.priority-opt-bg:has(input:checked) { background: rgba(107,122,153,0.12); }
+.priority-icon { font-size: 18px; margin-bottom: 4px; }
+.priority-name {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.priority-desc { font-size: 10px; color: var(--text-mute); margin-top: 3px; }
+.inject-submit {
+  width: 100%;
+  background: var(--green);
+  color: #000;
+  border: none;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background 0.15s;
+}
+.inject-submit:hover { background: #00F07A; }
+.inject-content { display: none; }
+.inject-content.active { display: block; }
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.right-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.right-section-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.queue-item {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.queue-item::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.qi-must::before { background: var(--red); }
+.qi-consider::before { background: var(--amber); }
+.qi-background::before { background: var(--text-mute); }
+.qi-headline {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 5px;
+  padding-left: 0;
+}
+.qi-meta {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap;
+}
+.qi-priority {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.qp-must    { color: var(--red);    background: var(--red-dim); }
+.qp-consider { color: var(--amber); background: var(--amber-dim); }
+.qp-background { color: var(--text-dim); background: rgba(107,122,153,0.1); }
+.qi-by {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-mute);
+}
+.qi-remove {
+  position: absolute; top: 8px; right: 8px;
+  background: none; border: none;
+  color: var(--text-mute);
+  cursor: pointer; font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: color 0.15s, background 0.15s;
+}
+.qi-remove:hover { color: var(--red); background: var(--red-dim); }
+.run-controls { display: flex; flex-direction: column; gap: 8px; }
+.run-option {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+.run-option-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.run-option-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.log-window {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.8;
+  max-height: 280px;
+  overflow-y: auto;
+  color: var(--text-dim);
+}
+.log-line { display: flex; gap: 10px; }
+.log-time { color: var(--text-mute); flex-shrink: 0; }
+.log-msg.info  { color: var(--text-dim); }
+.log-msg.success { color: var(--green); }
+.log-msg.warn  { color: var(--amber); }
+.log-msg.error { color: var(--red); }
+
+/* ── TOAST ── */
+.toast-stack {
+  position: fixed; bottom: 20px; right: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 999;
+}
+.toast {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+  display: flex; align-items: center; gap: 10px;
+  transform: translateX(120%);
+  transition: transform 0.3s ease;
+  min-width: 260px;
+  max-width: 360px;
+}
+.toast.show { transform: translateX(0); }
+.toast-icon { font-size: 14px; flex-shrink: 0; }
+</style>
+</head>
+
+<body>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">The Signal</div>
+    <div class="topbar-title">Editorial Dashboard</div>
+  </div>
+  <div class="topbar-right">
+    <div class="ep-badge" id="ep-badge">EP. —</div>
+    <div class="status-dot" id="status-dot">Ready</div>
+    <button class="btn btn-ghost btn-sm" onclick="refreshBrief()">↺ Refresh Brief</button>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigation</div>
+      <button class="nav-item active" onclick="showSection('brief', this)" id="nav-brief">
+        <span class="nav-icon">📋</span> Today's Brief
+      </button>
+      <button class="nav-item" onclick="showSection('inject', this)" id="nav-inject">
+        <span class="nav-icon">💉</span> Inject Story
+        <span class="nav-badge" id="inject-badge" style="display:none;">0</span>
+      </button>
+      <button class="nav-item" onclick="showSection('history', this)">
+        <span class="nav-icon">📁</span> Recent Episodes
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Today's Pipeline</div>
+      <div class="pipeline-steps" id="pipeline-steps">
+        <div class="pipeline-step done">
+          <div class="step-num">✓</div>
+          <div class="step-label">Curation</div>
+        </div>
+        <div class="pipeline-step active">
+          <div class="step-num">2</div>
+          <div class="step-label">Brief Review</div>
+        </div>
+        <div class="pipeline-step pending">
+          <div class="step-num">3</div>
+          <div class="step-label">Script</div>
+        </div>
+        <div class="pipeline-step pending">
+          <div class="step-num">4</div>
+          <div class="step-label">Audio</div>
+        </div>
+        <div class="pipeline-step pending">
+          <div class="step-num">5</div>
+          <div class="step-label">Publish</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Injection Queue</div>
+      <div class="inject-count-ring">
+        <div class="ring-cell">
+          <div class="ring-num ring-must" id="count-must">0</div>
+          <div class="ring-label ring-must">Must</div>
+        </div>
+        <div class="ring-cell">
+          <div class="ring-num ring-consider" id="count-consider">0</div>
+          <div class="ring-label ring-consider">Consider</div>
+        </div>
+        <div class="ring-cell">
+          <div class="ring-num ring-bg" id="count-bg">0</div>
+          <div class="ring-label ring-bg">BG</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:auto;">
+      <div class="sidebar-label" style="color:var(--text-mute)">Build</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text-mute);line-height:1.8;">
+        v2.0.0 · The Signal<br>
+        <span id="today-date">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CENTER PANEL ── -->
+  <div class="center">
+
+    <!-- BRIEF VIEW -->
+    <div class="panel-section active" id="section-brief">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Today's Editorial Brief</div>
+          <div class="panel-subtitle" id="brief-subtitle">Loading...</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="exportBrief()">↓ Export JSON</button>
+          <button class="btn btn-ghost btn-sm" onclick="showSection('inject', document.getElementById('nav-inject'))">+ Inject Story</button>
+        </div>
+      </div>
+      <div class="section-body" id="brief-body">
+        <div style="color:var(--text-dim);font-family:var(--mono);font-size:12px;padding:40px 0;">
+          Loading brief...
+        </div>
+      </div>
+    </div>
+
+    <!-- INJECT VIEW -->
+    <div class="panel-section" id="section-inject">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Inject a Story</div>
+          <div class="panel-subtitle">Submit from URL, raw text, or topic — AI will enrich and queue it</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="inject-panel">
+          <div class="inject-tabs">
+            <button class="inject-tab active" onclick="switchInjectTab('url', this)">From URL</button>
+            <button class="inject-tab" onclick="switchInjectTab('text', this)">Raw Text</button>
+            <button class="inject-tab" onclick="switchInjectTab('topic', this)">Topic / Idea</button>
+          </div>
+          <div class="inject-body">
+            <!-- URL TAB -->
+            <div class="inject-content active" id="inject-url">
+              <div class="inject-form-group">
+                <label class="inject-label">Article URL *</label>
+                <input type="url" class="inject-input" id="url-input" placeholder="https://techcrunch.com/2026/02/18/..." />
+              </div>
+              <div class="inject-form-group">
+                <label class="inject-label">Producer Note (optional)</label>
+                <input type="text" class="inject-input" id="url-note" placeholder="e.g. Great for the crossover segment — huge business angle" />
+              </div>
+            </div>
+
+            <!-- TEXT TAB -->
+            <div class="inject-content" id="inject-text">
+              <div class="inject-form-group">
+                <label class="inject-label">Story Summary or Raw Text *</label>
+                <textarea class="inject-textarea" id="text-input" placeholder="Paste the article text, a tweet, a memo, or your own summary of what happened..."></textarea>
+              </div>
+              <div class="inject-form-group">
+                <label class="inject-label">Producer Note (optional)</label>
+                <input type="text" class="inject-input" id="text-note" placeholder="Context or angle guidance for the AI" />
+              </div>
+            </div>
+
+            <!-- TOPIC TAB -->
+            <div class="inject-content" id="inject-topic">
+              <div class="inject-form-group">
+                <label class="inject-label">Topic or Story Idea *</label>
+                <input type="text" class="inject-input" id="topic-input" placeholder="e.g. Apple's DMA compliance issues in the EU, or: Why the Fed's language changed this week" />
+              </div>
+              <div class="inject-form-group">
+                <label class="inject-label">Guidance for AI (optional)</label>
+                <textarea class="inject-textarea" id="topic-note" style="min-height:70px;" placeholder="Any specific angle, companies, or data points you want the AI to focus on..."></textarea>
+              </div>
+            </div>
+
+            <!-- SHARED CONTROLS -->
+            <div class="inject-form-group">
+              <label class="inject-label">Priority Level</label>
+              <div class="priority-grid">
+                <label class="priority-opt priority-opt-must">
+                  <input type="radio" name="priority" value="must_include">
+                  <div class="priority-icon">🔴</div>
+                  <div class="priority-name">Must Include</div>
+                  <div class="priority-desc">AI cannot drop this story</div>
+                </label>
+                <label class="priority-opt priority-opt-consider">
+                  <input type="radio" name="priority" value="consider" checked>
+                  <div class="priority-icon">🟡</div>
+                  <div class="priority-name">Consider</div>
+                  <div class="priority-desc">High-priority tip</div>
+                </label>
+                <label class="priority-opt priority-opt-bg">
+                  <input type="radio" name="priority" value="background">
+                  <div class="priority-icon">⚪</div>
+                  <div class="priority-name">Background</div>
+                  <div class="priority-desc">Context only</div>
+                </label>
+              </div>
+            </div>
+
+            <div class="inject-form-group" style="margin-bottom:0;">
+              <label class="inject-label">Submitted By</label>
+              <input type="text" class="inject-input" id="submitted-by" placeholder="Your name or @handle" />
+            </div>
+
+            <div style="margin-top:16px;">
+              <button class="inject-submit" onclick="submitInjection()">
+                ⚡ Inject Story into Today's Queue
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY VIEW -->
+    <div class="panel-section" id="section-history">
+      <div class="panel-header">
+        <div class="panel-title">Recent Episodes</div>
+      </div>
+      <div class="section-body" id="history-body">
+        <div style="color:var(--text-dim);font-family:var(--mono);font-size:12px;">
+          Loading episode history...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+    <div class="right-section">
+      <div class="right-section-title">Injection Queue</div>
+      <div id="queue-list">
+        <div style="color:var(--text-mute);font-family:var(--mono);font-size:11px;text-align:center;padding:20px 0;">
+          No stories in queue
+        </div>
+      </div>
+    </div>
+
+    <div class="right-section">
+      <div class="right-section-title">Run Pipeline</div>
+      <div class="run-controls">
+        <div class="run-option">
+          <div class="run-option-title">Dry Run</div>
+          <div class="run-option-desc">Curate + brief only. No audio. No publishing. Good for testing injections before committing.</div>
+          <button class="btn btn-ghost btn-sm" onclick="triggerRun('dry')">↻ Dry Run</button>
+        </div>
+        <div class="run-option">
+          <div class="run-option-title">Full Episode</div>
+          <div class="run-option-desc">Complete pipeline: curation → script → audio → publish. Includes all queued injections.</div>
+          <button class="btn btn-amber btn-sm" onclick="triggerRun('full')">▶ Run Full Episode</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-section" style="flex:1;">
+      <div class="right-section-title">
+        Activity Log
+        <button class="btn btn-ghost btn-sm" onclick="clearLog()">Clear</button>
+      </div>
+      <div class="log-window" id="log-window">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST STACK -->
+<div class="toast-stack" id="toast-stack"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════
+let injectionQueue = JSON.parse(localStorage.getItem('inj_queue') || '[]');
+let currentTab = 'url';
+let logLines = [];
+let episodeNum = parseInt(localStorage.getItem('ep_num') || '1');
+let briefData = null;
+
+const SAMPLE_BRIEF = {
+  episode_date: new Date().toISOString().split('T')[0],
+  show_theme: "AI infrastructure spending hits an inflection point as enterprise adoption accelerates and Big Tech redraws the capex map",
+  business_stories: [
+    {
+      rank: 1, type: "deep",
+      podcast_headline: "Microsoft's $80B AI Capex Plan Is a Bet Against Every Analyst Consensus",
+      source: "Financial Times",
+      url: "#",
+      context: "Microsoft has quietly committed to $80 billion in AI infrastructure investment for fiscal 2026 — a figure that exceeds the entire annual revenue of most Fortune 500 companies. The majority flows to data center buildout in the US, reversing a multi-year trend of offshoring compute infrastructure.",
+      extrapolation: "This signals that the hyperscalers believe AI monetization will be transformational on a 3-5 year horizon, not iterative. Competitors will face pressure to match the spend or cede the enterprise market.",
+      talking_points: ["Why $80B when ROI timelines are still uncertain?", "US data center buildout is a geopolitical play, not just economic", "Nvidia's order book implications", "How does this change Azure's competitive position vs AWS?"],
+      estimated_minutes: 5, lead_host: "alex", injected: false
+    },
+    {
+      rank: 2, type: "medium",
+      podcast_headline: "Goldman's AI Job Displacement Report Is Finally Out — and It's Worse Than Predicted",
+      source: "Bloomberg",
+      url: "#",
+      context: "Goldman Sachs published its long-awaited sector analysis on AI-driven labor displacement. The headline: 300 million jobs globally could be affected within a decade, with knowledge workers hit harder than manual roles — inverting the historical pattern of automation.",
+      extrapolation: "The political implications are enormous. This analysis will fuel both regulatory action and corporate hedging strategies around AI deployment timelines.",
+      talking_points: ["Which sectors are most exposed?", "The 'complement vs. replace' debate finally has data", "What does this mean for AI adoption pace?", "Policy implications"],
+      estimated_minutes: 4, lead_host: "alex", injected: false
+    },
+    {
+      rank: 3, type: "quick",
+      podcast_headline: "Stripe Achieves Profitability for the First Time — and Keeps Its IPO Ambiguous",
+      source: "TechCrunch",
+      url: "#",
+      context: "Stripe announced its first profitable quarter, generating $1.4B in net income on $14B in annual revenue.",
+      extrapolation: "The IPO question just got more complex — profitable companies have less urgency to go public, but the secondary market pressure is building.",
+      talking_points: ["Fintech profitability milestone", "IPO market signals"],
+      estimated_minutes: 2, lead_host: "morgan", injected: false
+    }
+  ],
+  overlap_stories: [
+    {
+      rank: 1, type: "deep",
+      podcast_headline: "Every Major Bank Is Building an LLM — None of Them Can Talk to Each Other",
+      source: "Reuters",
+      url: "#",
+      context: "An exclusive survey of 47 major financial institutions finds that 91% are developing proprietary large language models for internal use. The problem: zero interoperability standards, creating fragmented AI infrastructure that could amplify systemic risk.",
+      extrapolation: "Regulators are now aware and circling. This is both the biggest AI business story and the biggest AI tech story of the quarter.",
+      talking_points: ["Why banks went proprietary instead of commercial APIs", "Systemic risk from fragmented AI", "Regulatory response trajectory", "The winner if a standard emerges"],
+      estimated_minutes: 5, lead_host: "alex", injected: false
+    }
+  ],
+  tech_stories: [
+    {
+      rank: 1, type: "deep",
+      podcast_headline: "Anthropic's New Interpretability Finding Changes What We Know About How LLMs 'Think'",
+      source: "MIT Technology Review",
+      url: "#",
+      context: "Anthropic's mechanistic interpretability team published findings showing that LLMs use fundamentally different computational paths for different types of reasoning — spatial, linguistic, mathematical — with minimal overlap.",
+      extrapolation: "This is the most significant AI safety and capability research in months. It has direct implications for both AI alignment approaches and for how models are fine-tuned.",
+      talking_points: ["What 'thinking differently' means architecturally", "Implications for AI alignment research", "Why this matters for enterprise AI buyers", "Competitive moat for interpretability leaders"],
+      estimated_minutes: 5, lead_host: "morgan", injected: false
+    },
+    {
+      rank: 2, type: "medium",
+      podcast_headline: "Samsung's 3nm Yield Crisis Could Delay Every AI Chip Roadmap by 18 Months",
+      source: "IEEE Spectrum",
+      url: "#",
+      context: "Samsung's advanced node yields at its Austin fab are reportedly below 40%, creating a capacity crisis for any chip designer not using TSMC.",
+      extrapolation: "NVIDIA, Qualcomm, and AMD are all reassessing supply chain dependencies. This is a geopolitical leverage point for Taiwan.",
+      talking_points: ["Who's most exposed beyond Nvidia?", "TSMC's pricing power implications", "US fab buildout urgency"],
+      estimated_minutes: 4, lead_host: "morgan", injected: false
+    },
+    {
+      rank: 3, type: "quick",
+      podcast_headline: "Meta's 'Memory Layer' Update Makes AI Assistants Finally Feel Persistent",
+      source: "The Verge",
+      url: "#",
+      context: "Meta deployed a cross-session memory feature to its AI assistant across Messenger, Instagram, and WhatsApp simultaneously.",
+      extrapolation: "This is the feature that converts AI assistants from novelties to habits. Engagement metrics will tell us if it works.",
+      talking_points: ["UX implications", "Privacy tradeoffs"],
+      estimated_minutes: 2, lead_host: "morgan", injected: false
+    }
+  ]
+};
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric'
+  });
+  document.getElementById('ep-badge').textContent = `EP. ${String(episodeNum).padStart(3,'0')}`;
+  loadBrief(SAMPLE_BRIEF);
+  renderQueue();
+  log_('info', 'Dashboard initialized');
+  log_('success', 'Brief loaded — 3 business, 1 overlap, 3 tech');
+  log_('info', `${injectionQueue.length} stories in injection queue`);
+});
+
+// ══════════════════════════════════════════════════════════════════
+// BRIEF RENDERING
+// ══════════════════════════════════════════════════════════════════
+function loadBrief(brief) {
+  briefData = brief;
+  document.getElementById('brief-subtitle').textContent =
+    `${brief.episode_date} — ${countStories(brief)} stories curated`;
+  renderBrief(brief);
+}
+
+function countStories(brief) {
+  return (brief.business_stories?.length || 0) +
+         (brief.overlap_stories?.length || 0) +
+         (brief.tech_stories?.length || 0);
+}
+
+function renderBrief(brief) {
+  const body = document.getElementById('brief-body');
+  body.innerHTML = `
+    <div class="brief-theme">
+      <span>Today's Theme</span>
+      ${brief.show_theme || 'No theme set'}
+    </div>
+    ${renderStoryBlock('business', brief.business_stories || [])}
+    ${renderStoryBlock('overlap', brief.overlap_stories || [])}
+    ${renderStoryBlock('tech', brief.tech_stories || [])}
+  `;
+}
+
+function renderStoryBlock(type, stories) {
+  const label = type === 'overlap' ? 'Crossover (Business ↔ Tech)' :
+                type === 'business' ? 'Business Block' : 'Tech Block';
+  const totalMin = stories.reduce((s, x) => s + (x.estimated_minutes || 0), 0);
+  return `
+    <div class="story-block">
+      <div class="block-label bl-${type}">${label} — ~${totalMin} min</div>
+      ${stories.map((s, i) => renderStoryCard(s, type, i)).join('')}
+    </div>
+  `;
+}
+
+function renderStoryCard(story, type, idx) {
+  const id = `story-${type}-${idx}`;
+  const typeBadge = story.injected ? 'tb-inject' : `tb-${story.type || 'medium'}`;
+  const typeLabel = story.injected ? '💉 INJECTED' : (story.type || 'MEDIUM').toUpperCase();
+  const isInjected = story.injected ? 'injected' : '';
+  const isMust = story.priority === 'must_include' ? 'must-include' : '';
+  const minBadge = story.estimated_minutes ? `<span class="est-min-badge">${story.estimated_minutes} min</span>` : '';
+  const points = (story.talking_points || []).map(p => `<li>${p}</li>`).join('');
+
+  return `
+    <div class="story-card ${isInjected} ${isMust}" id="${id}">
+      <div class="story-card-head" onclick="toggleStory('${id}')">
+        <span class="story-type-badge ${typeBadge}">${typeLabel}</span>
+        <div style="flex:1">
+          <div class="story-headline">${story.podcast_headline}</div>
+          <div class="story-meta">${story.source || ''} · Lead: ${story.lead_host || '?'} ${minBadge}</div>
+        </div>
+        <div class="story-actions">
+          ${story.injected ? '<span style="font-size:11px;color:var(--green);font-family:var(--mono);">✓ QUEUED</span>' : ''}
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); removeStoryFromBrief('${type}', ${idx})">✕</button>
+        </div>
+      </div>
+      <div class="story-expand" id="${id}-expand">
+        <div class="story-field">
+          <div class="story-field-label">Context</div>
+          <div class="story-field-val">${story.context || '—'}</div>
+        </div>
+        <div class="story-field">
+          <div class="story-field-label">Extrapolation</div>
+          <div class="story-field-val">${story.extrapolation || '—'}</div>
+        </div>
+        ${points ? `<div class="story-field">
+          <div class="story-field-label">Talking Points</div>
+          <ul class="talking-points">${points}</ul>
+        </div>` : ''}
+        ${story.debate_angle ? `<div class="story-field">
+          <div class="story-field-label">Debate Angle</div>
+          <div class="story-field-val" style="color:var(--amber);">${story.debate_angle}</div>
+        </div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function toggleStory(id) {
+  const el = document.getElementById(id + '-expand');
+  el.classList.toggle('open');
+}
+
+function removeStoryFromBrief(type, idx) {
+  if (!briefData) return;
+  const key = `${type}_stories`;
+  briefData[key].splice(idx, 1);
+  renderBrief(briefData);
+  log_('warn', `Removed ${type} story #${idx + 1} from brief`);
+  toast('🗑 Story removed from brief', 'warn');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INJECTION
+// ══════════════════════════════════════════════════════════════════
+function switchInjectTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.inject-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.inject-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(`inject-${tab}`).classList.add('active');
+}
+
+function submitInjection() {
+  const priority = document.querySelector('input[name="priority"]:checked')?.value || 'consider';
+  const submittedBy = document.getElementById('submitted-by').value || 'producer';
+  let content = '', note = '', type = currentTab;
+
+  if (type === 'url') {
+    content = document.getElementById('url-input').value.trim();
+    note = document.getElementById('url-note').value.trim();
+  } else if (type === 'text') {
+    content = document.getElementById('text-input').value.trim();
+    note = document.getElementById('text-note').value.trim();
+  } else {
+    content = document.getElementById('topic-input').value.trim();
+    note = document.getElementById('topic-note').value.trim();
+  }
+
+  if (!content) {
+    toast('⚠ Please enter content to inject', 'warn');
+    return;
+  }
+
+  // In production: POST to /api/inject — here we simulate enrichment
+  const record = {
+    id: `inj_${Date.now()}`,
+    submitted_at: new Date().toISOString(),
+    submitted_by: submittedBy,
+    priority,
+    type,
+    content: content.substring(0, 200),
+    note,
+    story: {
+      headline: type === 'url' ? `Story from: ${content.substring(0, 60)}...` :
+                type === 'topic' ? `Topic: ${content}` :
+                content.substring(0, 80),
+      category: 'pending',
+      summary: note || 'AI will enrich this story during curation',
+    }
+  };
+
+  injectionQueue.push(record);
+  localStorage.setItem('inj_queue', JSON.stringify(injectionQueue));
+  renderQueue();
+  updateQueueCounts();
+  log_('success', `Injected [${priority.toUpperCase()}]: ${record.story.headline.substring(0, 60)}...`);
+  toast(`✓ Story queued as ${priority.replace('_', ' ')}`, 'success');
+
+  // Also add to brief as a visual injection
+  if (briefData) {
+    const injectedCard = {
+      rank: 99, type: 'medium',
+      podcast_headline: record.story.headline,
+      source: submittedBy,
+      context: note || `Injected via dashboard (${type})`,
+      extrapolation: 'AI will enrich this during curation',
+      talking_points: [],
+      estimated_minutes: 3,
+      lead_host: 'tbd',
+      injected: true,
+      priority
+    };
+    briefData.business_stories.push(injectedCard);
+    renderBrief(briefData);
+  }
+
+  // Clear form
+  ['url-input','url-note','text-input','text-note','topic-input','topic-note'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  showSection('brief', document.getElementById('nav-brief'));
+}
+
+function renderQueue() {
+  const el = document.getElementById('queue-list');
+  if (!injectionQueue.length) {
+    el.innerHTML = `<div style="color:var(--text-mute);font-family:var(--mono);font-size:11px;text-align:center;padding:20px 0;">No stories in queue</div>`;
+    updateQueueCounts();
+    return;
+  }
+  el.innerHTML = injectionQueue.map((r, i) => `
+    <div class="queue-item qi-${r.priority}">
+      <div class="qi-headline">${r.story.headline}</div>
+      <div class="qi-meta">
+        <span class="qi-priority qp-${r.priority}">${r.priority.replace('_',' ')}</span>
+        <span class="qi-by">${r.submitted_by}</span>
+      </div>
+      <button class="qi-remove" onclick="removeFromQueue(${i})">×</button>
+    </div>
+  `).join('');
+  updateQueueCounts();
+}
+
+function removeFromQueue(idx) {
+  injectionQueue.splice(idx, 1);
+  localStorage.setItem('inj_queue', JSON.stringify(injectionQueue));
+  renderQueue();
+  toast('Removed from queue', 'info');
+}
+
+function updateQueueCounts() {
+  const must    = injectionQueue.filter(r => r.priority === 'must_include').length;
+  const consider = injectionQueue.filter(r => r.priority === 'consider').length;
+  const bg      = injectionQueue.filter(r => r.priority === 'background').length;
+  document.getElementById('count-must').textContent = must;
+  document.getElementById('count-consider').textContent = consider;
+  document.getElementById('count-bg').textContent = bg;
+  const badge = document.getElementById('inject-badge');
+  const total = injectionQueue.length;
+  badge.textContent = total;
+  badge.style.display = total > 0 ? 'flex' : 'none';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PIPELINE CONTROLS
+// ══════════════════════════════════════════════════════════════════
+function triggerRun(mode) {
+  if (mode === 'full') {
+    if (!confirm(`Run FULL pipeline for Episode ${episodeNum}? This will produce and publish the episode.`)) return;
+  }
+  log_('info', `▶ Triggering ${mode === 'dry' ? 'dry run' : 'full pipeline'}...`);
+  // In production: POST to /api/run-pipeline?mode={mode}
+  // Simulate stages for demo
+  const stages = mode === 'dry' ?
+    ['Curation started...', '✓ Fetching 12 RSS feeds', '✓ 3 injected stories loaded', '✓ Brief generated (7 stories)', '✓ Dry run complete — brief saved'] :
+    ['Full pipeline started', '✓ Curation complete (7 stories)', '✓ Script generated (43.2 min)', '✓ Audio production: 247 TTS calls', '✓ FFmpeg assembly complete', '✓ Episode uploaded to Buzzsprout', '✓ RSS feed updated', '✓ Posted to Twitter & LinkedIn', `✓ Episode ${episodeNum} LIVE`];
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i >= stages.length) { clearInterval(iv); return; }
+    const isLast = i === stages.length - 1;
+    log_(isLast ? 'success' : 'info', stages[i]);
+    i++;
+  }, mode === 'dry' ? 800 : 1200);
+  toast(mode === 'dry' ? '↻ Dry run started' : '▶ Full pipeline started', 'success');
+}
+
+function refreshBrief() {
+  log_('info', 'Refreshing brief from API...');
+  setTimeout(() => {
+    log_('success', 'Brief refreshed');
+    toast('✓ Brief refreshed', 'success');
+  }, 800);
+}
+
+function exportBrief() {
+  if (!briefData) return;
+  const blob = new Blob([JSON.stringify(briefData, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `brief_${briefData.episode_date}.json`;
+  a.click();
+  toast('↓ Brief exported', 'info');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════════════
+function showSection(name, btn) {
+  document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
+  document.getElementById(`section-${name}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (name === 'history') renderHistory();
+  return false;
+}
+
+function renderHistory() {
+  // In production: fetch from /api/episodes
+  document.getElementById('history-body').innerHTML = `
+    <div style="color:var(--text-dim);font-family:var(--mono);font-size:12px;">
+      Connect to episodes.json or your API to load episode history here.
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// LOG + TOAST
+// ══════════════════════════════════════════════════════════════════
+function log_(type, msg) {
+  const now = new Date().toLocaleTimeString('en-US', {hour12: false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  logLines.push({time: now, type, msg});
+  const el = document.getElementById('log-window');
+  el.innerHTML = logLines.slice(-40).map(l =>
+    `<div class="log-line"><span class="log-time">${l.time}</span><span class="log-msg ${l.type}">${l.msg}</span></div>`
+  ).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+function clearLog() {
+  logLines = [];
+  document.getElementById('log-window').innerHTML = '';
+}
+
+function toast(msg, type = 'info') {
+  const icons = {success: '✓', warn: '⚠', error: '✕', info: 'ℹ'};
+  const stack = document.getElementById('toast-stack');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ'}</span>${msg}`;
+  stack.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 300);
+  }, 3000);
+}
+</script>
+</body>
+</html>

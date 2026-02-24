@@ -1,0 +1,47 @@
+# The Signal — Git Ignore
+# ============================================================
+
+# Environment & secrets — NEVER commit these
+.env
+.env.local
+*.key
+secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Generated outputs — don't commit audio/scripts to git
+outputs/audio/
+outputs/scripts/
+outputs/briefs/
+logs/
+
+# Database
+database/*.db
+database/*.db-shm
+database/*.db-wal
+
+# Injection archive (generated at runtime)
+data/injection_archive/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Episodes JSON is committed (it's the website data source)
+# website/episodes.json  ← DO commit this
+# website/feed.xml       ← DO commit this

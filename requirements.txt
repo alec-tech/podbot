@@ -1,0 +1,34 @@
+# The Signal — Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# ── Core AI ─────────────────────────────────────────────────────────────────
+anthropic>=0.40.0
+
+# ── Text-to-Speech ───────────────────────────────────────────────────────────
+elevenlabs>=1.0.0
+
+# ── News Gathering ───────────────────────────────────────────────────────────
+feedparser>=6.0.11
+requests>=2.31.0
+
+# ── Social Media ─────────────────────────────────────────────────────────────
+tweepy>=4.14.0
+
+# ── Storage & Cloud ──────────────────────────────────────────────────────────
+boto3>=1.34.0
+
+# ── Image Processing (cover art) ─────────────────────────────────────────────
+Pillow>=10.0.0
+
+# ── Utilities ────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0
+
+# ── Optional: better article extraction from URLs ────────────────────────────
+# trafilatura>=1.8.0   # Uncomment for much better URL content extraction
+# newspaper3k>=0.2.8   # Alternative article extractor
+
+# ── Optional: alternative TTS if ElevenLabs is down ─────────────────────────
+# openai>=1.0.0        # OpenAI TTS as backup
+
+# ── Optional: Supabase for cloud database instead of SQLite ──────────────────
+# supabase>=2.0.0

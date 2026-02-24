@@ -1,0 +1,172 @@
+# ============================================================
+# The Signal — Twice-Daily Episode Production
+# ============================================================
+# AM edition: 9:00 AM UTC = 4:00 AM EST  (overnight + yesterday recap)
+# PM edition: 6:00 PM UTC = 1:00 PM EST  (morning news)
+#
+# Manual trigger: GitHub → Actions → Daily Episodes → Run workflow
+# ============================================================
+
+name: Daily Episodes (AM + PM)
+
+on:
+  schedule:
+    - cron: '0 9  * * 1-5'    # 9 AM UTC  = 4 AM EST  (AM edition)
+    - cron: '0 18 * * 1-5'    # 6 PM UTC  = 1 PM EST  (PM edition)
+
+  workflow_dispatch:
+    inputs:
+      edition:
+        description: 'Which edition to produce'
+        type: choice
+        options: ['am', 'pm']
+        default: 'am'
+      dry_run:
+        description: 'Dry run (curation only, no audio or publishing)'
+        type: boolean
+        default: false
+      skip_audio:
+        description: 'Skip audio production (use existing file)'
+        type: boolean
+        default: false
+      episode_date:
+        description: 'Override date YYYY-MM-DD (blank = today EST)'
+        type: string
+        default: ''
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  produce_episode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+
+    steps:
+      # ── Detect edition from schedule or manual input ───────────────────────
+      - name: Detect edition
+        id: detect
+        run: |
+          if [ -n "${{ github.event.inputs.edition }}" ]; then
+            EDITION="${{ github.event.inputs.edition }}"
+          else
+            # Cron: 9 AM UTC = AM, 18 PM UTC = PM
+            HOUR=$(date -u +%H | sed 's/^0//')
+            if [ "$HOUR" -lt 14 ]; then
+              EDITION="am"
+            else
+              EDITION="pm"
+            fi
+          fi
+          echo "edition=$EDITION" >> $GITHUB_OUTPUT
+          echo "🎙️  Edition: $EDITION"
+
+      # ── Setup ─────────────────────────────────────────────────────────────
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg ffprobe
+          ffmpeg -version | head -1
+
+      - run: pip install -r requirements.txt
+
+      - name: Create runtime directories
+        run: mkdir -p outputs/{briefs,scripts,audio,metadata} database logs data assets
+
+      # ── Restore persistent state ───────────────────────────────────────────
+      - uses: actions/cache@v4
+        with:
+          path: database/
+          key: story-memory-${{ github.run_number }}
+          restore-keys: story-memory-
+
+      - uses: actions/cache@v4
+        with:
+          path: data/injected_stories.json
+          key: injections-${{ github.run_number }}
+          restore-keys: injections-
+
+      # ── Run pipeline ──────────────────────────────────────────────────────
+      - name: Run ${{ steps.detect.outputs.edition }} pipeline
+        env:
+          EPISODE_EDITION:              ${{ steps.detect.outputs.edition }}
+          ANTHROPIC_API_KEY:            ${{ secrets.ANTHROPIC_API_KEY }}
+          ELEVENLABS_API_KEY:           ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVENLABS_VOICE_ALEX:        ${{ secrets.ELEVENLABS_VOICE_ALEX }}
+          ELEVENLABS_VOICE_MORGAN:      ${{ secrets.ELEVENLABS_VOICE_MORGAN }}
+          ELEVENLABS_VOICE_DREW:        ${{ secrets.ELEVENLABS_VOICE_DREW }}
+          BUZZSPROUT_API_KEY:           ${{ secrets.BUZZSPROUT_API_KEY }}
+          BUZZSPROUT_PODCAST_ID:        ${{ secrets.BUZZSPROUT_PODCAST_ID }}
+          NEWS_API_KEY:                 ${{ secrets.NEWS_API_KEY }}
+          SLACK_WEBHOOK_URL:            ${{ secrets.SLACK_WEBHOOK_URL }}
+          TWITTER_API_KEY:              ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET:           ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN:         ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_TOKEN_SECRET:  ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          LINKEDIN_ACCESS_TOKEN:        ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_ID:           ${{ secrets.LINKEDIN_PERSON_ID }}
+          AWS_ACCESS_KEY_ID:            ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY:        ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET:                ${{ secrets.AWS_S3_BUCKET }}
+          AWS_REGION:                   ${{ secrets.AWS_REGION }}
+          PODCAST_WEBSITE_URL:          ${{ secrets.PODCAST_WEBSITE_URL }}
+          DRY_RUN:                      ${{ inputs.dry_run || 'false' }}
+        run: |
+          python orchestrator.py \
+            --edition ${{ steps.detect.outputs.edition }} \
+            ${{ inputs.dry_run == 'true' && '--dry-run' || '' }} \
+            ${{ inputs.skip_audio == 'true' && '--skip-audio' || '' }} \
+            ${{ inputs.episode_date != '' && format('--date {0}', inputs.episode_date) || '' }}
+
+      # ── Commit website data ────────────────────────────────────────────────
+      - name: Commit website data
+        if: inputs.dry_run != 'true'
+        run: |
+          git config user.name  "The Signal Bot"
+          git config user.email "bot@thesignalpodcast.com"
+          git add website/episodes.json website/feed.xml || true
+          git diff --staged --quiet || \
+            git commit -m "${{ steps.detect.outputs.edition }} $(date +%Y-%m-%d)"
+          git push || true
+
+      # ── Artifacts ─────────────────────────────────────────────────────────
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: episode-${{ steps.detect.outputs.edition }}-${{ github.run_number }}
+          path: |
+            outputs/briefs/
+            outputs/scripts/
+            logs/
+          retention-days: 30
+
+      # ── Slack ─────────────────────────────────────────────────────────────
+      - name: Notify success
+        if: success() && inputs.dry_run != 'true'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          EDITION="${{ steps.detect.outputs.edition }}"
+          ICON=$([ "$EDITION" = "am" ] && echo "🌅" || echo "☀️")
+          [ -n "$SLACK_WEBHOOK_URL" ] && curl -s -X POST "$SLACK_WEBHOOK_URL" \
+            -H 'Content-type: application/json' \
+            -d "{\"text\":\"✅ *The Signal* ${ICON} ${EDITION^^} published — $(date +'%A %B %-d')\"}"
+
+      - name: Notify failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          EDITION="${{ steps.detect.outputs.edition }}"
+          [ -n "$SLACK_WEBHOOK_URL" ] && curl -s -X POST "$SLACK_WEBHOOK_URL" \
+            -H 'Content-type: application/json' \
+            -d "{\"text\":\"🚨 *The Signal* ${EDITION^^} FAILED — run #${{ github.run_number }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
