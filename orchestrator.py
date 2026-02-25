@@ -220,13 +220,11 @@ def run_pipeline(
     publisher = PublisherAgent()
     episode_url = None
     try:
-        hook = brief.get("episode_hook", "Today in Business and Tech")
-        episode_title = f"{episode_date} {edition_label} - {hook}"
-
         metadata = publisher.generate_metadata(
             brief, script, episode_num, episode_date,
-            edition=edition, episode_title=episode_title,
+            edition=edition,
         )
+        episode_title = metadata.get("TITLE", "The Signal")
         episode_url = publisher.upload(audio_path, metadata)
         log.info(f"  ✅ Live : {episode_url}")
         log.info(f"  🏷️  Title: {episode_title}")

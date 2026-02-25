@@ -27,7 +27,7 @@ SHOW_CONFIG = {
 class PublisherAgent:
     
     def generate_metadata(self, brief: dict, script_data: dict, episode_num: int,
-                          episode_date: str, edition: str = "am", episode_title: str = "") -> dict:
+                          episode_date: str, edition: str = "morning") -> dict:
         """Use Claude to generate SEO-optimized episode metadata"""
 
         story_titles = (
@@ -42,14 +42,13 @@ class PublisherAgent:
 Show: The Signal
 Episode: {episode_num} ({edition_label} edition)
 Date: {episode_date}
-Title: {episode_title}
 Theme: {brief.get("show_theme", "")}
 Stories covered: {json.dumps(story_titles, indent=2)}
 
-Generate:
-1. TITLE: Use this exact title: "{episode_title}" (or if empty, create one max 80 chars with episode number)
-2. DESCRIPTION: 200-250 word show notes. Include: what we cover, why it matters, timestamps (approximate), keywords for SEO. No fluff.
-3. CHAPTERS: List with timestamps (approximate based on show structure: cold open @0:00, business @2:00, crossover @14:00, tech @20:00, wrap @30:00)
+Generate a JSON object with these keys:
+1. TITLE: A compelling, concise episode title (max 80 chars). This should be an overarching tagline that captures the theme across the stories discussed. Do NOT include the date, episode number, or edition name — just a punchy headline. Examples: "The AI Arms Race Heats Up", "Markets Brace for Fed Fallout", "Big Tech's Regulatory Reckoning".
+2. DESCRIPTION: 200-250 word show notes. Include: what we cover, why it matters, approximate timestamps, keywords for SEO. No fluff.
+3. CHAPTERS: List with timestamps (approximate based on 12-min show structure: intro @0:00, business block @1:30, crossover segment @4:30, tech block @7:30, wrap @11:00)
 4. TAGS: 8-10 relevant tags for podcast directories
 5. TWEET: 240 char tweet announcing the episode (include 3 key topics, no hashtag spam)
 6. LINKEDIN_POST: 3-4 sentence professional LinkedIn announcement
@@ -71,13 +70,15 @@ Return as JSON."""
         except:
             # Fallback metadata
             metadata = {
-                "TITLE": f"Ep {episode_num}: {brief.get('show_theme', 'The Signal')}",
                 "DESCRIPTION": f"Today on The Signal: {'. '.join(story_titles[:3])}",
                 "TAGS": ["business", "technology", "news", "ai"],
-                "TWEET": f"New episode of The Signal is live! Episode {episode_num}: {brief.get('show_theme', '')} 🎙️",
+                "TWEET": f"New episode of The Signal is live! Episode {episode_num}: {brief.get('show_theme', '')}",
                 "LINKEDIN_POST": f"Today's episode of The Signal covers: {'. '.join(story_titles[:3])}"
             }
-        
+
+        # Use Claude's generated title; fall back to theme if missing
+        if not metadata.get("TITLE"):
+            metadata["TITLE"] = brief.get("show_theme") or f"Ep {episode_num}: The Signal"
         metadata["episode_num"] = episode_num
         metadata["episode_date"] = episode_date
         return metadata
