@@ -1,9 +1,15 @@
 # ============================================================
 # The Signal — Three-Daily Episode Production
 # ============================================================
-# Morning edition: 12:00 PM UTC = 7:00 AM EST
-# Midday edition:  6:00 PM UTC = 1:00 PM EST
-# Evening edition: 10:30 PM UTC = 5:30 PM EST
+# Cron times are shifted 45 min EARLY to absorb GitHub Actions
+# scheduling delays (typically 15-60+ min on shared runners).
+#
+# Morning edition: 11:15 AM UTC (target: 7:00 AM EST / 12:00 PM UTC)
+# Midday edition:   5:15 PM UTC (target: 1:00 PM EST / 6:00 PM UTC)
+# Evening edition:  9:45 PM UTC (target: 5:30 PM EST / 10:30 PM UTC)
+#
+# For on-time reliability, set up an external cron service to
+# call workflow_dispatch at the exact target times (see README §9.5).
 #
 # Manual trigger: GitHub → Actions → Daily Episodes → Run workflow
 # ============================================================
@@ -12,9 +18,10 @@ name: Daily Episodes (Morning + Midday + Evening)
 
 on:
   schedule:
-    - cron: '0 12  * * 1-5'    # 12 PM UTC = 7 AM EST  (Morning edition)
-    - cron: '0 18  * * 1-5'    # 6 PM UTC  = 1 PM EST  (Midday edition)
-    - cron: '30 22 * * 1-5'    # 10:30 PM UTC = 5:30 PM EST (Evening edition)
+    # Shifted 45 min early to absorb GitHub Actions cron delays
+    - cron: '15 11 * * 1-5'    # 11:15 AM UTC → target 7 AM EST  (Morning)
+    - cron: '15 17 * * 1-5'    # 5:15 PM UTC  → target 1 PM EST  (Midday)
+    - cron: '45 21 * * 1-5'    # 9:45 PM UTC  → target 5:30 PM EST (Evening)
 
   workflow_dispatch:
     inputs:
@@ -43,6 +50,11 @@ jobs:
   produce_episode:
     runs-on: ubuntu-latest
     timeout-minutes: 75
+    # Prevent duplicate runs: if the early cron is still running when an
+    # external workflow_dispatch fires, the second run queues (not cancels).
+    concurrency:
+      group: episode-${{ inputs.edition || github.event.schedule }}
+      cancel-in-progress: false
 
     steps:
       # ── Detect edition from schedule or manual input ───────────────────────

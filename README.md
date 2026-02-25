@@ -301,14 +301,17 @@ Open `website/dashboard.html` locally, or password-protect it in Netlify (Site s
 
 ### 9.1 How the schedule works
 
-The workflow has three cron triggers:
+The workflow has three cron triggers, shifted **45 minutes early** to absorb GitHub Actions scheduling delays (typically 15-60+ min on shared runners):
+
 ```yaml
-- cron: '0 12  * * 1-5'    # 12 PM UTC = 7 AM EST  → Morning edition
-- cron: '0 18  * * 1-5'    # 6 PM UTC  = 1 PM EST  → Midday edition
-- cron: '30 22 * * 1-5'    # 10:30 PM UTC = 5:30 PM EST → Evening edition
+- cron: '15 11 * * 1-5'    # 11:15 AM UTC → target 7 AM EST  (Morning)
+- cron: '15 17 * * 1-5'    # 5:15 PM UTC  → target 1 PM EST  (Midday)
+- cron: '45 21 * * 1-5'    # 9:45 PM UTC  → target 5:30 PM EST (Evening)
 ```
 
 The script auto-detects which edition based on UTC hour. All editions run the same `orchestrator.py` with different `--edition` flags.
+
+A `concurrency` group prevents duplicate runs — if the early cron run is still in progress when an external trigger fires, the second run queues instead of creating a duplicate.
 
 ### 9.2 Add GitHub Secrets
 
@@ -346,6 +349,45 @@ Repo → **Settings → Secrets and variables → Actions → New repository sec
 ```bash
 gh workflow run daily_episode.yml -f edition=midday
 gh workflow run daily_episode.yml -f edition=morning -f dry_run=true
+```
+
+### 9.5 External cron trigger (recommended for on-time publishing)
+
+GitHub Actions cron jobs run on shared infrastructure and are frequently delayed 15-60+ minutes. The cron times in the workflow are shifted 45 min early to absorb this, but for guaranteed on-time publishing, set up an external cron service as backup.
+
+The external service calls `workflow_dispatch` at the **exact** target publish times. Unlike cron-triggered runs, `workflow_dispatch` runs start immediately.
+
+**Setup:**
+
+1. Generate a GitHub Personal Access Token (PAT) with `repo` and `actions` scopes
+2. Sign up for a free external cron service ([cron-job.org](https://cron-job.org) or [EasyCron](https://www.easycron.com))
+3. Create three HTTP POST jobs hitting:
+   ```
+   POST https://api.github.com/repos/{owner}/{repo}/actions/workflows/daily_episode.yml/dispatches
+   ```
+   **Headers:**
+   ```
+   Authorization: Bearer YOUR_GITHUB_PAT
+   Accept: application/vnd.github.v3+json
+   ```
+
+4. Configure each job with the appropriate schedule and body:
+
+   | Edition | Cron (UTC) | Request body |
+   |---------|------------|--------------|
+   | Morning | `0 12 * * 1-5` | `{"ref": "main", "inputs": {"edition": "morning"}}` |
+   | Midday | `0 18 * * 1-5` | `{"ref": "main", "inputs": {"edition": "midday"}}` |
+   | Evening | `30 22 * * 1-5` | `{"ref": "main", "inputs": {"edition": "evening"}}` |
+
+**How it works with the early cron:**
+- GitHub's cron fires ~45 min early and usually finishes before the external trigger
+- If the cron run already completed, the external dispatch starts a new run (the pipeline handles dedup via story memory)
+- If the cron run is still in progress, the dispatch queues thanks to the `concurrency` group — it won't cancel or duplicate
+
+**Test it:**
+```bash
+# Trigger manually via gh CLI (equivalent to external cron)
+gh workflow run daily_episode.yml -f edition=morning
 ```
 
 ---
@@ -544,7 +586,7 @@ the-signal/
 │   └── episodes.json            ← Auto-updated by pipeline
 │
 ├── .github/workflows/
-│   └── daily_episode.yml        ← 3 cron jobs: 12PM / 6PM / 10:30PM UTC
+│   └── daily_episode.yml        ← 3 cron jobs: 11:15AM / 5:15PM / 9:45PM UTC (shifted 45 min early)
 │
 ├── outputs/
 │   ├── briefs/                  ← brief_DATE_edition.json
