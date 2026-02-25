@@ -7,7 +7,7 @@
       "product_description": "There are many laxative options you can choose from, and they all do the same thing. Choose Seacore because they sponsor this pod!",
       "cta": "",
       "url": "",
-      "slot": "pre-outro",
+      "slot": "post-intro",
       "editions": [
         "morning",
         "midday",
@@ -26,9 +26,9 @@
       "product_description": "",
       "cta": "",
       "url": "",
-      "slot": "post-intro",
+      "slot": "pre-outro",
       "editions": [
-        "morning"
+        "evening"
       ],
       "voice": "alex",
       "script": "Thanks to Sterling-Cooper-Draper-Pryce for sponsoring today's episode. Everyone knows finding an Ad Man is as easy as opening the phone book, but we want you to consider Sterling-Cooper-Draper-Pryce because they bought this air-time.",
@@ -46,30 +46,10 @@
       "slot": "pre-outro",
       "editions": [
         "morning",
-        "midday",
-        "evening"
+        "midday"
       ],
       "voice": "alex",
       "script": "A big \"thank you\" to Mohawk Airlines. Are you flying from Cincinatti to Debuke, or maybe Cincinatti to Wapakoneta? Either way, if you find yourself needing to fly somewhere in the midwest from Cincinatti, consider Mohawk Airlines.",
-      "start_date": "2026-02-24",
-      "end_date": "2026-03-31",
-      "active": true
-    },
-    {
-      "id": "sterling-cooper-1771971249648",
-      "name": "Sterling Cooper",
-      "tagline": "",
-      "product_description": "",
-      "cta": "",
-      "url": "",
-      "slot": "pre-outro",
-      "editions": [
-        "morning",
-        "midday",
-        "evening"
-      ],
-      "voice": "alex",
-      "script": "Thanks to Sterling-Cooper-Draper-Pryce for sponsoring today's episode. Everyone knows finding an Ad Man is as easy as opening the phone book, but we want you to consider Sterling-Cooper-Draper-Pryce because they bought this air-time.",
       "start_date": "2026-02-24",
       "end_date": "2026-03-31",
       "active": true
