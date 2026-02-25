@@ -112,8 +112,35 @@ jobs:
           key: injections-${{ github.run_number }}
           restore-keys: injections-
 
+      # ── Check for duplicate episode ──────────────────────────────────────
+      - name: Check for recent episode on Buzzsprout
+        id: dedup
+        if: inputs.dry_run != 'true'
+        env:
+          BUZZSPROUT_API_KEY: ${{ secrets.BUZZSPROUT_API_KEY }}
+          BUZZSPROUT_PODCAST_ID: ${{ secrets.BUZZSPROUT_PODCAST_ID }}
+        run: |
+          RESPONSE=$(curl -s -H "Authorization: Token token=${BUZZSPROUT_API_KEY}" \
+            "https://www.buzzsprout.com/api/${BUZZSPROUT_PODCAST_ID}/episodes.json")
+
+          NOW=$(date -u +%s)
+          THRESHOLD=$((NOW - 7200))  # 120 minutes = 7200 seconds
+
+          RECENT=$(echo "$RESPONSE" | jq \
+            --argjson threshold "$THRESHOLD" \
+            '[.[] | select(.published_at != null) | select((.published_at | fromdateiso8601) > $threshold)] | length')
+
+          if [ "$RECENT" -gt 0 ]; then
+            echo "⏭️  Skipping — $RECENT episode(s) published within last 120 minutes"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ No recent episodes — proceeding with pipeline"
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
       # ── Run pipeline ──────────────────────────────────────────────────────
       - name: Run ${{ steps.detect.outputs.edition }} pipeline
+        if: steps.dedup.outputs.skip != 'true'
         env:
           EPISODE_EDITION:              ${{ steps.detect.outputs.edition }}
           ANTHROPIC_API_KEY:            ${{ secrets.ANTHROPIC_API_KEY }}
@@ -145,7 +172,7 @@ jobs:
 
       # ── Commit website data ────────────────────────────────────────────────
       - name: Commit website data
-        if: inputs.dry_run != 'true'
+        if: inputs.dry_run != 'true' && steps.dedup.outputs.skip != 'true'
         run: |
           git config user.name  "The Signal Bot"
           git config user.email "bot@thesignalpodcast.com"
@@ -167,7 +194,7 @@ jobs:
 
       # ── Slack ─────────────────────────────────────────────────────────────
       - name: Notify success
-        if: success() && inputs.dry_run != 'true'
+        if: success() && inputs.dry_run != 'true' && steps.dedup.outputs.skip != 'true'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
