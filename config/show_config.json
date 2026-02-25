@@ -47,7 +47,7 @@
       "description": "Business anchor — analytical, measured, authoritative",
       "type": "static",
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 0.95 },
+        "cartesia": { "voice_id": "86e30c1d-714b-4074-a1f2-1cb6b552fb49", "model_id": "sonic-3", "speed": 0.95 },
         "openai": { "voice_id": "onyx", "model": "gpt-4o-mini-tts", "instructions": "Analytical, measured, authoritative." },
         "elevenlabs": { "voice_id": "pNInz6obpgDQGcFmaJgB", "stability": 0.55, "similarity_boost": 0.75, "style": 0.35 }
       }
@@ -56,7 +56,7 @@
       "description": "Tech correspondent — enthusiastic, substantive, fast-paced when excited",
       "type": "static",
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 1.0 },
+        "cartesia": { "voice_id": "62ae83ad-4f6a-430b-af41-a9bede9286ca", "model_id": "sonic-3", "speed": 1.0 },
         "openai": { "voice_id": "nova", "model": "gpt-4o-mini-tts", "instructions": "Enthusiastic, substantive, fast-paced when excited." },
         "elevenlabs": { "voice_id": "21m00Tcm4TlvDq8ikWAM", "stability": 0.45, "similarity_boost": 0.75, "style": 0.50 }
       }
@@ -66,7 +66,7 @@
       "type": "rotating",
       "topic_keywords": ["trade", "tariff", "sanctions", "geopolitics", "macro", "international", "export", "import", "treaty", "diplomacy"],
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 0.9 },
+        "cartesia": { "voice_id": "f9836c6e-a0bd-460e-9d3c-f7299fa60f94", "model_id": "sonic-3", "speed": 0.9 },
         "openai": { "voice_id": "echo", "model": "gpt-4o-mini-tts", "instructions": "Deliberate, contrarian, draws historical parallels." },
         "elevenlabs": { "voice_id": "AZnzlk1XvdvUeBnXmlld", "stability": 0.60, "similarity_boost": 0.70, "style": 0.30 }
       }
@@ -76,9 +76,9 @@
       "type": "rotating",
       "topic_keywords": ["ai", "artificial intelligence", "machine learning", "semiconductor", "chip", "deep tech", "neural", "model", "compute", "gpu"],
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 0.95 },
+        "cartesia": { "voice_id": "7ea5e9c2-b719-4dc3-b870-5ba5f14d31d8", "model_id": "sonic-3", "speed": 0.95 },
         "openai": { "voice_id": "coral", "model": "gpt-4o-mini-tts", "instructions": "Patient, explanatory, challenges hype with implementation reality." },
-        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.50, "similarity_boost": 0.75, "style": 0.40 }
+        "elevenlabs": { "voice_id": "yj30vwTGJxSHezdAGsv9", "stability": 0.50, "similarity_boost": 0.75, "style": 0.40 }
       }
     },
     "marcus": {
@@ -86,9 +86,9 @@
       "type": "rotating",
       "topic_keywords": ["regulation", "antitrust", "privacy", "legislation", "congress", "executive order", "policy", "ftc", "sec", "doj", "compliance"],
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 0.95 },
+        "cartesia": { "voice_id": "34575e71-908f-4ab6-ab54-b08c95d6597d", "model_id": "sonic-3", "speed": 0.95 },
         "openai": { "voice_id": "alloy", "model": "gpt-4o-mini-tts", "instructions": "Wry former Hill staffer energy, cause-and-effect reasoning." },
-        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.55, "similarity_boost": 0.70, "style": 0.35 }
+        "elevenlabs": { "voice_id": "DwI0NZuZgKu8SNwnpa1x", "stability": 0.55, "similarity_boost": 0.70, "style": 0.35 }
       }
     },
     "sam": {
@@ -96,9 +96,9 @@
       "type": "rotating",
       "topic_keywords": ["startup", "venture", "funding", "ipo", "unicorn", "series", "seed", "vc", "founder", "valuation", "acquisition"],
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 1.05 },
+        "cartesia": { "voice_id": "f8f5f1b2-f02d-4d8e-a40d-fd850a487b3d", "model_id": "sonic-3", "speed": 1.05 },
         "openai": { "voice_id": "sage", "model": "gpt-4o-mini-tts", "instructions": "Energetic, founder-fluent, pushes back on dismissals." },
-        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.45, "similarity_boost": 0.75, "style": 0.50 }
+        "elevenlabs": { "voice_id": "PgrxtC09o2q2Q7YXfVHy", "stability": 0.45, "similarity_boost": 0.75, "style": 0.50 }
       }
     },
     "jordan": {
@@ -106,9 +106,9 @@
       "type": "rotating",
       "topic_keywords": ["consumer", "product launch", "social media", "adoption", "creator", "culture", "retail", "brand", "user", "app"],
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 1.0 },
+        "cartesia": { "voice_id": "daf747c6-6bc2-4083-bd59-aa94dce23f5d", "model_id": "sonic-3", "speed": 1.0 },
         "openai": { "voice_id": "shimmer", "model": "gpt-4o-mini-tts", "instructions": "Bridges tech to ordinary people, slightly irreverent." },
-        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.45, "similarity_boost": 0.75, "style": 0.50 }
+        "elevenlabs": { "voice_id": "5gLuKtB16QIQv1vuSas1", "stability": 0.45, "similarity_boost": 0.75, "style": 0.50 }
       }
     }
   },
