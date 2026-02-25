@@ -7,8 +7,8 @@
     "title": "The AI Arms Race Gets a Balance Sheet",
     "description": "OpenAI's $40B fundraise reshapes the capital landscape while Samsung's foundry struggles threaten the entire semiconductor supply chain. Plus: why every bank in America is quietly building a large language model.",
     "audio_url": "",
-    "duration_seconds": 2580,
-    "duration_display": "43:00",
+    "duration_seconds": 1980,
+    "duration_display": "33:00",
     "theme": "When venture capital meets artificial general intelligence",
     "categories": ["business", "tech", "overlap"],
     "sponsors": [
@@ -18,12 +18,12 @@
     "chapters": [
       { "time": 0, "label": "Cold Open" },
       { "time": 90, "label": "Intro" },
-      { "time": 150, "label": "Business Block" },
-      { "time": 900, "label": "Mid-Roll: Notion" },
-      { "time": 960, "label": "Crossover: AI Capex" },
-      { "time": 1380, "label": "Tech Block" },
-      { "time": 2400, "label": "Pre-Outro: Mercury" },
-      { "time": 2520, "label": "Wrap" }
+      { "time": 120, "label": "Business Block" },
+      { "time": 360, "label": "Mid-Roll: Notion" },
+      { "time": 420, "label": "Crossover: AI Capex" },
+      { "time": 900, "label": "Tech Block" },
+      { "time": 1800, "label": "Pre-Outro: Mercury" },
+      { "time": 1860, "label": "Wrap" }
     ],
     "business_stories": [
       { "headline": "OpenAI's $40B Round Redefines What a 'Startup' Is", "excerpt": "At a $300B valuation, OpenAI is approaching Apple's 2012 market cap. Alex and Morgan debate whether this is rational exuberance or the most defensible moat in tech history." },
@@ -48,8 +48,8 @@
     "title": "Tariffs, Tokens, and the Attention Economy",
     "description": "New semiconductor export controls hit the market like a hammer. TikTok's algorithmic advertising patents threaten Google's core business. And why the CEO of the year might be a 43-billion-parameter model.",
     "audio_url": "",
-    "duration_seconds": 2580,
-    "duration_display": "43:00",
+    "duration_seconds": 1980,
+    "duration_display": "33:00",
     "theme": "When policy meets the attention economy",
     "categories": ["business", "tech"],
     "sponsors": [
@@ -59,12 +59,12 @@
     "chapters": [
       { "time": 0, "label": "Cold Open" },
       { "time": 90, "label": "Intro" },
-      { "time": 150, "label": "Business Block" },
-      { "time": 900, "label": "Mid-Roll: Linear" },
-      { "time": 960, "label": "Crossover Segment" },
-      { "time": 1380, "label": "Tech Block" },
-      { "time": 2400, "label": "Pre-Outro: Stripe" },
-      { "time": 2520, "label": "Wrap" }
+      { "time": 120, "label": "Business Block" },
+      { "time": 360, "label": "Mid-Roll: Linear" },
+      { "time": 420, "label": "Crossover Segment" },
+      { "time": 900, "label": "Tech Block" },
+      { "time": 1800, "label": "Pre-Outro: Stripe" },
+      { "time": 1860, "label": "Wrap" }
     ],
     "business_stories": [
       { "headline": "New Export Controls Create a $60B Hole in Nvidia's Revenue Forecast", "excerpt": "Commerce Dept restrictions on H100 and Blackwell chip exports to 12 new countries — including Vietnam and UAE — blindsides the market." }

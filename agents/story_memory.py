@@ -1,10 +1,10 @@
 """
-agents/story_memory.py v3 — Edition-Aware Story Coverage Memory
+agents/story_memory.py v4 — Edition-Aware Story Coverage Memory
 
-Tracks stories by edition (am/pm) so:
-  • PM curator excludes what AM already covered today
-  • AM curator pulls yesterday's PM stories for the recap segment
-  • 3-day cooldown applies across both editions combined
+Tracks stories by edition (morning/midday/evening) so:
+  • Later editions get context about what earlier editions covered (soft dedup)
+  • 3-day cooldown applies across all editions combined
+  • Same-day stories can be revisited with UPDATE framing
 """
 
 import os
@@ -18,6 +18,8 @@ from anthropic import Anthropic
 
 log = logging.getLogger("story_memory")
 DB_PATH = Path("database/story_memory.db")
+
+EDITION_ORDER = ["morning", "midday", "evening"]
 
 
 def init_db():
@@ -101,57 +103,36 @@ def get_recently_covered(days: int = 5, edition: str = None) -> list:
     ]
 
 
-def get_am_story_headlines(episode_date: str) -> list:
+def get_earlier_edition_headlines(episode_date: str, current_edition: str) -> list:
     """
-    Return AM headlines already covered today.
-    Used by the PM curator to avoid repetition.
+    Return headlines from earlier editions on the same day.
+    Used to provide context (not exclusion) to later edition curators.
+
+    For morning: returns nothing (it's the first edition).
+    For midday: returns morning headlines.
+    For evening: returns morning + midday headlines.
     """
     init_db()
-    conn = sqlite3.connect(DB_PATH)
-    rows = conn.execute(
-        """SELECT headline FROM covered_stories
-           WHERE episode_date = ? AND edition = 'am'
-           ORDER BY id DESC""",
-        (episode_date,),
-    ).fetchall()
-    conn.close()
-    return [r[0] for r in rows]
+    current_idx = EDITION_ORDER.index(current_edition.lower()) if current_edition.lower() in EDITION_ORDER else 0
+    earlier_editions = EDITION_ORDER[:current_idx]
 
-
-def get_yesterday_pm_recap(today_date: str) -> list:
-    """
-    Return yesterday's PM stories for the AM recap segment.
-    Returns up to 3, balanced across categories.
-    """
-    init_db()
-    yesterday = (datetime.strptime(today_date, "%Y-%m-%d") - timedelta(days=1)).strftime("%Y-%m-%d")
-    conn = sqlite3.connect(DB_PATH)
-    rows = conn.execute(
-        """SELECT headline, category, companies FROM covered_stories
-           WHERE episode_date = ? AND edition = 'pm'
-           ORDER BY id DESC LIMIT 10""",
-        (yesterday,),
-    ).fetchall()
-    conn.close()
-    if not rows:
+    if not earlier_editions:
         return []
-    results, seen_cats = [], set()
-    for row in rows:
-        cat = row[1]
-        if cat not in seen_cats or len(results) < 2:
-            results.append({
-                "headline":  row[0],
-                "category":  cat,
-                "companies": json.loads(row[2]),
-            })
-            seen_cats.add(cat)
-        if len(results) >= 3:
-            break
-    return results
+
+    conn = sqlite3.connect(DB_PATH)
+    placeholders = ",".join("?" for _ in earlier_editions)
+    rows = conn.execute(
+        f"""SELECT headline, edition FROM covered_stories
+           WHERE episode_date = ? AND edition IN ({placeholders})
+           ORDER BY id DESC""",
+        (episode_date, *earlier_editions),
+    ).fetchall()
+    conn.close()
+    return [{"headline": r[0], "edition": r[1]} for r in rows]
 
 
 def build_recently_covered_summary(days: int = 3) -> str:
-    """Formatted string for the curator prompt (both editions combined)."""
+    """Formatted string for the curator prompt (all editions combined)."""
     recent = get_recently_covered(days)
     if not recent:
         return "No recent episode history available."

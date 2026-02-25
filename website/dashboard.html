@@ -666,6 +666,9 @@ body {
   position: absolute; left: 0; top: 0; bottom: 0;
   width: 3px;
 }
+.sponsor-card.slot-pre-intro::before { background: var(--green); }
+.sponsor-card.slot-post-intro::before { background: var(--amber); }
+.sponsor-card.slot-pre-outro::before { background: var(--blue); }
 .sponsor-card.slot-mid::before { background: var(--green); }
 .sponsor-card.slot-outro::before { background: var(--amber); }
 .sponsor-card.slot-post-roll::before { background: var(--blue); }
@@ -685,6 +688,9 @@ body {
   padding: 2px 7px;
   border-radius: 3px;
 }
+.ssb-pre-intro { background: var(--green-dim); color: var(--green); }
+.ssb-post-intro { background: var(--amber-dim); color: var(--amber); }
+.ssb-pre-outro { background: var(--blue-dim); color: var(--blue); }
 .ssb-mid { background: var(--green-dim); color: var(--green); }
 .ssb-outro { background: var(--amber-dim); color: var(--amber); }
 .ssb-post-roll { background: var(--blue-dim); color: var(--blue); }
@@ -1263,7 +1269,7 @@ const SAMPLE_BRIEF = {
 
 const SAMPLE_BRIEF_PM = {
   episode_date: new Date().toISOString().split('T')[0],
-  edition: "pm",
+  edition: "midday",
   show_theme: "Evening wrap: the biggest moves from today's markets and the tech stories that will carry into tomorrow",
   business_stories: [
     {
@@ -1375,10 +1381,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     })
     .catch(() => {
-      // Auto-select AM or PM sample based on time of day
+      // Auto-select sample based on time of day
       const hour = new Date().getHours();
       const brief = hour >= 14 ? SAMPLE_BRIEF_PM : SAMPLE_BRIEF;
-      const edition = hour >= 14 ? 'PM' : 'AM';
+      const edition = hour < 10 ? 'Morning' : hour < 16 ? 'Midday' : 'Evening';
       loadBrief(brief);
       log_('info', `Using sample ${edition} brief (no episodes.json found)`);
     })
@@ -1719,7 +1725,7 @@ function renderSponsors() {
     const editionBadges = (s.editions || []).map(e =>
       `<span class="sponsor-edition-badge">${e.toUpperCase()}</span>`
     ).join(' ');
-    const voiceNames = {alex: 'Alex Chen', morgan: 'Morgan Lee', drew: 'Drew Vasquez'};
+    const voiceNames = {alex: 'Alex Chen', morgan: 'Morgan Lee', drew: 'Drew Vasquez', priya: 'Priya Nair', marcus: 'Marcus Cole', sam: 'Sam Torres', jordan: 'Jordan Blake'};
     const voiceBadge = s.voice ? `<span class="sponsor-voice-badge">${voiceNames[s.voice] || s.voice}</span>` : '';
     const dateRange = `${s.start_date || '—'} → ${s.end_date || '—'}`;
     const scriptPreview = s.script ? `<div class="sponsor-script-preview" onclick="this.classList.toggle('expanded')" title="Click to expand">${escapeHtml(s.script)}</div>` : '';
@@ -1754,7 +1760,7 @@ function showSponsorForm(idx) {
   const s = idx !== undefined ? sponsors[idx] : {};
   const isEdit = idx !== undefined;
   const container = document.getElementById('sponsor-form-container');
-  const voiceNames = {alex: 'Alex Chen', morgan: 'Morgan Lee', drew: 'Drew Vasquez'};
+  const voiceNames = {alex: 'Alex Chen', morgan: 'Morgan Lee', drew: 'Drew Vasquez', priya: 'Priya Nair', marcus: 'Marcus Cole', sam: 'Sam Torres', jordan: 'Jordan Blake'};
   container.innerHTML = `
     <div class="sponsor-form">
       <div style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);margin-bottom:16px;">
@@ -1784,9 +1790,9 @@ function showSponsorForm(idx) {
         <div class="inject-form-group">
           <label class="inject-label">Slot</label>
           <select class="inject-select" id="sp-slot">
-            <option value="mid" ${s.slot === 'mid' ? 'selected' : ''}>Mid</option>
-            <option value="outro" ${s.slot === 'outro' ? 'selected' : ''}>Outro</option>
-            <option value="post-roll" ${s.slot === 'post-roll' ? 'selected' : ''}>Post-roll</option>
+            <option value="pre-intro" ${s.slot === 'pre-intro' ? 'selected' : ''}>Pre-intro</option>
+            <option value="post-intro" ${s.slot === 'post-intro' ? 'selected' : ''}>Post-intro</option>
+            <option value="pre-outro" ${s.slot === 'pre-outro' ? 'selected' : ''}>Pre-outro</option>
           </select>
         </div>
         <div class="inject-form-group">
@@ -1795,13 +1801,18 @@ function showSponsorForm(idx) {
             <option value="alex" ${s.voice === 'alex' ? 'selected' : ''}>Alex Chen</option>
             <option value="morgan" ${s.voice === 'morgan' ? 'selected' : ''}>Morgan Lee</option>
             <option value="drew" ${s.voice === 'drew' ? 'selected' : ''}>Drew Vasquez</option>
+            <option value="priya" ${s.voice === 'priya' ? 'selected' : ''}>Priya Nair</option>
+            <option value="marcus" ${s.voice === 'marcus' ? 'selected' : ''}>Marcus Cole</option>
+            <option value="sam" ${s.voice === 'sam' ? 'selected' : ''}>Sam Torres</option>
+            <option value="jordan" ${s.voice === 'jordan' ? 'selected' : ''}>Jordan Blake</option>
           </select>
         </div>
         <div class="inject-form-group">
           <label class="inject-label">Editions</label>
           <div class="edition-checkbox-grid">
-            <label><input type="checkbox" id="sp-ed-am" ${(s.editions || []).includes('am') ? 'checked' : ''}> AM</label>
-            <label><input type="checkbox" id="sp-ed-pm" ${(s.editions || []).includes('pm') ? 'checked' : ''}> PM</label>
+            <label><input type="checkbox" id="sp-ed-morning" ${(s.editions || []).includes('morning') ? 'checked' : ''}> Morning</label>
+            <label><input type="checkbox" id="sp-ed-midday" ${(s.editions || []).includes('midday') ? 'checked' : ''}> Midday</label>
+            <label><input type="checkbox" id="sp-ed-evening" ${(s.editions || []).includes('evening') ? 'checked' : ''}> Evening</label>
           </div>
         </div>
         <div class="inject-form-group">
@@ -1846,8 +1857,9 @@ function saveSponsor() {
     return;
   }
   const editions = [];
-  if (document.getElementById('sp-ed-am').checked) editions.push('am');
-  if (document.getElementById('sp-ed-pm').checked) editions.push('pm');
+  if (document.getElementById('sp-ed-morning').checked) editions.push('morning');
+  if (document.getElementById('sp-ed-midday').checked) editions.push('midday');
+  if (document.getElementById('sp-ed-evening').checked) editions.push('evening');
 
   const sponsor = {
     id: editingSponsorIdx !== null ? sponsors[editingSponsorIdx].id : name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now(),
@@ -1926,7 +1938,7 @@ function renderSponsorSummary() {
     const slotBadge = `ssb-${s.slot || 'mid'}`;
     const slotLabel = (s.slot || 'mid').replace('-', ' ');
     return `
-      <div class="queue-item" style="border-left:3px solid ${s.slot === 'mid' ? 'var(--green)' : s.slot === 'outro' ? 'var(--amber)' : 'var(--blue)'};">
+      <div class="queue-item" style="border-left:3px solid ${s.slot === 'pre-intro' || s.slot === 'mid' ? 'var(--green)' : s.slot === 'post-intro' || s.slot === 'outro' ? 'var(--amber)' : 'var(--blue)'};">
         <div class="qi-headline">${escapeHtml(s.name)}</div>
         <div class="qi-meta">
           <span class="sponsor-slot-badge ${slotBadge}">${slotLabel}</span>
@@ -2097,9 +2109,11 @@ function renderHistory() {
     .then(data => {
       if (!Array.isArray(data) || data.length === 0) throw new Error('empty');
       body.innerHTML = data.slice(0, 20).map(ep => {
-        const editionColor = ep.edition === 'pm' ? 'var(--blue)' : 'var(--amber)';
-        const editionBg = ep.edition === 'pm' ? 'var(--blue-dim)' : 'var(--amber-dim)';
-        const editionLabel = (ep.edition || 'am').toUpperCase();
+        const editionColors = {morning:'var(--amber)',midday:'var(--green)',evening:'var(--blue)',am:'var(--amber)',pm:'var(--blue)'};
+        const editionBgs = {morning:'var(--amber-dim)',midday:'var(--green-dim)',evening:'var(--blue-dim)',am:'var(--amber-dim)',pm:'var(--blue-dim)'};
+        const editionColor = editionColors[ep.edition] || 'var(--amber)';
+        const editionBg = editionBgs[ep.edition] || 'var(--amber-dim)';
+        const editionLabel = (ep.edition || 'morning').toUpperCase();
         const storyCount = (ep.business_stories?.length || 0) + (ep.overlap_stories?.length || 0) + (ep.tech_stories?.length || 0);
         return `
           <div style="padding:14px 16px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;background:var(--panel2);">

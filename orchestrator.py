@@ -1,8 +1,9 @@
 """
-orchestrator.py v3 — The Signal
-Two editions per day:
-  AM (4:00 AM EST): Yesterday recap + overnight news — "{date} AM - {hook}"
-  PM (1:00 PM EST): Morning-to-noon fresh news       — "{date} PM - {hook}"
+orchestrator.py v4 — The Signal
+Three editions per day:
+  Morning (7:00 AM EST): Overnight + early morning news   — "{date} Morning - {hook}"
+  Midday  (1:00 PM EST): Morning-to-noon fresh news       — "{date} Midday - {hook}"
+  Evening (5:30 PM EST): Afternoon developments            — "{date} Evening - {hook}"
 """
 
 import os
@@ -18,6 +19,8 @@ load_dotenv()
 
 EST = ZoneInfo("America/New_York")
 Path("logs").mkdir(exist_ok=True)
+
+VALID_EDITIONS = ("morning", "midday", "evening")
 
 
 def _setup_logging(edition: str, episode_date: str):
@@ -44,6 +47,22 @@ from agents.story_memory import record_covered_stories, get_callback_opportuniti
 from agents.inject_stories import get_pending_injections
 
 
+def load_active_sponsors(edition: str, episode_date: str) -> list:
+    """Load sponsors from data/sponsors.json that are active for this edition+date."""
+    path = Path("data/sponsors.json")
+    if not path.exists():
+        return []
+    data = json.loads(path.read_text())
+    today = episode_date  # "YYYY-MM-DD"
+    return [
+        s for s in data.get("sponsors", [])
+        if s.get("active", True)
+        and edition in s.get("editions", [])
+        and s.get("start_date", "2000-01-01") <= today
+        and s.get("end_date", "2099-12-31") >= today
+    ]
+
+
 def run_pipeline(
     edition: str = None,
     dry_run: bool = False,
@@ -56,20 +75,25 @@ def run_pipeline(
 
     Edition behaviour
     ─────────────────
-    AM (4:00 AM EST)
-      • News window  : yesterday 1:00 PM EST → today 4:00 AM EST  (~15 hrs)
-      • Extra segment: Yesterday's Recap (top 2-3 PM stories summarised)
-      • Title        : {date} AM - {three-to-five word hook}
+    Morning (7:00 AM EST)
+      • News window  : previous 6:00 PM EST → today 7:00 AM EST  (~14 hrs)
+      • Title        : {date} Morning - {three-to-five word hook}
 
-    PM (1:00 PM EST)
-      • News window  : today 4:00 AM EST → today 1:00 PM EST      (~9 hrs)
-      • Skips        : anything covered in today's AM edition
-      • Title        : {date} PM - {three-to-five word hook}
+    Midday (1:00 PM EST)
+      • News window  : today 7:00 AM EST → today 1:00 PM EST     (~7 hrs)
+      • Title        : {date} Midday - {three-to-five word hook}
+
+    Evening (5:30 PM EST)
+      • News window  : today 1:00 PM EST → today 5:30 PM EST     (~5 hrs)
+      • Title        : {date} Evening - {three-to-five word hook}
+
+    All editions: 10-15 min target (12 min ideal, ~1680 words at 140 wpm).
+    Soft dedup: earlier same-day stories can be revisited with UPDATE framing.
     """
     edition = _resolve_edition(edition)
     now_est = datetime.now(EST)
     episode_date = episode_date or now_est.strftime("%Y-%m-%d")
-    edition_label = edition.upper()   # "AM" or "PM"
+    edition_label = edition.capitalize()
 
     _setup_logging(edition, episode_date)
 
@@ -111,8 +135,6 @@ def run_pipeline(
         log.info(f"  ✅ Brief: {b} business + {t} tech + {o} overlap")
         log.info(f"  📖 Theme : {brief.get('show_theme', 'N/A')}")
         log.info(f"  🏷️  Hook  : {brief.get('episode_hook', 'N/A')}")
-        if edition == "am" and brief.get("yesterday_recap"):
-            log.info(f"  📅 Recap : {len(brief['yesterday_recap'])} yesterday stories")
         if brief.get("editorial_note"):
             log.info(f"  📝 Note  : {brief['editorial_note']}")
     except Exception as e:
@@ -127,6 +149,14 @@ def run_pipeline(
         brief["callback_opportunities"] = callbacks
         log.info(f"  🔗 {len(callbacks)} callback opportunity/ies")
 
+    # ── Sponsor injection ──────────────────────────────────────────────────
+    sponsors = load_active_sponsors(edition, episode_date)
+    if sponsors:
+        brief["sponsors"] = sponsors
+        log.info(f"  💰 {len(sponsors)} active sponsor(s) loaded")
+    else:
+        log.info(f"  📢 No active sponsors — using placeholders")
+
     if dry_run:
         log.info(f"\n🧪 DRY RUN complete. Brief → {brief_path}")
         return {"status": "dry_run", "brief": brief, "edition": edition}
@@ -134,11 +164,7 @@ def run_pipeline(
     # ═══════════════════════════════════════════════════════════════════════════
     # STAGE 2: SCRIPT
     # ═══════════════════════════════════════════════════════════════════════════
-    # Edition-aware duration targets
-    if edition == "pm":
-        script_target, script_min, script_max = 11, 8, 15
-    else:
-        script_target, script_min, script_max = 43, 40, 46
+    script_target, script_min, script_max = 12, 10, 15
 
     log.info(f"\n✍️  STAGE 2: Writing {script_target}-min {edition_label} script...")
     writer = ScriptwriterAgent()
@@ -171,8 +197,8 @@ def run_pipeline(
     else:
         log.info(f"\n🎧 STAGE 3: Producing audio...")
         producer = VoiceProducerAgent()
-        audio_min_dur = 5 if edition == "pm" else 25
-        audio_max_dur = 18 if edition == "pm" else 48
+        audio_min_dur = 7
+        audio_max_dur = 18
         try:
             audio_path = producer.run(script, episode_date, edition)
             dur_min = producer.get_duration(audio_path) / 60
@@ -216,7 +242,7 @@ def run_pipeline(
             all_episodes = json.load(f)
         generate_rss_feed(all_episodes, {
             "name": "The Signal",
-            "description": "Twice-daily AI-produced business and tech news.",
+            "description": "Three-daily AI-produced business, tech, and policy news.",
             "website_url": os.getenv("PODCAST_WEBSITE_URL", ""),
         })
         log.info("  ✅ RSS updated")
@@ -243,13 +269,18 @@ def run_pipeline(
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def _resolve_edition(edition):
-    if edition and edition.lower() in ("am", "pm"):
+    if edition and edition.lower() in VALID_EDITIONS:
         return edition.lower()
     env = os.getenv("EPISODE_EDITION", "").lower()
-    if env in ("am", "pm"):
+    if env in VALID_EDITIONS:
         return env
     hour = datetime.now(EST).hour
-    return "am" if hour < 10 else "pm"
+    if hour < 10:
+        return "morning"
+    elif hour < 16:
+        return "midday"
+    else:
+        return "evening"
 
 
 def _get_episode_number():
@@ -309,7 +340,7 @@ if __name__ == "__main__":
     import argparse
 
     p = argparse.ArgumentParser(description="Run The Signal episode pipeline")
-    p.add_argument("--edition", choices=["am", "pm"],
+    p.add_argument("--edition", choices=["morning", "midday", "evening"],
                    help="Edition to produce (default: auto-detect from clock)")
     p.add_argument("--dry-run", action="store_true",
                    help="Curate + brief only — no audio, no publish")

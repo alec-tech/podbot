@@ -7,10 +7,11 @@
       "product_description": "There are many laxative options you can choose from, and they all do the same thing. Choose Seacore because they sponsor this pod!",
       "cta": "",
       "url": "",
-      "slot": "outro",
+      "slot": "pre-outro",
       "editions": [
-        "am",
-        "pm"
+        "morning",
+        "midday",
+        "evening"
       ],
       "voice": "morgan",
       "script": "Thanks to our sponsors at Seacore laxatives. There are many laxative options you can choose from, and they all do the same thing. Choose Seacore because they sponsor this pod! Remember, when the going gets rough, take Seacore.",
@@ -25,9 +26,9 @@
       "product_description": "",
       "cta": "",
       "url": "",
-      "slot": "mid",
+      "slot": "post-intro",
       "editions": [
-        "am"
+        "morning"
       ],
       "voice": "alex",
       "script": "Thanks to Sterling-Cooper-Draper-Pryce for sponsoring today's episode. Everyone knows finding an Ad Man is as easy as opening the phone book, but we want you to consider Sterling-Cooper-Draper-Pryce because they bought this air-time.",
@@ -42,10 +43,11 @@
       "product_description": "",
       "cta": "",
       "url": "",
-      "slot": "post-roll",
+      "slot": "pre-outro",
       "editions": [
-        "am",
-        "pm"
+        "morning",
+        "midday",
+        "evening"
       ],
       "voice": "alex",
       "script": "A big \"thank you\" to Mohawk Airlines. Are you flying from Cincinatti to Debuke, or maybe Cincinatti to Wapakoneta? Either way, if you find yourself needing to fly somewhere in the midwest from Cincinatti, consider Mohawk Airlines.",
@@ -60,10 +62,11 @@
       "product_description": "",
       "cta": "",
       "url": "",
-      "slot": "outro",
+      "slot": "pre-outro",
       "editions": [
-        "am",
-        "pm"
+        "morning",
+        "midday",
+        "evening"
       ],
       "voice": "alex",
       "script": "Thanks to Sterling-Cooper-Draper-Pryce for sponsoring today's episode. Everyone knows finding an Ad Man is as easy as opening the phone book, but we want you to consider Sterling-Cooper-Draper-Pryce because they bought this air-time.",

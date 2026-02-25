@@ -1,46 +1,36 @@
 # 🎙️ The Signal — Complete Setup & Operations Guide
 
-> A fully autonomous AI-powered **twice-daily** podcast covering business and tech news.
-> Two editions. 43 minutes each. Two sponsor spots per episode. Zero human intervention after setup.
+> A fully autonomous AI-powered **three-daily** podcast covering business, tech, and policy news.
+> Three 10-15 minute editions. Three optional sponsor slots per episode. Zero human intervention after setup.
 
 ---
 
 ## How It Works
 
-| Edition | Time (EST) | Content | Title Format |
-|---------|-----------|---------|-------------|
-| **AM** | 4:00 AM | Yesterday's recap + overnight news | `2026-02-24 AM - Markets Brace For Impact` |
-| **PM** | 1:00 PM | News from 4 AM to 1 PM | `2026-02-24 PM - Fed Breaks From Script` |
+| Edition | Time (EST) | News Window | Title Format |
+|---------|-----------|-------------|-------------|
+| **Morning** | 7:00 AM | Prev 6 PM → 7 AM (~14 hrs) | `2026-02-24 Morning - Markets Brace For Impact` |
+| **Midday** | 1:00 PM | 7 AM → 1 PM (~7 hrs) | `2026-02-24 Midday - Fed Breaks From Script` |
+| **Evening** | 5:30 PM | 1 PM → 5:30 PM (~5 hrs) | `2026-02-24 Evening - AI Chips Change Everything` |
 
-**AM episode structure:**
+**Unified episode structure (all editions, ~12 min):**
 ```
-0:00–1:30   Cold Open (tease biggest overnight story)
-1:30–2:30   Intro ("good morning, welcome to The Signal...")
-2:30–7:30   Yesterday's Recap (2-3 PM stories, 90 sec each)
-7:30–8:30   Sponsor Spot 1 — Alex reads
-8:30–20:00  Overnight Business Block (2 stories)
-20:00–27:00 Overnight Crossover Segment (Drew joins)
-27:00–40:00 Overnight Tech Block (2 stories)
-40:00–41:00 Sponsor Spot 2 — Morgan reads
-41:00–43:00 Wrap ("we'll be back at 1 PM...")
+0:00–0:30   Pre-Intro Sponsor (optional)
+0:30–1:00   Intro
+1:00–1:30   Post-Intro Sponsor (optional)
+1:30–4:30   Business Block (2 stories, Alex leads)
+4:30–7:30   Crossover Segment (rotating guest joins)
+7:30–10:30  Tech Block (2 stories, Morgan leads)
+10:30–11:00 Pre-Outro Sponsor (optional)
+11:00–12:00 Wrap + Signoff
 ```
 
-**PM episode structure:**
-```
-0:00–1:30   Cold Open (tease biggest morning story)
-1:30–2:30   Intro ("good afternoon, welcome to The Signal...")
-2:30–15:00  Morning Business Block (3 stories)
-15:00–16:00 Sponsor Spot 1 — Alex reads
-16:00–23:00 Crossover Segment (Drew joins)
-23:00–40:00 Morning Tech Block (3 stories)
-40:00–41:00 Sponsor Spot 2 — Morgan reads
-41:00–43:00 Wrap ("we'll be back tomorrow at 4 AM...")
-```
+**Hosts:** Alex Chen (business) and Morgan Lee (tech) anchor every episode, joined by one rotating crossover guest: Drew Vasquez (geopolitics), Priya Nair (AI/deep tech), Marcus Cole (policy), Sam Torres (startups), or Jordan Blake (consumer/culture).
 
 **How the editions stay in sync:**
-- AM reads yesterday's PM story memory → builds the recap segment automatically
-- PM reads today's AM story memory → excludes those topics from fresh coverage
-- Neither edition covers the same story twice within a 3-day window
+- Soft dedup: earlier same-day stories provide context, not hard exclusion
+- Stories CAN be revisited with UPDATE framing if major new developments occur
+- 3-day cooldown applies across all editions combined
 
 ---
 
@@ -150,6 +140,7 @@ ELEVENLABS_VOICE_DREW=dllHSct4GokGc1AH9JwT
 BUZZSPROUT_API_KEY=176da6e94e51100209b5d39d0b91d520
 BUZZSPROUT_PODCAST_ID=2598725
 PODCAST_WEBSITE_URL=https://the-beacon.netlify.app
+CARTESIA_API_KEY=sk_car_oHbuEyw9iUwZtZ96Lf9XQv
 ```
 
 **Recommended:**

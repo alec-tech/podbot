@@ -1,26 +1,28 @@
 # ============================================================
-# The Signal — Twice-Daily Episode Production
+# The Signal — Three-Daily Episode Production
 # ============================================================
-# AM edition: 9:00 AM UTC = 4:00 AM EST  (overnight + yesterday recap)
-# PM edition: 6:00 PM UTC = 1:00 PM EST  (morning news)
+# Morning edition: 12:00 PM UTC = 7:00 AM EST
+# Midday edition:  6:00 PM UTC = 1:00 PM EST
+# Evening edition: 10:30 PM UTC = 5:30 PM EST
 #
 # Manual trigger: GitHub → Actions → Daily Episodes → Run workflow
 # ============================================================
 
-name: Daily Episodes (AM + PM)
+name: Daily Episodes (Morning + Midday + Evening)
 
 on:
   schedule:
-    - cron: '0 9  * * 1-5'    # 9 AM UTC  = 4 AM EST  (AM edition)
-    - cron: '0 18 * * 1-5'    # 6 PM UTC  = 1 PM EST  (PM edition)
+    - cron: '0 12  * * 1-5'    # 12 PM UTC = 7 AM EST  (Morning edition)
+    - cron: '0 18  * * 1-5'    # 6 PM UTC  = 1 PM EST  (Midday edition)
+    - cron: '30 22 * * 1-5'    # 10:30 PM UTC = 5:30 PM EST (Evening edition)
 
   workflow_dispatch:
     inputs:
       edition:
         description: 'Which edition to produce'
         type: choice
-        options: ['am', 'pm']
-        default: 'am'
+        options: ['morning', 'midday', 'evening']
+        default: 'morning'
       dry_run:
         description: 'Dry run (curation only, no audio or publishing)'
         type: boolean
@@ -50,12 +52,14 @@ jobs:
           if [ -n "${{ github.event.inputs.edition }}" ]; then
             EDITION="${{ github.event.inputs.edition }}"
           else
-            # Cron: 9 AM UTC = AM, 18 PM UTC = PM
+            # Cron: 12 UTC = morning, 18 UTC = midday, 22 UTC = evening
             HOUR=$(date -u +%H | sed 's/^0//')
-            if [ "$HOUR" -lt 14 ]; then
-              EDITION="am"
+            if [ "$HOUR" -lt 15 ]; then
+              EDITION="morning"
+            elif [ "$HOUR" -lt 20 ]; then
+              EDITION="midday"
             else
-              EDITION="pm"
+              EDITION="evening"
             fi
           fi
           echo "edition=$EDITION" >> $GITHUB_OUTPUT
@@ -101,10 +105,9 @@ jobs:
         env:
           EPISODE_EDITION:              ${{ steps.detect.outputs.edition }}
           ANTHROPIC_API_KEY:            ${{ secrets.ANTHROPIC_API_KEY }}
+          CARTESIA_API_KEY:             ${{ secrets.CARTESIA_API_KEY }}
+          OPENAI_API_KEY:               ${{ secrets.OPENAI_API_KEY }}
           ELEVENLABS_API_KEY:           ${{ secrets.ELEVENLABS_API_KEY }}
-          ELEVENLABS_VOICE_ALEX:        ${{ secrets.ELEVENLABS_VOICE_ALEX }}
-          ELEVENLABS_VOICE_MORGAN:      ${{ secrets.ELEVENLABS_VOICE_MORGAN }}
-          ELEVENLABS_VOICE_DREW:        ${{ secrets.ELEVENLABS_VOICE_DREW }}
           BUZZSPROUT_API_KEY:           ${{ secrets.BUZZSPROUT_API_KEY }}
           BUZZSPROUT_PODCAST_ID:        ${{ secrets.BUZZSPROUT_PODCAST_ID }}
           NEWS_API_KEY:                 ${{ secrets.NEWS_API_KEY }}
@@ -157,11 +160,14 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           EDITION="${{ steps.detect.outputs.edition }}"
-          ICON=$([ "$EDITION" = "am" ] && echo "🌅" || echo "☀️")
+          ICONS="morning:🌅 midday:☀️ evening:🌆"
+          ICON=$(echo "$ICONS" | tr ' ' '\n' | grep "^$EDITION:" | cut -d: -f2)
+          ICON=${ICON:-🎙️}
+          LABEL=$(echo "$EDITION" | sed 's/.*/\u&/')
           if [ -n "$SLACK_WEBHOOK_URL" ]; then
             curl -s -X POST "$SLACK_WEBHOOK_URL" \
               -H 'Content-type: application/json' \
-              -d "{\"text\":\"✅ *The Signal* ${ICON} ${EDITION^^} published — $(date +'%A %B %-d')\"}"
+              -d "{\"text\":\"✅ *The Signal* ${ICON} ${LABEL} published — $(date +'%A %B %-d')\"}"
           fi
 
       - name: Notify failure
@@ -170,8 +176,9 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           EDITION="${{ steps.detect.outputs.edition }}"
+          LABEL=$(echo "$EDITION" | sed 's/.*/\u&/')
           if [ -n "$SLACK_WEBHOOK_URL" ]; then
             curl -s -X POST "$SLACK_WEBHOOK_URL" \
               -H 'Content-type: application/json' \
-              -d "{\"text\":\"🚨 *The Signal* ${EDITION^^} FAILED — run #${{ github.run_number }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
+              -d "{\"text\":\"🚨 *The Signal* ${LABEL} FAILED — run #${{ github.run_number }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
           fi

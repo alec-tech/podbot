@@ -1,10 +1,11 @@
 """
-agents/inject_stories.py v3 — Edition-Aware Story Injection
+agents/inject_stories.py v4 — Edition-Aware Story Injection
 
 Injections can target:
-  --edition am      → AM edition only
-  --edition pm      → PM edition only
-  --edition both    → both editions (default)
+  --edition morning   → Morning edition only
+  --edition midday    → Midday edition only
+  --edition evening   → Evening edition only
+  --edition all       → all three editions (default)
 
 Priority levels:
   must_include  — AI cannot drop, only improve framing
@@ -27,13 +28,13 @@ client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 INJECTIONS_FILE = Path("data/injected_stories.json")
 ARCHIVE_DIR     = Path("data/injection_archive")
 PRIORITY_LEVELS = {"must_include", "consider", "background"}
-EDITION_VALUES  = {"am", "pm", "both"}
+EDITION_VALUES  = {"morning", "midday", "evening", "all"}
 
 
 # ─── Public API ───────────────────────────────────────────────────────────────
 
 def inject_from_url(url: str, priority: str = "consider", note: str = "",
-                    submitted_by: str = "producer", edition: str = "both") -> dict:
+                    submitted_by: str = "producer", edition: str = "all") -> dict:
     priority = _validate_priority(priority)
     edition  = _validate_edition(edition)
     raw      = _fetch_url_content(url)
@@ -45,7 +46,7 @@ def inject_from_url(url: str, priority: str = "consider", note: str = "",
 
 
 def inject_from_text(text: str, priority: str = "consider", note: str = "",
-                     submitted_by: str = "producer", edition: str = "both") -> dict:
+                     submitted_by: str = "producer", edition: str = "all") -> dict:
     priority = _validate_priority(priority)
     edition  = _validate_edition(edition)
     enriched = _enrich_story(text, url="", note=note)
@@ -56,7 +57,7 @@ def inject_from_text(text: str, priority: str = "consider", note: str = "",
 
 
 def inject_from_topic(topic: str, priority: str = "consider", note: str = "",
-                      submitted_by: str = "producer", edition: str = "both") -> dict:
+                      submitted_by: str = "producer", edition: str = "all") -> dict:
     priority = _validate_priority(priority)
     edition  = _validate_edition(edition)
     enriched = _research_topic(topic, note)
@@ -66,7 +67,7 @@ def inject_from_topic(topic: str, priority: str = "consider", note: str = "",
     return record
 
 
-def get_pending_injections(episode_date: str, edition: str = "both") -> list:
+def get_pending_injections(episode_date: str, edition: str = "all") -> list:
     """Return injections relevant to this date + edition."""
     _archive_old_injections()
     if not INJECTIONS_FILE.exists():
@@ -80,8 +81,9 @@ def get_pending_injections(episode_date: str, edition: str = "both") -> list:
             continue
         if inj.get("target_date") not in (episode_date, None, ""):
             continue
-        inj_ed = inj.get("edition", "both").lower()
-        if inj_ed == "both" or inj_ed == edition:
+        inj_ed = inj.get("edition", "all").lower()
+        # "all" and legacy "both" match any edition
+        if inj_ed in ("all", "both") or inj_ed == edition:
             pending.append(inj)
     return pending
 
@@ -98,8 +100,8 @@ def mark_injections_used(episode_date: str, edition: str):
             continue
         if inj.get("target_date") not in (episode_date, None, ""):
             continue
-        inj_ed = inj.get("edition", "both").lower()
-        if inj_ed == "both" or inj_ed == edition:
+        inj_ed = inj.get("edition", "all").lower()
+        if inj_ed in ("all", "both") or inj_ed == edition:
             inj["used"]            = True
             inj["used_at"]         = datetime.now().isoformat()
             inj["used_by_edition"] = edition
@@ -107,7 +109,7 @@ def mark_injections_used(episode_date: str, edition: str):
         json.dump(all_injections, f, indent=2)
 
 
-def list_pending_injections(episode_date: str = None, edition: str = "both"):
+def list_pending_injections(episode_date: str = None, edition: str = "all"):
     target = episode_date or str(date.today())
     pending = get_pending_injections(target, edition)
     if not pending:
@@ -293,8 +295,8 @@ if __name__ == "__main__":
 
     p.add_argument("--priority", default="consider",
                    choices=["must_include", "consider", "background"])
-    p.add_argument("--edition", default="both", choices=["am", "pm", "both"],
-                   help="Which edition to target (default: both)")
+    p.add_argument("--edition", default="all", choices=["morning", "midday", "evening", "all"],
+                   help="Which edition to target (default: all)")
     p.add_argument("--note", default="")
     p.add_argument("--by",   default="producer")
     p.add_argument("--date", default=None, help="Target date YYYY-MM-DD")

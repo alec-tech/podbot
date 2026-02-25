@@ -1,36 +1,43 @@
 {
   "show": {
     "name": "The Signal",
-    "tagline": "Twice-daily business and tech intelligence",
-    "description": "Every weekday: two episodes. The 4 AM edition recaps yesterday and covers overnight news (43 min). The 1 PM edition is a quick highlights reel of the morning (11 min). No filler.",
-    "host_names": ["Alex Chen", "Morgan Lee", "Drew Vasquez"],
-    "sponsor_slots": 2,
+    "tagline": "Three-daily business, tech, and policy intelligence",
+    "description": "Every weekday: three 10-15 minute episodes. Morning at 7 AM, Midday at 1 PM, Evening at 5:30 PM. Business, tech, and policy news — curated, written, and hosted by AI. No filler.",
+    "host_names": ["Alex Chen", "Morgan Lee", "Drew Vasquez", "Priya Nair", "Marcus Cole", "Sam Torres", "Jordan Blake"],
+    "sponsor_slots": 3,
     "language": "en",
     "explicit": false,
     "category": "News",
     "subcategory": "Business News",
     "editions": {
-      "am": {
-        "publish_time_est": "04:00",
-        "publish_time_utc": "09:00",
-        "target_duration_minutes": 43,
-        "min_duration_minutes": 40,
-        "max_duration_minutes": 46,
-        "sponsor_slot_1_time": "07:30",
-        "sponsor_slot_2_time": "40:00",
-        "title_format": "{date} AM - {hook}",
-        "news_window_hours": 16,
-        "includes_recap": true
+      "morning": {
+        "publish_time_est": "07:00",
+        "publish_time_utc": "12:00",
+        "target_duration_minutes": 12,
+        "min_duration_minutes": 10,
+        "max_duration_minutes": 15,
+        "title_format": "{date} Morning - {hook}",
+        "news_window_hours": 14,
+        "includes_recap": false
       },
-      "pm": {
+      "midday": {
         "publish_time_est": "13:00",
         "publish_time_utc": "18:00",
-        "target_duration_minutes": 11,
-        "min_duration_minutes": 8,
+        "target_duration_minutes": 12,
+        "min_duration_minutes": 10,
         "max_duration_minutes": 15,
-        "sponsor_slot_1_time": "10:00",
-        "title_format": "{date} PM - {hook}",
-        "news_window_hours": 10,
+        "title_format": "{date} Midday - {hook}",
+        "news_window_hours": 7,
+        "includes_recap": false
+      },
+      "evening": {
+        "publish_time_est": "17:30",
+        "publish_time_utc": "22:30",
+        "target_duration_minutes": 12,
+        "min_duration_minutes": 10,
+        "max_duration_minutes": 15,
+        "title_format": "{date} Evening - {hook}",
+        "news_window_hours": 5,
         "includes_recap": false
       }
     }
@@ -38,25 +45,76 @@
   "voices": {
     "alex": {
       "description": "Business anchor — analytical, measured, authoritative",
-      "elevenlabs_id_env": "ELEVENLABS_VOICE_ALEX",
-      "stability": 0.55,
-      "similarity_boost": 0.75,
-      "style": 0.35
+      "type": "static",
+      "providers": {
+        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 0.95 },
+        "openai": { "voice_id": "onyx", "model": "gpt-4o-mini-tts", "instructions": "Analytical, measured, authoritative." },
+        "elevenlabs": { "voice_id": "pNInz6obpgDQGcFmaJgB", "stability": 0.55, "similarity_boost": 0.75, "style": 0.35 }
+      }
     },
     "morgan": {
       "description": "Tech correspondent — enthusiastic, substantive, fast-paced when excited",
-      "elevenlabs_id_env": "ELEVENLABS_VOICE_MORGAN",
-      "stability": 0.45,
-      "similarity_boost": 0.75,
-      "style": 0.50
+      "type": "static",
+      "providers": {
+        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 1.0 },
+        "openai": { "voice_id": "nova", "model": "gpt-4o-mini-tts", "instructions": "Enthusiastic, substantive, fast-paced when excited." },
+        "elevenlabs": { "voice_id": "21m00Tcm4TlvDq8ikWAM", "stability": 0.45, "similarity_boost": 0.75, "style": 0.50 }
+      }
     },
     "drew": {
-      "description": "Strategy analyst — deliberate, contrarian, big-picture",
-      "elevenlabs_id_env": "ELEVENLABS_VOICE_DREW",
-      "stability": 0.60,
-      "similarity_boost": 0.70,
-      "style": 0.30
+      "description": "Geopolitics & trade analyst — deliberate, contrarian, historical parallels",
+      "type": "rotating",
+      "topic_keywords": ["trade", "tariff", "sanctions", "geopolitics", "macro", "international", "export", "import", "treaty", "diplomacy"],
+      "providers": {
+        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 0.9 },
+        "openai": { "voice_id": "echo", "model": "gpt-4o-mini-tts", "instructions": "Deliberate, contrarian, draws historical parallels." },
+        "elevenlabs": { "voice_id": "AZnzlk1XvdvUeBnXmlld", "stability": 0.60, "similarity_boost": 0.70, "style": 0.30 }
+      }
+    },
+    "priya": {
+      "description": "AI & emerging tech specialist — patient explainer, challenges hype with implementation reality",
+      "type": "rotating",
+      "topic_keywords": ["ai", "artificial intelligence", "machine learning", "semiconductor", "chip", "deep tech", "neural", "model", "compute", "gpu"],
+      "providers": {
+        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 0.95 },
+        "openai": { "voice_id": "coral", "model": "gpt-4o-mini-tts", "instructions": "Patient, explanatory, challenges hype with implementation reality." },
+        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.50, "similarity_boost": 0.75, "style": 0.40 }
+      }
+    },
+    "marcus": {
+      "description": "Policy & regulation correspondent — former Hill staffer energy, wry, cause-and-effect reasoning",
+      "type": "rotating",
+      "topic_keywords": ["regulation", "antitrust", "privacy", "legislation", "congress", "executive order", "policy", "ftc", "sec", "doj", "compliance"],
+      "providers": {
+        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 0.95 },
+        "openai": { "voice_id": "alloy", "model": "gpt-4o-mini-tts", "instructions": "Wry former Hill staffer energy, cause-and-effect reasoning." },
+        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.55, "similarity_boost": 0.70, "style": 0.35 }
+      }
+    },
+    "sam": {
+      "description": "Startup & venture correspondent — founder-fluent, energetic, pushes back on dismissals",
+      "type": "rotating",
+      "topic_keywords": ["startup", "venture", "funding", "ipo", "unicorn", "series", "seed", "vc", "founder", "valuation", "acquisition"],
+      "providers": {
+        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 1.05 },
+        "openai": { "voice_id": "sage", "model": "gpt-4o-mini-tts", "instructions": "Energetic, founder-fluent, pushes back on dismissals." },
+        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.45, "similarity_boost": 0.75, "style": 0.50 }
+      }
+    },
+    "jordan": {
+      "description": "Consumer & culture analyst — bridges tech to ordinary people, slightly irreverent",
+      "type": "rotating",
+      "topic_keywords": ["consumer", "product launch", "social media", "adoption", "creator", "culture", "retail", "brand", "user", "app"],
+      "providers": {
+        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 1.0 },
+        "openai": { "voice_id": "shimmer", "model": "gpt-4o-mini-tts", "instructions": "Bridges tech to ordinary people, slightly irreverent." },
+        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.45, "similarity_boost": 0.75, "style": 0.50 }
+      }
     }
+  },
+  "tts": {
+    "provider_order": ["cartesia", "openai", "elevenlabs"],
+    "retries_per_provider": [3, 2, 2]
   },
   "audio": {
     "output_format": "mp3",
@@ -69,14 +127,12 @@
     "silence_between_lines_seconds": 0.35
   },
   "pipeline": {
-    "am_min_duration_minutes": 40,
-    "am_max_duration_minutes": 48,
-    "pm_min_duration_minutes": 8,
-    "pm_max_duration_minutes": 15,
+    "min_duration_minutes": 10,
+    "max_duration_minutes": 15,
+    "target_duration_minutes": 12,
     "retry_attempts": 3,
     "story_cooldown_days": 3,
     "fallback_to_previous_brief": true,
-    "am_recap_stories": 3,
-    "pm_excludes_am_stories": true
+    "stories_per_episode": 5
   }
 }

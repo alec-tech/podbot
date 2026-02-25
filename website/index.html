@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Signal — Daily Business & Tech Intelligence</title>
-<meta name="description" content="Twice-daily business and tech news podcast — a 43-minute AM deep dive and an 11-minute PM highlights edition. Curated, written, and hosted by AI. Every weekday.">
+<meta name="description" content="Three-daily business, tech, and policy news podcast — 10-15 minute Morning, Midday, and Evening editions. Curated, written, and hosted by AI. Every weekday.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
@@ -1300,7 +1300,7 @@ footer {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
             </button>
           </div>
-          <span class="player-time" id="totalTime">43:00</span>
+          <span class="player-time" id="totalTime">33:00</span>
         </div>
         <div class="player-chapters">
           <div class="chapter-label">Chapters</div>
@@ -1393,8 +1393,8 @@ footer {
       </a>
       <div class="featured-item">
         <div class="featured-label" style="color:var(--text-dim);">Format</div>
-        <div class="featured-title">Twice-Daily Intelligence Briefing</div>
-        <div class="featured-excerpt"><strong>AM:</strong> 43-minute deep dive with Alex, Morgan, and Drew. <strong>PM:</strong> 8–15 minute headlines recap with Alex and Morgan. Every weekday.</div>
+        <div class="featured-title">Three-Daily Intelligence Briefing</div>
+        <div class="featured-excerpt"><strong>Morning · Midday · Evening</strong> — Three 10-15 minute editions each weekday. Alex and Morgan anchor every episode, joined by a rotating crossover guest.</div>
       </div>
     </div>
     <div class="section-header" style="margin-top:32px;">
@@ -1536,16 +1536,16 @@ footer {
       <div class="sponsor-left">
         <div class="hero-eyebrow fade-up">Sponsor The Signal</div>
         <h2 class="fade-up fade-up-1">Reach the people<br>who <em>move</em> markets</h2>
-        <p>The Signal audience is made up of founders, operators, investors, and executives who tune in twice daily to stay sharp. Three premium sponsor slots per day mean your message isn't buried in a sea of ads.</p>
-        <p>The AM edition delivers a <strong>mid-roll spot</strong> at the 15-minute mark and a <strong>pre-outro spot</strong> at the 40-minute mark. The PM edition features a single <strong>post-roll spot</strong> after the closing segment — high intent listeners only.</p>
+        <p>The Signal audience is made up of founders, operators, investors, and executives who tune in three times daily to stay sharp. Three optional sponsor slots per episode mean your message reaches high-intent listeners.</p>
+        <p>Each edition offers up to three slots: <strong>pre-intro</strong>, <strong>post-intro</strong>, and <strong>pre-outro</strong>. Three editions per day — Morning, Midday, and Evening — means up to nine premium placements daily.</p>
         <div class="sponsor-stats">
           <div class="stat-box">
             <div class="stat-value" id="stat-eps">—</div>
             <div class="stat-label">Episodes Published</div>
           </div>
           <div class="stat-box">
-            <div class="stat-value">2×<span style="font-size:16px;">/day</span></div>
-            <div class="stat-label">AM + PM Editions</div>
+            <div class="stat-value">3×<span style="font-size:16px;">/day</span></div>
+            <div class="stat-label">Morning · Midday · Evening</div>
           </div>
           <div class="stat-box">
             <div class="stat-value">3</div>
@@ -1597,11 +1597,11 @@ footer {
               <label class="form-label">Sponsorship Type *</label>
               <select class="form-select" name="sponsorship-type" required>
                 <option value="" disabled selected>Select a package</option>
-                <option>AM Mid-Roll Spot (15 min mark) — 60 seconds</option>
-                <option>AM Pre-Outro Spot (40 min mark) — 30 seconds</option>
-                <option>PM Post-Roll Spot (after closing) — 30 seconds</option>
-                <option>Both AM Spots — Full AM Episode Exclusive</option>
-                <option>All 3 Daily Spots — AM + PM Package</option>
+                <option>Pre-Intro Spot — 30 seconds</option>
+                <option>Post-Intro Spot — 30 seconds</option>
+                <option>Pre-Outro Spot — 30 seconds</option>
+                <option>Single Edition Package (3 slots)</option>
+                <option>All Editions Package (up to 9 daily slots)</option>
                 <option>Weekly Package (5 days, 1 spot each)</option>
                 <option>Monthly Package (20+ episodes)</option>
               </select>
@@ -1685,7 +1685,7 @@ footer {
     </div>
     <div class="about-col">
       <h3>Format</h3>
-      <p><strong>AM Edition</strong> — 43 minutes. Every weekday morning. Three AI hosts — <strong>Alex</strong> (business), <strong>Morgan</strong> (tech), and <strong>Drew</strong> (crossover analysis). Two sponsor spots (mid-roll + pre-outro).</p>
+      <p><strong>AM Edition</strong> — 31–36 minutes. Every weekday morning. Three AI hosts — <strong>Alex</strong> (business), <strong>Morgan</strong> (tech), and <strong>Drew</strong> (crossover analysis). Two sponsor spots (mid-roll + pre-outro).</p>
       <p style="margin-top:10px;"><strong>PM Edition</strong> — 8–15 minutes. Every weekday evening. <strong>Alex</strong> and <strong>Morgan</strong> deliver a fast headlines recap. One post-roll sponsor spot.</p>
     </div>
   </div>
@@ -1736,8 +1736,8 @@ const EPISODES_DATA = [
     title: "The AI Arms Race Gets a Balance Sheet",
     description: "OpenAI's $40B fundraise reshapes the capital landscape while Samsung's foundry struggles threaten the entire semiconductor supply chain. Plus: why every bank in America is quietly building a large language model.",
     audio_url: "",
-    duration_seconds: 2580,
-    duration_display: "43:00",
+    duration_seconds: 1980,
+    duration_display: "33:00",
     theme: "When venture capital meets artificial general intelligence",
     categories: ["business", "tech", "overlap"],
     sponsors: [
@@ -1747,12 +1747,12 @@ const EPISODES_DATA = [
     chapters: [
       { time: 0, label: "Cold Open" },
       { time: 90, label: "Intro" },
-      { time: 150, label: "Business Block" },
-      { time: 900, label: "Mid-Roll: Notion" },
-      { time: 960, label: "Crossover: AI Capex" },
-      { time: 1380, label: "Tech Block" },
-      { time: 2400, label: "Pre-Outro: Mercury" },
-      { time: 2520, label: "Wrap" }
+      { time: 120, label: "Business Block" },
+      { time: 360, label: "Mid-Roll: Notion" },
+      { time: 420, label: "Crossover: AI Capex" },
+      { time: 900, label: "Tech Block" },
+      { time: 1800, label: "Pre-Outro: Mercury" },
+      { time: 1860, label: "Wrap" }
     ],
     business_stories: [
       { headline: "OpenAI's $40B Round Redefines What a 'Startup' Is", excerpt: "At a $300B valuation, OpenAI is approaching Apple's 2012 market cap. Alex and Morgan debate whether this is rational exuberance or the most defensible moat in tech history." },
@@ -1776,8 +1776,8 @@ const EPISODES_DATA = [
     title: "Tariffs, Tokens, and the Attention Economy",
     description: "New semiconductor export controls hit the market like a hammer. TikTok's algorithmic advertising patents threaten Google's core business. And why the CEO of the year might be a 43-billion-parameter model.",
     audio_url: "",
-    duration_seconds: 2580,
-    duration_display: "43:00",
+    duration_seconds: 1980,
+    duration_display: "33:00",
     theme: "When policy meets the attention economy",
     categories: ["business", "tech"],
     sponsors: [
@@ -1787,12 +1787,12 @@ const EPISODES_DATA = [
     chapters: [
       { time: 0, label: "Cold Open" },
       { time: 90, label: "Intro" },
-      { time: 150, label: "Business Block" },
-      { time: 900, label: "Mid-Roll: Linear" },
-      { time: 960, label: "Crossover Segment" },
-      { time: 1380, label: "Tech Block" },
-      { time: 2400, label: "Pre-Outro: Stripe" },
-      { time: 2520, label: "Wrap" }
+      { time: 120, label: "Business Block" },
+      { time: 360, label: "Mid-Roll: Linear" },
+      { time: 420, label: "Crossover Segment" },
+      { time: 900, label: "Tech Block" },
+      { time: 1800, label: "Pre-Outro: Stripe" },
+      { time: 1860, label: "Wrap" }
     ],
     business_stories: [
       { headline: "New Export Controls Create a $60B Hole in Nvidia's Revenue Forecast", excerpt: "Commerce Dept restrictions on H100 and Blackwell chip exports to 12 new countries — including Vietnam and UAE — blindsides the market." }
@@ -1911,10 +1911,8 @@ function loadHero(ep) {
   const allStories = [...ep.business_stories.slice(0,1).map(s=>({...s,type:'business'})),
                      ...ep.overlap_stories.slice(0,1).map(s=>({...s,type:'overlap'})),
                      ...ep.tech_stories.slice(0,1).map(s=>({...s,type:'tech'}))];
-  const isPM = ep.edition === 'pm';
-  const padText = isPM
-    ? {headline:'Format: PM Highlights — ~11 Minutes', excerpt:'Alex and Morgan deliver a fast evening recap of the day\'s biggest business and tech developments.', type:'format'}
-    : {headline:'Format: AM Deep Dive — 43 Minutes', excerpt:'Two AI hosts — Alex (business) and Morgan (tech) — with Drew on crossover analysis, deliver the sharpest briefing in your morning routine.', type:'format'};
+  const editionName = (ep.edition || 'morning').charAt(0).toUpperCase() + (ep.edition || 'morning').slice(1);
+  const padText = {headline:`Format: ${editionName} Edition — ~12 Minutes`, excerpt:'Alex and Morgan anchor every episode, joined by a rotating crossover guest. Five stories across business, tech, and policy — the signal, not the noise.', type:'format'};
   const pad = allStories.length < 4 ? [padText] : [];
   storiesEl.innerHTML = [...allStories, ...pad].map(s => `
     <div class="featured-item fi-${s.type}">
@@ -1948,8 +1946,6 @@ function buildChapters(ep) {
 function renderPlayerSponsors(ep) {
   const el = document.getElementById('playerSponsors');
   const sponsors = ep.sponsors || [];
-  const isPM = ep.edition === 'pm';
-
   if (sponsors.length === 0) {
     el.innerHTML = `
       <div class="sponsor-slot-label">Episode Sponsors</div>
@@ -1959,32 +1955,9 @@ function renderPlayerSponsors(ep) {
     return;
   }
 
-  if (isPM) {
-    const postRoll = sponsors.find(s => s.slot === 'post-roll');
-    el.innerHTML = `
-      <div class="sponsor-slot-label">Episode Sponsor</div>
-      ${postRoll ? `
-        <a class="sponsor-slot" href="${postRoll.url}" target="_blank">
-          <div class="sponsor-logo">${postRoll.logo_text}</div>
-          <div class="sponsor-info">
-            <div class="sponsor-name">${postRoll.name}</div>
-            <div class="sponsor-copy">${postRoll.tagline}</div>
-          </div>
-          <div class="sponsor-badge">POST-ROLL</div>
-        </a>
-      ` : `
-        <a class="sponsor-open" href="#" onclick="showPage('sponsors')">
-          <div class="sponsor-open-text">✦ Post-Roll spot available — Apply →</div>
-        </a>
-      `}
-    `;
-    return;
-  }
-
-  const slots = [
-    sponsors.find(s => s.slot === 'mid'),
-    sponsors.find(s => s.slot === 'outro')
-  ];
+  const slotNames = ['pre-intro', 'post-intro', 'pre-outro'];
+  const slotLabels = {'pre-intro': 'PRE-INTRO', 'post-intro': 'POST-INTRO', 'pre-outro': 'PRE-OUTRO', 'mid': 'MID-ROLL', 'outro': 'PRE-OUTRO', 'post-roll': 'POST-ROLL'};
+  const slots = slotNames.map(name => sponsors.find(s => s.slot === name));
 
   el.innerHTML = `
     <div class="sponsor-slot-label">Episode Sponsors</div>
@@ -1995,13 +1968,9 @@ function renderPlayerSponsors(ep) {
           <div class="sponsor-name">${s.name}</div>
           <div class="sponsor-copy">${s.tagline}</div>
         </div>
-        <div class="sponsor-badge">${i===0?'MID-ROLL':'PRE-OUTRO'}</div>
+        <div class="sponsor-badge">${slotLabels[s.slot] || s.slot.toUpperCase()}</div>
       </a>
-    ` : `
-      <a class="sponsor-open" href="#" onclick="showPage('sponsors')">
-        <div class="sponsor-open-text">✦ ${i===0?'Mid-Roll':'Pre-Outro'} spot available — Apply →</div>
-      </a>
-    `).join('')}
+    ` : '').join('')}
   `;
 }
 
@@ -2164,7 +2133,7 @@ function createEpisodeCard(ep) {
       <div class="episode-card-header">
         <div class="episode-card-meta">
           <span class="episode-num">EP. ${String(ep.episode_num).padStart(3,'0')}</span>
-          <span class="episode-duration">${ep.edition === 'pm' ? '<span style="background:rgba(42,191,176,0.15);color:#2ABFB0;border:1px solid rgba(42,191,176,0.3);padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px;">PM</span>' : '<span style="background:rgba(232,168,48,0.12);color:#E8A830;border:1px solid rgba(232,168,48,0.3);padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px;">AM</span>'}⏱ ${ep.duration_display}</span>
+          <span class="episode-duration">${({morning:'<span style="background:rgba(232,168,48,0.12);color:#E8A830;border:1px solid rgba(232,168,48,0.3);padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px;">MORNING</span>',midday:'<span style="background:rgba(42,191,176,0.15);color:#2ABFB0;border:1px solid rgba(42,191,176,0.3);padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px;">MIDDAY</span>',evening:'<span style="background:rgba(147,130,220,0.15);color:#9382DC;border:1px solid rgba(147,130,220,0.3);padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px;">EVENING</span>',am:'<span style="background:rgba(232,168,48,0.12);color:#E8A830;border:1px solid rgba(232,168,48,0.3);padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px;">AM</span>',pm:'<span style="background:rgba(42,191,176,0.15);color:#2ABFB0;border:1px solid rgba(42,191,176,0.3);padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px;">PM</span>'}[ep.edition] || '<span style="background:rgba(232,168,48,0.12);color:#E8A830;border:1px solid rgba(232,168,48,0.3);padding:1px 6px;border-radius:3px;font-size:9px;margin-right:6px;">'+(ep.edition||'morning').toUpperCase()+'</span>')}⏱ ${ep.duration_display}</span>
         </div>
         <div class="episode-card-title">${ep.title}</div>
         <div class="episode-card-date">${formatDate(ep.date)}</div>

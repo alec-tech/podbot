@@ -4,7 +4,9 @@
 # ── Core AI ─────────────────────────────────────────────────────────────────
 anthropic>=0.40.0
 
-# ── Text-to-Speech ───────────────────────────────────────────────────────────
+# ── Text-to-Speech (fallback chain: Cartesia → OpenAI → ElevenLabs) ────────
+cartesia>=3.0.0
+openai>=1.0.0
 elevenlabs>=1.0.0
 
 # ── News Gathering ───────────────────────────────────────────────────────────
@@ -26,9 +28,6 @@ python-dotenv>=1.0.0
 # ── Optional: better article extraction from URLs ────────────────────────────
 # trafilatura>=1.8.0   # Uncomment for much better URL content extraction
 # newspaper3k>=0.2.8   # Alternative article extractor
-
-# ── Optional: alternative TTS if ElevenLabs is down ─────────────────────────
-# openai>=1.0.0        # OpenAI TTS as backup
 
 # ── Optional: Supabase for cloud database instead of SQLite ──────────────────
 # supabase>=2.0.0
