@@ -10,16 +10,16 @@ from .base import TTSProvider, VoiceConfig
 log = logging.getLogger("tts.cartesia")
 
 
-# Direction → generation_config mapping
+# Direction → speed multiplier mapping
 DIRECTION_MAP = {
-    "faster":  {"speed": 1.3, "emotion": ["excited"]},
-    "excited": {"speed": 1.3, "emotion": ["excited"]},
-    "slower":  {"speed": 0.8, "emotion": ["calm"]},
-    "measured": {"speed": 0.8, "emotion": ["calm"]},
-    "wry":     {"speed": 0.95, "emotion": ["curious"]},
-    "dry":     {"speed": 0.95, "emotion": ["curious"]},
-    "warm":    {"speed": 0.95, "emotion": ["positivity"]},
-    "urgent":  {"speed": 1.2, "emotion": ["surprise"]},
+    "faster":   1.3,
+    "excited":  1.3,
+    "slower":   0.8,
+    "measured": 0.8,
+    "wry":      0.95,
+    "dry":      0.95,
+    "warm":     0.95,
+    "urgent":   1.2,
 }
 
 
@@ -43,23 +43,23 @@ class CartesiaProvider(TTSProvider):
         model_id = voice_config.provider_settings.get("model_id", "sonic-3")
         base_speed = voice_config.provider_settings.get("speed", 1.0)
 
-        # Build generation config from direction
-        gen_config = {"speed": base_speed}
+        # Apply direction as speed modifier
+        speed = base_speed
         if direction:
-            for keyword, settings in DIRECTION_MAP.items():
+            for keyword, multiplier in DIRECTION_MAP.items():
                 if keyword in direction.lower():
-                    gen_config.update(settings)
+                    speed = multiplier
                     break
+        gen_config = {"speed": speed}
 
-        output = client.tts.generate(
+        response = client.tts.generate(
             model_id=model_id,
             transcript=text,
-            voice_id=voice_config.voice_id,
+            voice={"mode": "id", "id": voice_config.voice_id},
             output_format={"container": "mp3", "sample_rate": 44100, "bit_rate": 192000},
-            _experimental_voice_controls=gen_config,
+            speed=gen_config.get("speed", base_speed),
         )
 
-        with open(output_path, "wb") as f:
-            f.write(output["audio"])
+        response.write_to_file(output_path)
 
         return output_path
