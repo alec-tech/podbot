@@ -123,12 +123,14 @@ jobs:
           RESPONSE=$(curl -s -H "Authorization: Token token=${BUZZSPROUT_API_KEY}" \
             "https://www.buzzsprout.com/api/${BUZZSPROUT_PODCAST_ID}/episodes.json")
 
-          NOW=$(date -u +%s)
-          THRESHOLD=$((NOW - 7200))  # 120 minutes = 7200 seconds
-
-          RECENT=$(echo "$RESPONSE" | jq \
-            --argjson threshold "$THRESHOLD" \
-            '[.[] | select(.published_at != null) | select((.published_at | fromdateiso8601) > $threshold)] | length')
+          RECENT=$(python3 -c "
+          import json, sys
+          from datetime import datetime, timezone, timedelta
+          data = json.loads(sys.stdin.read())
+          threshold = datetime.now(timezone.utc) - timedelta(minutes=120)
+          count = sum(1 for ep in data if ep.get('published_at') and datetime.fromisoformat(ep['published_at']) > threshold)
+          print(count)
+          " <<< "$RESPONSE")
 
           if [ "$RECENT" -gt 0 ]; then
             echo "⏭️  Skipping — $RECENT episode(s) published within last 120 minutes"
