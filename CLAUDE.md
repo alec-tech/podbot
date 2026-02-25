@@ -35,7 +35,7 @@ website/                 # Netlify-deployed static site (index.html, dashboard.h
 1. **Curation** — `CuratorAgent` gathers RSS/NewsAPI stories within the edition's time window, loads injections, builds a brief via Claude (claude-sonnet-4-6). Politics stories included only when they impact business/tech. Soft dedup: earlier same-day stories provide context, not hard exclusion.
 2. **Scriptwriting** — `ScriptwriterAgent` generates a full script (claude-opus-4-6) with Alex + Morgan + a topic-matched rotating guest, then auto-expands or trims (claude-sonnet-4-6) to hit 10-15 min target.
 3. **Audio Production** — `VoiceProducerAgent` parses `[HOST - direction]: "dialogue"` lines, synthesizes via fallback TTS chain (Cartesia → OpenAI → ElevenLabs), assembles with FFmpeg (concat + loudnorm to -16 LUFS).
-4. **Publishing** — `PublisherAgent` uploads to Buzzsprout, generates metadata via Claude (claude-haiku-4-5), posts to Twitter/LinkedIn, updates `website/episodes.json` and RSS feed.
+4. **Publishing** — `PublisherAgent` generates a dynamic episode title and metadata via Claude (claude-haiku-4-5), uploads to Buzzsprout, posts to Twitter/LinkedIn, updates `website/episodes.json` and RSS feed. Titles are punchy taglines based on stories covered (e.g., *"The AI Arms Race Heats Up"*), not fixed date formats.
 
 Story memory (`database/story_memory.db`) persists across runs so editions don't repeat stories within a 3-day window. Earlier editions' headlines provide soft context to later editions.
 
