@@ -301,17 +301,17 @@ Open `website/dashboard.html` locally, or password-protect it in Netlify (Site s
 
 ### 9.1 How the schedule works
 
-The workflow has three cron triggers, shifted **45 minutes early** to absorb GitHub Actions scheduling delays (typically 15-60+ min on shared runners):
+The workflow has three cron triggers set to the **exact target publish times**. An external cron service (cron-job.org) fires `workflow_dispatch` at the same times as backup — if GitHub cron is delayed, the external trigger starts immediately.
 
 ```yaml
-- cron: '15 11 * * 1-5'    # 11:15 AM UTC → target 7 AM EST  (Morning)
-- cron: '15 17 * * 1-5'    # 5:15 PM UTC  → target 1 PM EST  (Midday)
-- cron: '45 21 * * 1-5'    # 9:45 PM UTC  → target 5:30 PM EST (Evening)
+- cron: '0 12  * * 1-5'    # 12:00 PM UTC = 7:00 AM EST  (Morning)
+- cron: '0 18  * * 1-5'    # 6:00 PM UTC  = 1:00 PM EST  (Midday)
+- cron: '30 22 * * 1-5'    # 10:30 PM UTC = 5:30 PM EST (Evening)
 ```
 
 The script auto-detects which edition based on UTC hour. All editions run the same `orchestrator.py` with different `--edition` flags.
 
-A `concurrency` group prevents duplicate runs — if the early cron run is still in progress when an external trigger fires, the second run queues instead of creating a duplicate.
+A `concurrency` group prevents duplicate runs — if the cron run is still in progress when an external trigger fires, the second run queues instead of creating a duplicate. A dedup check also skips the pipeline if an episode was published within the last 120 minutes.
 
 ### 9.2 Add GitHub Secrets
 
@@ -351,11 +351,9 @@ gh workflow run daily_episode.yml -f edition=midday
 gh workflow run daily_episode.yml -f edition=morning -f dry_run=true
 ```
 
-### 9.5 External cron trigger (recommended for on-time publishing)
+### 9.5 External cron trigger (backup for on-time publishing)
 
-GitHub Actions cron jobs run on shared infrastructure and are frequently delayed 15-60+ minutes. The cron times in the workflow are shifted 45 min early to absorb this, but for guaranteed on-time publishing, set up an external cron service as backup.
-
-The external service calls `workflow_dispatch` at the **exact** target publish times. Unlike cron-triggered runs, `workflow_dispatch` runs start immediately.
+GitHub Actions cron jobs run on shared infrastructure and are frequently delayed 15-60+ minutes. The workflow cron is set to the exact target times, so an external cron service (cron-job.org) serves as backup — if GitHub cron is delayed, the external `workflow_dispatch` trigger starts immediately.
 
 **Setup:**
 
@@ -379,10 +377,11 @@ The external service calls `workflow_dispatch` at the **exact** target publish t
    | Midday | `0 18 * * 1-5` | `{"ref": "main", "inputs": {"edition": "midday"}}` |
    | Evening | `30 22 * * 1-5` | `{"ref": "main", "inputs": {"edition": "evening"}}` |
 
-**How it works with the early cron:**
-- GitHub's cron fires ~45 min early and usually finishes before the external trigger
-- If the cron run already completed, the external dispatch starts a new run (the pipeline handles dedup via story memory)
-- If the cron run is still in progress, the dispatch queues thanks to the `concurrency` group — it won't cancel or duplicate
+**How it works:**
+- GitHub cron and cron-job.org both fire at the same target times
+- If GitHub cron runs on time and finishes first, the external dispatch triggers a new run — the dedup check skips it if an episode was published within 120 minutes
+- If GitHub cron is delayed, the external dispatch starts immediately and produces the episode
+- If both are running simultaneously, the `concurrency` group queues the second run — it won't cancel or duplicate
 
 **Test it:**
 ```bash
@@ -586,7 +585,7 @@ the-signal/
 │   └── episodes.json            ← Auto-updated by pipeline
 │
 ├── .github/workflows/
-│   └── daily_episode.yml        ← 3 cron jobs: 11:15AM / 5:15PM / 9:45PM UTC (shifted 45 min early)
+│   └── daily_episode.yml        ← 3 cron jobs: 12PM / 6PM / 10:30PM UTC (exact target times)
 │
 ├── outputs/
 │   ├── briefs/                  ← brief_DATE_edition.json
