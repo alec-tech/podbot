@@ -1394,7 +1394,7 @@ footer {
       <div class="featured-item">
         <div class="featured-label" style="color:var(--text-dim);">Format</div>
         <div class="featured-title">Three-Daily Intelligence Briefing</div>
-        <div class="featured-excerpt"><strong>Morning · Midday · Evening</strong> — Three 10-15 minute editions each weekday. Alex and Morgan anchor every episode, joined by a rotating crossover guest.</div>
+        <div class="featured-excerpt"><strong>Morning · Midday · Evening</strong> — Three 10-15 minute editions each weekday. Chuck and Jessica anchor every episode, joined by a rotating crossover guest.</div>
       </div>
     </div>
     <div class="section-header" style="margin-top:32px;">
@@ -1685,8 +1685,8 @@ footer {
     </div>
     <div class="about-col">
       <h3>Format</h3>
-      <p><strong>AM Edition</strong> — 31–36 minutes. Every weekday morning. Three AI hosts — <strong>Alex</strong> (business), <strong>Morgan</strong> (tech), and <strong>Drew</strong> (crossover analysis). Two sponsor spots (mid-roll + pre-outro).</p>
-      <p style="margin-top:10px;"><strong>PM Edition</strong> — 8–15 minutes. Every weekday evening. <strong>Alex</strong> and <strong>Morgan</strong> deliver a fast headlines recap. One post-roll sponsor spot.</p>
+      <p><strong>AM Edition</strong> — 31–36 minutes. Every weekday morning. Three AI hosts — <strong>Chuck</strong> (business), <strong>Jessica</strong> (tech), and <strong>Drew</strong> (crossover analysis). Two sponsor spots (mid-roll + pre-outro).</p>
+      <p style="margin-top:10px;"><strong>PM Edition</strong> — 8–15 minutes. Every weekday evening. <strong>Chuck</strong> and <strong>Jessica</strong> deliver a fast headlines recap. One post-roll sponsor spot.</p>
     </div>
   </div>
 </div>
@@ -1755,12 +1755,12 @@ const EPISODES_DATA = [
       { time: 1860, label: "Wrap" }
     ],
     business_stories: [
-      { headline: "OpenAI's $40B Round Redefines What a 'Startup' Is", excerpt: "At a $300B valuation, OpenAI is approaching Apple's 2012 market cap. Alex and Morgan debate whether this is rational exuberance or the most defensible moat in tech history." },
+      { headline: "OpenAI's $40B Round Redefines What a 'Startup' Is", excerpt: "At a $300B valuation, OpenAI is approaching Apple's 2012 market cap. Chuck and Jessica debate whether this is rational exuberance or the most defensible moat in tech history." },
       { headline: "Goldman Sachs Quietly Doubles Its AI Infrastructure Budget", excerpt: "A leaked internal memo puts Goldman's AI spend at $2.1B for 2026 — more than their entire equities division headcount budget. What happens to 12,000 analysts?" }
     ],
     tech_stories: [
       { headline: "Samsung's Foundry Yield Crisis Could Delay Every AI Chip Roadmap by 18 Months", excerpt: "3nm yields are reportedly below 40% at Samsung's Austin fab. NVIDIA, Qualcomm, and AMD are all reassessing their supply chain dependencies." },
-      { headline: "Meta's New 'Memory Layer' Makes AI Assistants Actually Useful", excerpt: "A persistent context window that learns user behavior across sessions. Morgan calls it 'the real inflection point.' Alex calls it a privacy nightmare." }
+      { headline: "Meta's New 'Memory Layer' Makes AI Assistants Actually Useful", excerpt: "A persistent context window that learns user behavior across sessions. Jessica calls it 'the real inflection point.' Chuck calls it a privacy nightmare." }
     ],
     overlap_stories: [
       { headline: "Every Major Bank Is Building an LLM. None of Them Talk to Each Other.", excerpt: "Exclusive: a map of financial services AI deployments reveals a fragmented, redundant landscape that's burning capital and producing inconsistent results." }
@@ -1912,7 +1912,7 @@ function loadHero(ep) {
                      ...ep.overlap_stories.slice(0,1).map(s=>({...s,type:'overlap'})),
                      ...ep.tech_stories.slice(0,1).map(s=>({...s,type:'tech'}))];
   const editionName = (ep.edition || 'morning').charAt(0).toUpperCase() + (ep.edition || 'morning').slice(1);
-  const padText = {headline:`Format: ${editionName} Edition — ~12 Minutes`, excerpt:'Alex and Morgan anchor every episode, joined by a rotating crossover guest. Five stories across business, tech, and policy — the signal, not the noise.', type:'format'};
+  const padText = {headline:`Format: ${editionName} Edition — ~12 Minutes`, excerpt:'Chuck and Jessica anchor every episode, joined by a rotating crossover guest. Five stories across business, tech, and policy — the signal, not the noise.', type:'format'};
   const pad = allStories.length < 4 ? [padText] : [];
   storiesEl.innerHTML = [...allStories, ...pad].map(s => `
     <div class="featured-item fi-${s.type}">

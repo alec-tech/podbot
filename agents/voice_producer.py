@@ -72,14 +72,29 @@ class VoiceProducerAgent:
             pause_match = re.search(pause_pattern, script[match.end():match.end()+50])
             pause_after = float(pause_match.group(1)) if pause_match else 0.3
 
+            # Clean non-spoken artifacts from dialogue (skip sponsor lines)
+            is_sponsor = "sponsor" in direction.lower()
+            cleaned = dialogue if is_sponsor else self._clean_dialogue(dialogue)
+            if not cleaned.strip():
+                continue
+
             lines.append({
                 "host": host,
                 "direction": direction.strip(),
-                "dialogue": dialogue,
+                "dialogue": cleaned,
                 "pause_after": pause_after
             })
 
         return lines
+
+    @staticmethod
+    def _clean_dialogue(text: str) -> str:
+        """Strip non-spoken artifacts (parenthetical/bracket/asterisk directions) from dialogue."""
+        text = re.sub(r'\([^)]*\)', '', text)    # (laughs), (turning to Jessica), etc.
+        text = re.sub(r'\[[^\]]*\]', '', text)   # [laughs], [transition], etc.
+        text = re.sub(r'\*[^*]*\*', '', text)    # *laughs*, *pauses*, etc.
+        text = re.sub(r'  +', ' ', text).strip() # collapse double-spaces
+        return text
 
     def _synthesize_line(self, line: dict, index: int, episode_date: str, edition: str = "morning") -> str:
         """Generate TTS for a single line via the fallback chain."""

@@ -3,7 +3,7 @@
     "name": "The Signal",
     "tagline": "Three-daily business, tech, and policy intelligence",
     "description": "Every weekday: three 10-15 minute episodes. Morning at 7 AM, Midday at 1 PM, Evening at 5:30 PM. Business, tech, and policy news — curated, written, and hosted by AI. No filler.",
-    "host_names": ["Alex Chen", "Morgan Lee", "Drew Vasquez", "Priya Nair", "Marcus Cole", "Sam Torres", "Jordan Blake"],
+    "host_names": ["Chuck Leblanc", "Jessica Waverly", "Drew Vasquez", "Priya Nair", "Marcus Cole", "Sam Torres", "Jordan Blake"],
     "sponsor_slots": 3,
     "language": "en",
     "explicit": false,
@@ -43,7 +43,7 @@
     }
   },
   "voices": {
-    "alex": {
+    "chuck": {
       "description": "Business anchor — analytical, measured, authoritative",
       "type": "static",
       "providers": {
@@ -52,7 +52,7 @@
         "elevenlabs": { "voice_id": "pNInz6obpgDQGcFmaJgB", "stability": 0.55, "similarity_boost": 0.75, "style": 0.35 }
       }
     },
-    "morgan": {
+    "jessica": {
       "description": "Tech correspondent — enthusiastic, substantive, fast-paced when excited",
       "type": "static",
       "providers": {

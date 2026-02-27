@@ -17,16 +17,21 @@ client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 PERSONAS = {
     # Static hosts (every episode)
-    "alex": {
-        "name": "Alex Chen",
+    "chuck": {
+        "name": "Chuck Leblanc",
         "role": "Business anchor",
         "type": "static",
         "personality": "Analytical, measured, slightly skeptical of hype. Ex-finance background energy. Asks sharp clarifying questions. Connects stories to market implications. Occasionally dry wit.",
-        "speech_patterns": ["Let's be precise about this...", "The real question here is...", "That number deserves scrutiny.", "Hold on—"],
+        "speech_patterns": [
+            "Demands analytical precision — frequently challenges vague claims, questions specific numbers, and insists on distinguishing correlation from causation. Varies his phrasing naturally each time rather than repeating a catchphrase.",
+            "The real question here is...",
+            "That number deserves scrutiny.",
+            "Hold on—",
+        ],
         "avoid": ["Excessive enthusiasm", "Tech jargon without explanation", "Vague optimism"],
     },
-    "morgan": {
-        "name": "Morgan Lee",
+    "jessica": {
+        "name": "Jessica Waverly",
         "role": "Tech correspondent",
         "type": "static",
         "personality": "Enthusiastic but substantive. Loves emerging tech, connects it to human impact. Pushes back on Alex's skepticism with evidence. Uses vivid analogies. Faster pace when excited.",
@@ -65,7 +70,7 @@ PERSONAS = {
         "name": "Sam Torres",
         "role": "Startup & venture correspondent",
         "type": "rotating",
-        "personality": "Founder-fluent and energetic. Deep venture network. Pushes back when Alex or Morgan are too quick to dismiss startups. Knows valuations and the founder mindset.",
+        "personality": "Founder-fluent and energetic. Deep venture network. Pushes back when Chuck or Jessica are too quick to dismiss startups. Knows valuations and the founder mindset.",
         "speech_patterns": ["Talk to any founder in this space and they'll tell you—", "That valuation actually makes sense when you look at—", "The round tells you one thing, the cap table tells you another.", "Don't sleep on this one."],
         "avoid": ["Uncritical startup boosterism", "Ignoring burn rate reality", "Dismissing incumbents"],
         "topic_keywords": ["startup", "venture", "funding", "ipo", "unicorn", "series", "seed", "vc", "founder", "valuation", "acquisition"],
@@ -95,7 +100,7 @@ NEVER call this the "morning edition" or "morning episode" unless this IS the mo
 References to events that happened "this morning" or "earlier today" are fine —
 but the SHOW ITSELF is always the {edition_word} edition.
 
-HOSTS: Alex Chen (business anchor) and Morgan Lee (tech correspondent) are in every episode.
+HOSTS: Chuck Leblanc (business anchor) and Jessica Waverly (tech correspondent) are in every episode.
 The crossover host for this episode is {guest_name} ({guest_role}).
 
 STRUCTURE:
@@ -111,18 +116,18 @@ Introduce today's crossover guest briefly.
 The designated host reads the provided sponsor script verbatim. Format: [HOST_NAME - reading sponsor]: "script text"
 
 [BUSINESS BLOCK — 1:30–4:30 — ~420 words]
-2 business stories, ~2 min each. Alex leads each one.
-Format per story: headline → key fact or number → debate with Morgan → so-what.
+2 business stories, ~2 min each. Chuck leads each one.
+Format per story: headline → key fact or number → debate with Jessica → so-what.
 One sharp exchange per story.
 
 [CROSSOVER SEGMENT — 4:30–7:30 — ~420 words]
 1 crossover story, ~3 min. {guest_name} joins.
 This is the segment where the guest brings their specialty. At least ONE real disagreement.
-Alex or Morgan can push back. Real tension, not politeness.
+Chuck or Jessica can push back. Real tension, not politeness.
 
 [TECH BLOCK — 7:30–10:30 — ~420 words]
-2 tech stories, ~2 min each. Morgan leads each one.
-Format per story: headline → key detail → Alex reacts → Morgan wraps.
+2 tech stories, ~2 min each. Jessica leads each one.
+Format per story: headline → key detail → Chuck reacts → Jessica wraps.
 
 [PRE-OUTRO SPONSOR — 10:30–11:00 — ~70 words]  (if sponsor provided for this slot)
 The designated host reads the provided sponsor script verbatim. Format: [HOST_NAME - reading sponsor]: "script text"
@@ -147,6 +152,15 @@ DIALOGUE RULES:
 - NEVER: formal transitions, segment announcements, reading-from-a-script energy
 - DO: interruptions, half-sentences, "Hold on—", "Actually—", real tension
 - 2+ data points per story. At least 2 genuine disagreements total.
+
+SPOKEN TEXT ONLY — CRITICAL:
+Everything inside quotation marks MUST be spoken dialogue only. NEVER put inside quotes:
+- Parenthetical directions: NO "(laughs)", "(turning to Jessica)", "(pause)"
+- Bracketed directions: NO "[laughs]", "[transition]", "[beat]"
+- Asterisk actions: NO "*laughs*", "*pauses*", "*sighs*"
+- Explicit transition phrases: NO "moving on to tech news" or "turning to our next story"
+All acting directions belong in the bracket BEFORE the colon: [HOST - direction]: "dialogue"
+The quotes contain ONLY words the host says out loud.
 
 SPONSOR RULES:
 - Sponsors specify a "voice" and a "script" field. Use the designated host and read the script verbatim.
@@ -267,8 +281,8 @@ class ScriptwriterAgent:
 
         # Build personas for prompt — static hosts + selected guest
         active_personas = {
-            "alex": PERSONAS["alex"],
-            "morgan": PERSONAS["morgan"],
+            "chuck": PERSONAS["chuck"],
+            "jessica": PERSONAS["jessica"],
             crossover_host: guest,
         }
 

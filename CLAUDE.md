@@ -2,7 +2,7 @@
 
 ## What This Is
 
-The Signal is a fully autonomous, AI-powered three-daily podcast covering business, tech, and policy news. Three editions run on weekdays: Morning (7 AM EST), Midday (1 PM EST), and Evening (5:30 PM EST). All editions are 10-15 minutes. Two static AI hosts — Alex Chen (business anchor) and Morgan Lee (tech correspondent) — appear in every episode, joined by one of five rotating crossover guests. Zero human intervention after setup.
+The Signal is a fully autonomous, AI-powered three-daily podcast covering business, tech, and policy news. Three editions run on weekdays: Morning (7 AM EST), Midday (1 PM EST), and Evening (5:30 PM EST). All editions are 10-15 minutes. Two static AI hosts — Chuck Leblanc (business anchor) and Jessica Waverly (tech correspondent) — appear in every episode, joined by one of five rotating crossover guests. Zero human intervention after setup.
 
 ## Project Structure
 
@@ -33,7 +33,7 @@ website/                 # Netlify-deployed static site (index.html, dashboard.h
 `orchestrator.py` runs one edition per invocation through 4 stages:
 
 1. **Curation** — `CuratorAgent` gathers RSS/NewsAPI stories within the edition's time window, loads injections, builds a brief via Claude (claude-sonnet-4-6). Politics stories included only when they impact business/tech. Soft dedup: earlier same-day stories provide context, not hard exclusion.
-2. **Scriptwriting** — `ScriptwriterAgent` generates a full script (claude-opus-4-6) with Alex + Morgan + a topic-matched rotating guest, then auto-expands or trims (claude-sonnet-4-6) to hit 10-15 min target.
+2. **Scriptwriting** — `ScriptwriterAgent` generates a full script (claude-opus-4-6) with Chuck + Jessica + a topic-matched rotating guest, then auto-expands or trims (claude-sonnet-4-6) to hit 10-15 min target.
 3. **Audio Production** — `VoiceProducerAgent` parses `[HOST - direction]: "dialogue"` lines, synthesizes via fallback TTS chain (Cartesia → OpenAI → ElevenLabs), assembles with FFmpeg (concat + loudnorm to -16 LUFS).
 4. **Publishing** — `PublisherAgent` generates a dynamic episode title and metadata via Claude (claude-haiku-4-5), uploads to Buzzsprout, posts to Twitter/LinkedIn, updates `website/episodes.json` and RSS feed. Titles are punchy taglines based on stories covered (e.g., *"The AI Arms Race Heats Up"*), not fixed date formats.
 
@@ -94,7 +94,7 @@ See `.env.example` for the full list.
 |---|---|---|---|
 | Time | 7:00 AM EST | 1:00 PM EST | 5:30 PM EST |
 | Duration | 10-15 min (12 ideal) | 10-15 min (12 ideal) | 10-15 min (12 ideal) |
-| Static Hosts | Alex, Morgan | Alex, Morgan | Alex, Morgan |
+| Static Hosts | Chuck, Jessica | Chuck, Jessica | Chuck, Jessica |
 | Crossover Guest | 1 rotating | 1 rotating | 1 rotating |
 | Stories | 5 (2 biz + 1 overlap + 2 tech) | 5 (2 biz + 1 overlap + 2 tech) | 5 (2 biz + 1 overlap + 2 tech) |
 | Sponsor slots | 3 optional | 3 optional | 3 optional |
@@ -103,8 +103,8 @@ See `.env.example` for the full list.
 ## Host Roster
 
 **Static (every episode):**
-- **Alex Chen** — Business anchor
-- **Morgan Lee** — Tech correspondent
+- **Chuck Leblanc** — Business anchor
+- **Jessica Waverly** — Tech correspondent
 
 **Rotating crossover guests (one per episode, topic-matched):**
 - **Drew Vasquez** — Geopolitics & trade analyst
@@ -119,9 +119,9 @@ See `.env.example` for the full list.
 [PRE-INTRO SPONSOR  — 0:00-0:30]   optional
 [INTRO              — 0:30-1:00]
 [POST-INTRO SPONSOR — 1:00-1:30]   optional
-[BUSINESS BLOCK     — 1:30-4:30]   2 stories, Alex leads
+[BUSINESS BLOCK     — 1:30-4:30]   2 stories, Chuck leads
 [CROSSOVER SEGMENT  — 4:30-7:30]   1 story, rotating guest joins
-[TECH BLOCK         — 7:30-10:30]  2 stories, Morgan leads
+[TECH BLOCK         — 7:30-10:30]  2 stories, Jessica leads
 [PRE-OUTRO SPONSOR  — 10:30-11:00] optional
 [WRAP + SIGNOFF     — 11:00-12:00]
 ```

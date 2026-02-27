@@ -31,7 +31,7 @@ def load_voice_config(host_name: str, provider_name: str, config: dict) -> Optio
     Build a VoiceConfig for a given host and provider from show_config.json voices section.
 
     Args:
-        host_name: e.g. "alex"
+        host_name: e.g. "chuck"
         provider_name: e.g. "cartesia"
         config: The full show_config dict.
     """

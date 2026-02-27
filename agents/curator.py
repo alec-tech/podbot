@@ -327,7 +327,7 @@ class CuratorAgent:
       "extrapolation": "1-2 sentences",
       "talking_points": ["3-4 debatable points"],
       "debate_angle": "Core tension",
-      "lead_host": "alex",
+      "lead_host": "chuck",
       "injected": false,
       "policy_angle": false,
       "estimated_minutes": 2
