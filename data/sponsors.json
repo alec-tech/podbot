@@ -2,9 +2,9 @@
   "sponsors": [
     {
       "id": "seacore-laxitives-1771970003029",
-      "name": "Seacore Laxitives",
-      "tagline": "When the going gets rough, take Seacore",
-      "product_description": "There are many laxative options you can choose from, and they all do the same thing. Choose Seacore because they sponsor this pod!",
+      "name": "John's Plumbing",
+      "tagline": "Everyone needs a plumber",
+      "product_description": "If those laxatives were a mistake, then call John's plumbing",
       "cta": "",
       "url": "",
       "slot": "post-intro",
@@ -14,14 +14,14 @@
         "evening"
       ],
       "voice": "jessica",
-      "script": "Thanks to our sponsors at Seacore laxatives. There are many laxative options you can choose from, and they all do the same thing. Choose Seacore because they sponsor this pod! Remember, when the going gets rough, take Seacore.",
+      "script": "Thank you to our sponsors at John's plumbing... If those laxatives were a mistake, then call John's plumbing",
       "start_date": "2026-02-24",
       "end_date": "2026-03-31",
       "active": true
     },
     {
       "id": "sterling-cooper-1771970182627",
-      "name": "Sterling Cooper",
+      "name": "Blockbuster",
       "tagline": "",
       "product_description": "",
       "cta": "",
@@ -31,7 +31,7 @@
         "evening"
       ],
       "voice": "chuck",
-      "script": "Thanks to Sterling-Cooper-Draper-Pryce for sponsoring today's episode. Everyone knows finding an Ad Man is as easy as opening the phone book, but we want you to consider Sterling-Cooper-Draper-Pryce because they bought this air-time.",
+      "script": "This show wouldn't be possible without our partners at Blockbuster.  Blockbuster is the place to go if you are looking for a great VHS or DVD to watch tonight. Mention this show and get one additional night on us!",
       "start_date": "2026-02-24",
       "end_date": "2026-03-31",
       "active": true
