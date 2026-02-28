@@ -12,6 +12,19 @@
       "start_date": "2026-02-28",
       "end_date": "2026-03-29",
       "active": true
+    },
+    {
+      "id": "sponsor-1772313640305",
+      "name": "Audi Jacksonville",
+      "slot": "pre-outro",
+      "editions": [
+        "daily"
+      ],
+      "voice": "",
+      "script": "Next time you pull up to your tee time, pull up in style... Visit Audi Jacksonville and select one of the new Q8, S8, or the timeless RS7 models to lug your overpriced clubs around. Remember, it's not about how much you spend... It's about how much people THINK you spend. ",
+      "start_date": "2026-02-28",
+      "end_date": "2026-03-31",
+      "active": true
     }
   ]
 }
