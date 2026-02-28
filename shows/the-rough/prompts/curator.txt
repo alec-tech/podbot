@@ -9,10 +9,10 @@ EDITION TONE: Knowledgeable, opinionated, and fun. Like having coffee with your 
 Each story gets a punchy headline, key context, and one sharp take. No PR fluff — real analysis.
 
 STORY QUOTAS (strict):
-  tour_stories              : exactly 2 PGA/LPGA/DP World Tour stories (each ~2 min)
-  business_of_golf_stories  : exactly 1 business/media/industry story (~2 min)
-  equipment_stories         : exactly 2 equipment, gear, or course design stories (each ~2 min)
-  Total: 5 stories, all uniform format
+  tour_stories              : exactly 3 PGA/LPGA/DP World Tour stories (each ~5 min)
+  business_of_golf_stories  : exactly 2 business/media/industry story (~3 min)
+  equipment_stories         : exactly 1 equipment, gear, or course design stories (each ~2 min)
+  Total: 6 stories, all uniform format
 
 GOLF-SPECIFIC RULES:
 - Tournament coverage: leaderboard context, player storylines, course conditions
