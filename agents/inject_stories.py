@@ -14,7 +14,10 @@ from anthropic import Anthropic
 from typing import Optional
 
 log = logging.getLogger("inject_stories")
-client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+
+def _get_client():
+    return Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 PRIORITY_LEVELS = {"must_include", "consider", "background"}
 EDITION_VALUES = {"morning", "midday", "evening", "daily", "all"}
@@ -168,7 +171,7 @@ Return JSON:
   "companies_mentioned": ["Companies"],
   "data_points": ["Key numbers / dates"]
 }}"""
-    r = client.messages.create(model="claude-haiku-4-5-20251001", max_tokens=1200,
+    r = _get_client().messages.create(model="claude-haiku-4-5-20251001", max_tokens=1200,
                                 messages=[{"role": "user", "content": prompt}])
     text = r.content[0].text.strip()
     if "```" in text:
@@ -194,7 +197,7 @@ Return JSON:
   "companies_mentioned": ["Relevant companies"],
   "data_points": ["Key facts / numbers"]
 }}"""
-    r = client.messages.create(model="claude-haiku-4-5-20251001", max_tokens=1200,
+    r = _get_client().messages.create(model="claude-haiku-4-5-20251001", max_tokens=1200,
                                 messages=[{"role": "user", "content": prompt}])
     text = r.content[0].text.strip()
     if "```" in text:

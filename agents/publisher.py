@@ -12,7 +12,10 @@ from anthropic import Anthropic
 from datetime import datetime
 
 log = logging.getLogger("publisher")
-client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+
+def _get_client():
+    return Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 
 class PublisherAgent:
@@ -68,7 +71,7 @@ Generate a JSON object with these keys:
 
 Return as JSON."""
 
-        response = client.messages.create(
+        response = _get_client().messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}]

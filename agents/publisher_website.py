@@ -11,7 +11,10 @@ from datetime import datetime
 from anthropic import Anthropic
 
 log = logging.getLogger("publisher_website")
-client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+
+def _get_client():
+    return Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 
 def generate_episode_json(brief: dict, script_data: dict, metadata: dict,
@@ -133,7 +136,7 @@ def extract_companies_from_brief(brief: dict, show=None) -> list:
 
     all_text = " ".join(text_parts)[:3000]
 
-    response = client.messages.create(
+    response = _get_client().messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=500,
         messages=[{

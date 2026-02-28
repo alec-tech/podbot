@@ -10,7 +10,10 @@ import logging
 from anthropic import Anthropic
 
 log = logging.getLogger("scriptwriter")
-client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+
+def _get_client():
+    return Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 
 def select_crossover_host(show, crossover_story: dict, episode_num: int) -> str:
@@ -202,7 +205,7 @@ Write the COMPLETE {target}-minute script (~{word_target} words of spoken dialog
 {sponsor_instruction}
 Begin immediately with the intro dialogue (or pre-intro sponsor if one is provided). No preamble."""
 
-        response = client.messages.create(
+        response = _get_client().messages.create(
             model="claude-opus-4-6",
             max_tokens=12000,
             system=system_prompt,
@@ -232,7 +235,7 @@ Return the COMPLETE expanded script.
 
 SCRIPT:
 {script}"""
-        r = client.messages.create(model="claude-sonnet-4-6", max_tokens=12000,
+        r = _get_client().messages.create(model="claude-sonnet-4-6", max_tokens=12000,
                                    messages=[{"role": "user", "content": prompt}])
         return r.content[0].text
 
@@ -253,6 +256,6 @@ Return the COMPLETE trimmed script.
 
 SCRIPT:
 {script}"""
-        r = client.messages.create(model="claude-sonnet-4-6", max_tokens=12000,
+        r = _get_client().messages.create(model="claude-sonnet-4-6", max_tokens=12000,
                                    messages=[{"role": "user", "content": prompt}])
         return r.content[0].text

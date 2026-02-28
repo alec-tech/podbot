@@ -20,7 +20,10 @@ from agents.story_memory import (
 )
 
 log = logging.getLogger("curator")
-client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+
+def _get_client():
+    return Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 EST = ZoneInfo("America/New_York")
 
 
@@ -318,7 +321,7 @@ Total: {total} stories."""
 
 INCLUDE all MUST_INCLUDE injections. Integrate CONSIDER injections if they beat organic options."""
 
-        response = client.messages.create(
+        response = _get_client().messages.create(
             model="claude-sonnet-4-6",
             max_tokens=8000,
             system=system_prompt,
