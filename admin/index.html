@@ -451,7 +451,13 @@ function renderSponsors() {
             <option value="pre-outro" ${s.slot==='pre-outro'?'selected':''}>Pre-Outro</option>
           </select>
         </div>
-        <div><label>Voice</label><input type="text" value="${s.voice || ''}" onchange="currentSponsors[${i}].voice=this.value"></div>
+        <div><label>Voice</label>
+          <select onchange="currentSponsors[${i}].voice=this.value">
+            ${Object.entries(currentPersonas).map(([key, p]) =>
+              `<option value="${key}" ${s.voice===key?'selected':''}>${p.name}</option>`
+            ).join('')}
+          </select>
+        </div>
       </div>
       <label>Script</label>
       <textarea rows="2" onchange="currentSponsors[${i}].script=this.value">${s.script || ''}</textarea>
