@@ -42,18 +42,18 @@
       "description": "Anchor — former caddie, dry humor, knows the game inside out",
       "type": "static",
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 1.0 },
+        "cartesia": { "voice_id": "ed81fd13-2016-4a49-8fe3-c0d2761695fc", "model_id": "sonic-3", "speed": 1.0 },
         "openai": { "voice_id": "ash", "model": "gpt-4o-mini-tts", "instructions": "Dry humor, former caddie energy, knows the game." },
-        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.55, "similarity_boost": 0.75, "style": 0.35 }
+        "elevenlabs": { "voice_id": "TxGEqnHWrfWFTfGW9XjX", "stability": 0.55, "similarity_boost": 0.75, "style": 0.35 }
       }
     },
     "dana": {
       "description": "Course reporter — on-the-ground perspective, vivid descriptions",
       "type": "static",
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 1.05 },
+        "cartesia": { "voice_id": "bf991597-6c13-47e4-8411-91ec2de5c466", "model_id": "sonic-3", "speed": 1.05 },
         "openai": { "voice_id": "nova", "model": "gpt-4o-mini-tts", "instructions": "On-the-ground reporter energy, vivid course descriptions." },
-        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.45, "similarity_boost": 0.75, "style": 0.50 }
+        "elevenlabs": { "voice_id": "EXAVITQu4vr4xnSDxMaL", "stability": 0.45, "similarity_boost": 0.75, "style": 0.50 }
       }
     },
     "ricky": {
@@ -61,9 +61,9 @@
       "type": "rotating",
       "topic_keywords": ["equipment", "club", "driver", "iron", "putter", "ball", "shaft", "fitting", "launch monitor", "gear"],
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 1.08 },
+        "cartesia": { "voice_id": "7360f116-6306-4e9a-b487-1235f35a0f21", "model_id": "sonic-3", "speed": 1.08 },
         "openai": { "voice_id": "echo", "model": "gpt-4o-mini-tts", "instructions": "Gear obsessive, testing data enthusiast." },
-        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.50, "similarity_boost": 0.75, "style": 0.40 }
+        "elevenlabs": { "voice_id": "VR6AewLTigWG4xSOukaG", "stability": 0.50, "similarity_boost": 0.75, "style": 0.40 }
       }
     },
     "caroline": {
@@ -71,9 +71,9 @@
       "type": "rotating",
       "topic_keywords": ["sponsorship", "media rights", "liv", "pga tour", "merger", "revenue", "television", "deal", "investment", "economics"],
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 1.02 },
+        "cartesia": { "voice_id": "248be419-c632-4f23-adf1-5324ed7dbf1d", "model_id": "sonic-3", "speed": 1.02 },
         "openai": { "voice_id": "coral", "model": "gpt-4o-mini-tts", "instructions": "Sharp business reporter, media rights and sponsorship expert." },
-        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.50, "similarity_boost": 0.75, "style": 0.40 }
+        "elevenlabs": { "voice_id": "MF3mGyEYCl7XYWbV9V6O", "stability": 0.50, "similarity_boost": 0.75, "style": 0.40 }
       }
     },
     "theo": {
@@ -81,9 +81,9 @@
       "type": "rotating",
       "topic_keywords": ["course", "design", "architecture", "amateur", "travel", "club", "membership", "municipal", "links", "resort"],
       "providers": {
-        "cartesia": { "voice_id": "PLACEHOLDER", "model_id": "sonic-3", "speed": 1.0 },
+        "cartesia": { "voice_id": "69267136-1bdc-412f-ad78-0caad210fb40", "model_id": "sonic-3", "speed": 1.0 },
         "openai": { "voice_id": "sage", "model": "gpt-4o-mini-tts", "instructions": "Warm, enthusiastic about course culture and amateur golf." },
-        "elevenlabs": { "voice_id": "PLACEHOLDER", "stability": 0.50, "similarity_boost": 0.75, "style": 0.45 }
+        "elevenlabs": { "voice_id": "ErXwobaYiN019PkySvjV", "stability": 0.50, "similarity_boost": 0.75, "style": 0.45 }
       }
     }
   },

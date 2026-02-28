@@ -97,10 +97,23 @@ Return as JSON."""
         metadata["episode_date"] = episode_date
         return metadata
 
+    def _get_buzzsprout_podcast_id(self) -> str:
+        """Resolve Buzzsprout podcast ID: check show-specific env var first, then generic."""
+        slug_upper = self.show.slug.replace("-", "_").upper()
+        show_specific = os.getenv(f"BUZZSPROUT_PODCAST_ID_{slug_upper}")
+        if show_specific:
+            return show_specific
+        return os.getenv("BUZZSPROUT_PODCAST_ID", "")
+
     def upload(self, audio_path: str, metadata: dict) -> str:
         """Upload episode to Buzzsprout via API"""
         api_key = os.environ["BUZZSPROUT_API_KEY"]
-        podcast_id = os.getenv("BUZZSPROUT_PODCAST_ID", "")
+        podcast_id = self._get_buzzsprout_podcast_id()
+        if not podcast_id:
+            raise RuntimeError(
+                f"No Buzzsprout podcast ID found. Set BUZZSPROUT_PODCAST_ID_{self.show.slug.replace('-', '_').upper()} "
+                f"or BUZZSPROUT_PODCAST_ID"
+            )
         base_url = f"https://www.buzzsprout.com/api/{podcast_id}/episodes"
 
         with open(audio_path, 'rb') as audio_file:

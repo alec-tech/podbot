@@ -31,9 +31,10 @@ data/*/injected_stories.json
 data/*/injection_archive/
 data/admin/
 
-# Legacy flat paths (pre-multi-show)
+# Legacy flat paths (pre-multi-show) — safe to delete after migration
 data/injection_archive/
 data/injected_stories.json
+config/
 
 # OS
 .DS_Store
@@ -44,6 +45,8 @@ Thumbs.db
 .idea/
 *.swp
 
-# Episodes JSON is committed (it's the website data source)
-# website/episodes.json  ← DO commit this
-# website/feed.xml       ← DO commit this
+# Per-show website data IS committed (it's the website data source)
+# website/the-signal/episodes.json  ← DO commit this
+# website/the-signal/feed.xml       ← DO commit this
+# website/the-rough/episodes.json   ← DO commit this
+# website/the-rough/feed.xml        ← DO commit this

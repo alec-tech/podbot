@@ -92,7 +92,7 @@ jobs:
           OPENAI_API_KEY:               ${{ secrets.OPENAI_API_KEY }}
           ELEVENLABS_API_KEY:           ${{ secrets.ELEVENLABS_API_KEY }}
           BUZZSPROUT_API_KEY:           ${{ secrets.BUZZSPROUT_API_KEY }}
-          BUZZSPROUT_PODCAST_ID:        ${{ secrets.THE_ROUGH_BUZZSPROUT_PODCAST_ID }}
+          BUZZSPROUT_PODCAST_ID_THE_ROUGH: ${{ secrets.BUZZSPROUT_PODCAST_ID_THE_ROUGH }}
           NEWS_API_KEY:                 ${{ secrets.NEWS_API_KEY }}
           SLACK_WEBHOOK_URL:            ${{ secrets.SLACK_WEBHOOK_URL }}
           DRY_RUN:                      ${{ inputs.dry_run || 'false' }}

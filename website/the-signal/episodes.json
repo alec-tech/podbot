@@ -1,0 +1,120 @@
+[
+  {
+    "id": 3,
+    "episode_num": 3,
+    "date": "2026-02-18",
+    "edition": "am",
+    "title": "The AI Arms Race Gets a Balance Sheet",
+    "description": "OpenAI's $40B fundraise reshapes the capital landscape while Samsung's foundry struggles threaten the entire semiconductor supply chain. Plus: why every bank in America is quietly building a large language model.",
+    "audio_url": "",
+    "duration_seconds": 1980,
+    "duration_display": "33:00",
+    "theme": "When venture capital meets artificial general intelligence",
+    "categories": ["business", "tech", "overlap"],
+    "sponsors": [
+      { "slot": "mid", "name": "Notion", "tagline": "Build your company wiki, beautifully.", "url": "#", "logo_text": "N" },
+      { "slot": "outro", "name": "Mercury", "tagline": "Banking for startups.", "url": "#", "logo_text": "M" }
+    ],
+    "chapters": [
+      { "time": 0, "label": "Cold Open" },
+      { "time": 90, "label": "Intro" },
+      { "time": 120, "label": "Business Block" },
+      { "time": 360, "label": "Mid-Roll: Notion" },
+      { "time": 420, "label": "Crossover: AI Capex" },
+      { "time": 900, "label": "Tech Block" },
+      { "time": 1800, "label": "Pre-Outro: Mercury" },
+      { "time": 1860, "label": "Wrap" }
+    ],
+    "business_stories": [
+      { "headline": "OpenAI's $40B Round Redefines What a 'Startup' Is", "excerpt": "At a $300B valuation, OpenAI is approaching Apple's 2012 market cap. Chuck and Jessica debate whether this is rational exuberance or the most defensible moat in tech history." },
+      { "headline": "Goldman Sachs Quietly Doubles Its AI Infrastructure Budget", "excerpt": "A leaked internal memo puts Goldman's AI spend at $2.1B for 2026 — more than their entire equities division headcount budget. What happens to 12,000 analysts?" }
+    ],
+    "tech_stories": [
+      { "headline": "Samsung's Foundry Yield Crisis Could Delay Every AI Chip Roadmap by 18 Months", "excerpt": "3nm yields are reportedly below 40% at Samsung's Austin fab. NVIDIA, Qualcomm, and AMD are all reassessing their supply chain dependencies." },
+      { "headline": "Meta's New 'Memory Layer' Makes AI Assistants Actually Useful", "excerpt": "A persistent context window that learns user behavior across sessions. Jessica calls it 'the real inflection point.' Chuck calls it a privacy nightmare." }
+    ],
+    "overlap_stories": [
+      { "headline": "Every Major Bank Is Building an LLM. None of Them Talk to Each Other.", "excerpt": "Exclusive: a map of financial services AI deployments reveals a fragmented, redundant landscape that's burning capital and producing inconsistent results." }
+    ],
+    "companies": ["OpenAI", "Goldman Sachs", "Samsung", "NVIDIA", "Meta", "Qualcomm", "AMD", "Notion", "Mercury"],
+    "transcript_url": "",
+    "created_at": "2026-02-18T08:00:00"
+  },
+  {
+    "id": 2,
+    "episode_num": 2,
+    "date": "2026-02-17",
+    "edition": "am",
+    "title": "Tariffs, Tokens, and the Attention Economy",
+    "description": "New semiconductor export controls hit the market like a hammer. TikTok's algorithmic advertising patents threaten Google's core business. And why the CEO of the year might be a 43-billion-parameter model.",
+    "audio_url": "",
+    "duration_seconds": 1980,
+    "duration_display": "33:00",
+    "theme": "When policy meets the attention economy",
+    "categories": ["business", "tech"],
+    "sponsors": [
+      { "slot": "mid", "name": "Linear", "tagline": "Build software better.", "url": "#", "logo_text": "L" },
+      { "slot": "outro", "name": "Stripe", "tagline": "Payments infrastructure for the internet.", "url": "#", "logo_text": "S" }
+    ],
+    "chapters": [
+      { "time": 0, "label": "Cold Open" },
+      { "time": 90, "label": "Intro" },
+      { "time": 120, "label": "Business Block" },
+      { "time": 360, "label": "Mid-Roll: Linear" },
+      { "time": 420, "label": "Crossover Segment" },
+      { "time": 900, "label": "Tech Block" },
+      { "time": 1800, "label": "Pre-Outro: Stripe" },
+      { "time": 1860, "label": "Wrap" }
+    ],
+    "business_stories": [
+      { "headline": "New Export Controls Create a $60B Hole in Nvidia's Revenue Forecast", "excerpt": "Commerce Dept restrictions on H100 and Blackwell chip exports to 12 new countries — including Vietnam and UAE — blindsides the market." }
+    ],
+    "tech_stories": [
+      { "headline": "TikTok's Ad Patent Portfolio Is a Threat to Every Platform Running Targeted Ads", "excerpt": "A deep dive into 847 newly-filed patents reveals ByteDance has quietly built an IP moat around behavioral prediction that could trigger licensing battles across the ad-tech industry." }
+    ],
+    "overlap_stories": [
+      { "headline": "The AI CEO: Boards Are Quietly Testing LLMs in Strategic Planning Roles", "excerpt": "McKinsey's internal benchmark pits Claude Opus against a panel of Fortune 500 C-suite executives on 30 strategic scenarios. The results are uncomfortable." }
+    ],
+    "companies": ["NVIDIA", "TikTok", "ByteDance", "Google", "McKinsey", "Linear", "Stripe", "Meta", "Microsoft"],
+    "transcript_url": "",
+    "created_at": "2026-02-17T08:00:00"
+  },
+  {
+    "id": 1,
+    "episode_num": 1,
+    "date": "2026-02-16",
+    "edition": "pm",
+    "title": "PM Highlights: Fed Signals, Claude 4 Launch, and the AI Infrastructure Bill",
+    "description": "Your evening catch-up: the Fed's language shift that moved bond markets, Anthropic's surprise Claude 4 launch, and a $200B federal data center bill that's rewriting AI's geography.",
+    "audio_url": "",
+    "duration_seconds": 660,
+    "duration_display": "11:00",
+    "theme": "Closing the day's biggest threads",
+    "categories": ["business", "tech"],
+    "sponsors": [
+      { "slot": "post-roll", "name": "Vanta", "tagline": "Automate your security compliance.", "url": "#", "logo_text": "V" }
+    ],
+    "chapters": [
+      { "time": 0, "label": "Intro" },
+      { "time": 30, "label": "Business Headlines" },
+      { "time": 270, "label": "Crossover Moment" },
+      { "time": 330, "label": "Tech Headlines" },
+      { "time": 570, "label": "Looking Forward" },
+      { "time": 600, "label": "Post-Roll: Vanta" }
+    ],
+    "business_stories": [
+      { "headline": "Fed Minutes Signal March Cut — Bond Market Already Pricing It In", "excerpt": "The shift from 'patient' to 'watchful' has traders at 78% probability for a March rate cut." },
+      { "headline": "Stripe's First Profitable Quarter Keeps IPO Question Open", "excerpt": "$1.4B net income on $14B revenue — but profitable companies have less urgency to go public." }
+    ],
+    "tech_stories": [
+      { "headline": "Anthropic Drops Claude 4: Records on Coding, Reasoning, and Long-Context", "excerpt": "Every competing lab's roadmap team is working weekends after today's benchmark results." },
+      { "headline": "The $200B AI Data Center Bill Nobody's Talking About", "excerpt": "Federal authorization is quietly reshaping where AI compute lives — and who controls it." }
+    ],
+    "overlap_stories": [
+      { "headline": "AI Infrastructure Spending Becomes a Geopolitical Chess Match", "excerpt": "The intersection of federal policy and hyperscaler capex is creating a new map of AI power." }
+    ],
+    "companies": ["Federal Reserve", "Stripe", "Anthropic", "Vanta"],
+    "transcript_url": "",
+    "created_at": "2026-02-16T17:00:00"
+  }
+]
