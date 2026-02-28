@@ -74,7 +74,7 @@
       "type": "static",
       "providers": {
         "cartesia": {
-          "voice_id": "ed81fd13-2016-4a49-8fe3-c0d2761695fc",
+          "voice_id": "41f3c367-e0a8-4a85-89e0-c27bae9c9b6d",
           "model_id": "sonic-3",
           "speed": 1
         },
@@ -96,7 +96,7 @@
       "type": "static",
       "providers": {
         "cartesia": {
-          "voice_id": "bf991597-6c13-47e4-8411-91ec2de5c466",
+          "voice_id": "62ae83ad-4f6a-430b-af41-a9bede9286ca",
           "model_id": "sonic-3",
           "speed": 1.05
         },
