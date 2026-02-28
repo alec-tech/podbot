@@ -82,9 +82,15 @@ class VoiceProducerAgent:
 
     @staticmethod
     def _clean_dialogue(text: str) -> str:
+        # Strip marked directions: (laughs), [beat], *sighs*
         text = re.sub(r'\([^)]*\)', '', text)
         text = re.sub(r'\[[^\]]*\]', '', text)
         text = re.sub(r'\*[^*]*\*', '', text)
+        # Strip bare direction words that leaked at the start of dialogue
+        text = re.sub(
+            r'^(laughs|chuckles|sighs|pauses|smiles|nods|shrugs|grins|scoffs|gasps|groans)\s+',
+            '', text, flags=re.IGNORECASE,
+        )
         text = re.sub(r'  +', ' ', text).strip()
         return text
 

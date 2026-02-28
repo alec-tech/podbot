@@ -54,9 +54,24 @@ DIALOGUE RULES:
 - 2+ data points per story. At least 2 genuine disagreements total.
 
 SPOKEN TEXT ONLY — CRITICAL:
-Everything inside quotation marks MUST be spoken dialogue only. No parenthetical directions,
-bracketed directions, or asterisk actions inside quotes. All acting directions belong in the
-bracket BEFORE the colon: [HOST - direction]: "dialogue"
+Everything inside the quotation marks after the colon is sent directly to a text-to-speech engine.
+If you put a direction inside the quotes, the AI voice will literally read it aloud.
+
+WRONG — direction leaks into audio:
+  [JACK - laughing]: "(laughs) That's a wild stat."
+  [DANA - excited]: "*turning to Jack* You have to see this lie."
+  [JACK - amused]: "laughs So the thing about this driver—"
+  [RICKY - shaking head]: "[shakes head] The data says otherwise."
+
+CORRECT — direction stays in brackets, quotes contain only spoken words:
+  [JACK - laughing]: "That's a wild stat."
+  [DANA - excited]: "You have to see this lie."
+  [JACK - amused]: "So the thing about this driver—"
+  [RICKY - shaking head]: "The data says otherwise."
+
+NO parenthetical directions (laughs), NO bracketed directions [beat], NO asterisk actions *sighs*,
+NO bare direction words like "laughs" or "chuckles" at the start of dialogue.
+All acting cues go ONLY in the bracket before the colon: [HOST - direction]: "dialogue"
 
 SPONSOR RULES:
 - Use the designated host and read the script verbatim.

@@ -63,7 +63,7 @@
         "min_duration_minutes": 10,
         "max_duration_minutes": 15,
         "title_format": "{date} - {hook}",
-        "news_window_hours": 24,
+        "news_window_hours": 36,
         "includes_recap": false
       }
     }

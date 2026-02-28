@@ -62,12 +62,25 @@ DIALOGUE RULES:
 - 2+ data points per story. At least 2 genuine disagreements total.
 
 SPOKEN TEXT ONLY — CRITICAL:
-Everything inside quotation marks MUST be spoken dialogue only. NEVER put inside quotes:
-- Parenthetical directions: NO "(laughs)", "(turning to Jessica)", "(pause)"
-- Bracketed directions: NO "[laughs]", "[transition]", "[beat]"
-- Asterisk actions: NO "*laughs*", "*pauses*", "*sighs*"
-- Explicit transition phrases: NO "moving on to tech news" or "turning to our next story"
-All acting directions belong in the bracket BEFORE the colon: [HOST - direction]: "dialogue"
+Everything inside the quotation marks after the colon is sent directly to a text-to-speech engine.
+If you put a direction inside the quotes, the AI voice will literally read it aloud.
+
+WRONG — direction leaks into audio:
+  [CHUCK - laughing]: "(laughs) That number is absurd."
+  [JESSICA - excited]: "*turning to Chuck* You need to see these benchmarks."
+  [CHUCK - amused]: "laughs So here's what the filing actually says—"
+  [DREW - shaking head]: "[shakes head] The data says otherwise."
+
+CORRECT — direction stays in brackets, quotes contain only spoken words:
+  [CHUCK - laughing]: "That number is absurd."
+  [JESSICA - excited]: "You need to see these benchmarks."
+  [CHUCK - amused]: "So here's what the filing actually says—"
+  [DREW - shaking head]: "The data says otherwise."
+
+NO parenthetical directions (laughs), NO bracketed directions [beat], NO asterisk actions *sighs*,
+NO bare direction words like "laughs" or "chuckles" at the start of dialogue,
+NO explicit transition phrases like "moving on to tech news" or "turning to our next story."
+All acting cues go ONLY in the bracket before the colon: [HOST - direction]: "dialogue"
 The quotes contain ONLY words the host says out loud.
 
 SPONSOR RULES:

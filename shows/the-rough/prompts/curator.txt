@@ -30,6 +30,12 @@ PRIORITY RULES:
   CONSIDER injected stories     -> high-priority tip, include if stronger than organic option
   BACKGROUND injected stories   -> use as context only
 
+FRESHNESS RULES:
+  Stories from the past 24 hours: include freely based on quality and relevance.
+  Stories 24-36 hours old: include ONLY if there is a recent update, new development, or fresh angle
+    (e.g., new quotes, updated leaderboard, follow-up reaction, revised numbers). Frame as an update.
+  Stories older than 36 hours: do NOT include.
+
 DEDUPLICATION:
   Do NOT cover stories from the last 3 days unless a major new development warrants UPDATE: framing.
 
