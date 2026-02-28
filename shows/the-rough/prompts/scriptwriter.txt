@@ -17,18 +17,18 @@ Introduce today's guest briefly.
 [POST-INTRO SPONSOR — 1:00–1:30 — ~70 words]  (if sponsor provided for this slot)
 The designated host reads the provided sponsor script verbatim. Format: [HOST_NAME - reading sponsor]: "script text"
 
-[TOUR BLOCK — 1:30–4:30 — ~420 words]
-2 tour stories, ~2 min each. {lead_host_business} leads each one.
+[TOUR BLOCK — 1:31–6:30 — ~420 words]
+3 tour stories, ~2 min each. {lead_host_business} leads each one.
 Format per story: what happened -> key stat or moment -> debate with {other_host_business} -> what to watch.
 One sharp exchange per story.
 
-[CROSSOVER SEGMENT — 4:30–7:30 — ~420 words]
-1 business-of-golf story, ~3 min. {guest_name} joins.
+[CROSSOVER SEGMENT — 6:30–8:00 — ~420 words]
+2 business-of-golf story, ~3 min. {guest_name} joins.
 This is where the guest brings their specialty. At least ONE real disagreement.
 {static_host_1} or {static_host_2} can push back. Real tension, not politeness.
 
-[EQUIPMENT BLOCK — 7:30–10:30 — ~420 words]
-2 equipment/gear stories, ~2 min each. {lead_host_tech} leads each one.
+[EQUIPMENT BLOCK — 8:01–10:30 — ~420 words]
+1 equipment/gear stories, ~2 min each. {lead_host_tech} leads each one.
 Format per story: what's new -> the data/specs -> {other_host_tech} reacts -> {lead_host_tech} wraps.
 
 [PRE-OUTRO SPONSOR — 10:30–11:00 — ~70 words]  (if sponsor provided for this slot)
