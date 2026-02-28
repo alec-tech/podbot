@@ -1,16 +1,7 @@
 """
-agents/inject_stories.py v4 — Edition-Aware Story Injection
+agents/inject_stories.py v5 — Multi-Show Edition-Aware Story Injection
 
-Injections can target:
-  --edition morning   → Morning edition only
-  --edition midday    → Midday edition only
-  --edition evening   → Evening edition only
-  --edition all       → all three editions (default)
-
-Priority levels:
-  must_include  — AI cannot drop, only improve framing
-  consider      — high-priority tip, included if it beats organic news
-  background    — context only
+Per-show injection data: data/{slug}/injected_stories.json
 """
 
 import os
@@ -25,54 +16,65 @@ from typing import Optional
 log = logging.getLogger("inject_stories")
 client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
-INJECTIONS_FILE = Path("data/injected_stories.json")
-ARCHIVE_DIR     = Path("data/injection_archive")
 PRIORITY_LEVELS = {"must_include", "consider", "background"}
-EDITION_VALUES  = {"morning", "midday", "evening", "all"}
+EDITION_VALUES = {"morning", "midday", "evening", "daily", "all"}
+
+
+def _injections_file(show_slug: str = "the-signal") -> Path:
+    return Path("data") / show_slug / "injected_stories.json"
+
+
+def _archive_dir(show_slug: str = "the-signal") -> Path:
+    return Path("data") / show_slug / "injection_archive"
 
 
 # ─── Public API ───────────────────────────────────────────────────────────────
 
 def inject_from_url(url: str, priority: str = "consider", note: str = "",
-                    submitted_by: str = "producer", edition: str = "all") -> dict:
+                    submitted_by: str = "producer", edition: str = "all",
+                    show_slug: str = "the-signal") -> dict:
     priority = _validate_priority(priority)
     edition  = _validate_edition(edition)
     raw      = _fetch_url_content(url)
     enriched = _enrich_story(raw, url=url, note=note)
     record   = _build_record(enriched, priority, submitted_by, edition, source_url=url, note=note)
-    _save_injection(record)
-    log.info(f"✅ Injected URL [{priority.upper()} / {edition.upper()}]: {enriched['headline']}")
+    _save_injection(record, show_slug)
+    log.info(f"Injected URL [{priority.upper()} / {edition.upper()}]: {enriched['headline']}")
     return record
 
 
 def inject_from_text(text: str, priority: str = "consider", note: str = "",
-                     submitted_by: str = "producer", edition: str = "all") -> dict:
+                     submitted_by: str = "producer", edition: str = "all",
+                     show_slug: str = "the-signal") -> dict:
     priority = _validate_priority(priority)
     edition  = _validate_edition(edition)
     enriched = _enrich_story(text, url="", note=note)
     record   = _build_record(enriched, priority, submitted_by, edition, note=note)
-    _save_injection(record)
-    log.info(f"✅ Injected text [{priority.upper()} / {edition.upper()}]: {enriched['headline']}")
+    _save_injection(record, show_slug)
+    log.info(f"Injected text [{priority.upper()} / {edition.upper()}]: {enriched['headline']}")
     return record
 
 
 def inject_from_topic(topic: str, priority: str = "consider", note: str = "",
-                      submitted_by: str = "producer", edition: str = "all") -> dict:
+                      submitted_by: str = "producer", edition: str = "all",
+                      show_slug: str = "the-signal") -> dict:
     priority = _validate_priority(priority)
     edition  = _validate_edition(edition)
     enriched = _research_topic(topic, note)
     record   = _build_record(enriched, priority, submitted_by, edition, note=note)
-    _save_injection(record)
-    log.info(f"✅ Injected topic [{priority.upper()} / {edition.upper()}]: {enriched['headline']}")
+    _save_injection(record, show_slug)
+    log.info(f"Injected topic [{priority.upper()} / {edition.upper()}]: {enriched['headline']}")
     return record
 
 
-def get_pending_injections(episode_date: str, edition: str = "all") -> list:
+def get_pending_injections(episode_date: str, edition: str = "all",
+                           show_slug: str = "the-signal") -> list:
     """Return injections relevant to this date + edition."""
-    _archive_old_injections()
-    if not INJECTIONS_FILE.exists():
+    _archive_old_injections(show_slug)
+    inj_file = _injections_file(show_slug)
+    if not inj_file.exists():
         return []
-    with open(INJECTIONS_FILE) as f:
+    with open(inj_file) as f:
         all_injections = json.load(f)
     edition = edition.lower()
     pending = []
@@ -82,17 +84,18 @@ def get_pending_injections(episode_date: str, edition: str = "all") -> list:
         if inj.get("target_date") not in (episode_date, None, ""):
             continue
         inj_ed = inj.get("edition", "all").lower()
-        # "all" and legacy "both" match any edition
         if inj_ed in ("all", "both") or inj_ed == edition:
             pending.append(inj)
     return pending
 
 
-def mark_injections_used(episode_date: str, edition: str):
+def mark_injections_used(episode_date: str, edition: str,
+                         show_slug: str = "the-signal"):
     """Mark matching injections as consumed by this edition."""
-    if not INJECTIONS_FILE.exists():
+    inj_file = _injections_file(show_slug)
+    if not inj_file.exists():
         return
-    with open(INJECTIONS_FILE) as f:
+    with open(inj_file) as f:
         all_injections = json.load(f)
     edition = edition.lower()
     for inj in all_injections:
@@ -105,22 +108,23 @@ def mark_injections_used(episode_date: str, edition: str):
             inj["used"]            = True
             inj["used_at"]         = datetime.now().isoformat()
             inj["used_by_edition"] = edition
-    with open(INJECTIONS_FILE, "w") as f:
+    with open(inj_file, "w") as f:
         json.dump(all_injections, f, indent=2)
 
 
-def list_pending_injections(episode_date: str = None, edition: str = "all"):
+def list_pending_injections(episode_date: str = None, edition: str = "all",
+                            show_slug: str = "the-signal"):
     target = episode_date or str(date.today())
-    pending = get_pending_injections(target, edition)
+    pending = get_pending_injections(target, edition, show_slug)
     if not pending:
-        print(f"No pending injections for {target} ({edition.upper()})")
+        print(f"No pending injections for {target} ({edition.upper()}) [{show_slug}]")
         return
     print(f"\n{'='*60}")
-    print(f"  Pending — {target} | {edition.upper()}")
+    print(f"  Pending — {target} | {edition.upper()} | {show_slug}")
     print(f"{'='*60}")
     for i, inj in enumerate(pending, 1):
         s = inj["story"]
-        print(f"\n  [{i}] {inj['priority'].upper()} | {inj.get('edition','both').upper()}")
+        print(f"\n  [{i}] {inj['priority'].upper()} | {inj.get('edition','all').upper()}")
         print(f"  Headline : {s['headline']}")
         if inj.get("note"): print(f"  Note     : {inj['note']}")
         print(f"  By       : {inj['submitted_by']} @ {inj['submitted_at'][:16]}")
@@ -144,7 +148,7 @@ def _fetch_url_content(url: str) -> str:
 
 
 def _enrich_story(raw_content: str, url: str = "", note: str = "") -> dict:
-    prompt = f"""You are an editorial producer for The Signal podcast.
+    prompt = f"""You are an editorial producer for a podcast.
 Analyze and create a structured podcast brief.
 
 Content:
@@ -174,7 +178,7 @@ Return JSON:
 
 
 def _research_topic(topic: str, note: str = "") -> dict:
-    prompt = f"""You are an editorial producer for The Signal podcast.
+    prompt = f"""You are an editorial producer for a podcast.
 Build a story brief from your knowledge of this topic: "{topic}"
 Note: {note}
 
@@ -219,33 +223,36 @@ def _build_record(enriched: dict, priority: str, submitted_by: str, edition: str
     }
 
 
-def _save_injection(record: dict):
-    INJECTIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
+def _save_injection(record: dict, show_slug: str = "the-signal"):
+    inj_file = _injections_file(show_slug)
+    inj_file.parent.mkdir(parents=True, exist_ok=True)
     injections = []
-    if INJECTIONS_FILE.exists():
-        with open(INJECTIONS_FILE) as f:
+    if inj_file.exists():
+        with open(inj_file) as f:
             injections = json.load(f)
     injections.append(record)
-    with open(INJECTIONS_FILE, "w") as f:
+    with open(inj_file, "w") as f:
         json.dump(injections, f, indent=2)
     if record["priority"] == "must_include":
         _send_must_include_alert(record)
 
 
-def _archive_old_injections():
-    if not INJECTIONS_FILE.exists():
+def _archive_old_injections(show_slug: str = "the-signal"):
+    inj_file = _injections_file(show_slug)
+    if not inj_file.exists():
         return
-    with open(INJECTIONS_FILE) as f:
+    with open(inj_file) as f:
         injections = json.load(f)
     cutoff = (date.today() - timedelta(days=14)).isoformat()
     current, archive = [], []
     for inj in injections:
         (archive if (inj.get("target_date") or "") < cutoff else current).append(inj)
     if archive:
-        ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
-        with open(ARCHIVE_DIR / f"archive_{date.today()}.json", "w") as f:
+        archive_dir = _archive_dir(show_slug)
+        archive_dir.mkdir(parents=True, exist_ok=True)
+        with open(archive_dir / f"archive_{date.today()}.json", "w") as f:
             json.dump(archive, f, indent=2)
-        with open(INJECTIONS_FILE, "w") as f:
+        with open(inj_file, "w") as f:
             json.dump(current, f, indent=2)
 
 
@@ -255,9 +262,9 @@ def _send_must_include_alert(record: dict):
         return
     try:
         headline = record["story"].get("headline", "Unknown")
-        edition  = record.get("edition", "both").upper()
+        edition  = record.get("edition", "all").upper()
         note     = record.get("note", "")
-        msg = (f"📌 *MUST INCLUDE* — {edition} edition\n*{headline}*\n"
+        msg = (f"*MUST INCLUDE* — {edition} edition\n*{headline}*\n"
                f"By: {record['submitted_by']}"
                + (f"\nNote: {note}" if note else ""))
         requests.post(webhook, json={"text": msg}, timeout=5)
@@ -286,16 +293,19 @@ if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
 
-    p = argparse.ArgumentParser(description="Inject a story into The Signal")
+    p = argparse.ArgumentParser(description="Inject a story into a podcast show")
     grp = p.add_mutually_exclusive_group()
     grp.add_argument("--url",   help="Inject from a URL")
     grp.add_argument("--text",  help="Inject from raw text")
     grp.add_argument("--topic", help="Inject by topic (AI researches)")
     grp.add_argument("--list",  action="store_true", help="List pending injections")
 
+    p.add_argument("--show", default="the-signal",
+                   help="Show slug (default: the-signal)")
     p.add_argument("--priority", default="consider",
                    choices=["must_include", "consider", "background"])
-    p.add_argument("--edition", default="all", choices=["morning", "midday", "evening", "all"],
+    p.add_argument("--edition", default="all",
+                   choices=["morning", "midday", "evening", "daily", "all"],
                    help="Which edition to target (default: all)")
     p.add_argument("--note", default="")
     p.add_argument("--by",   default="producer")
@@ -304,15 +314,15 @@ if __name__ == "__main__":
     args = p.parse_args()
 
     if args.list:
-        list_pending_injections(args.date, args.edition)
+        list_pending_injections(args.date, args.edition, args.show)
     elif args.url:
-        r = inject_from_url(args.url, args.priority, args.note, args.by, args.edition)
-        print(f"✅ [{args.priority.upper()} / {args.edition.upper()}]: {r['story']['headline']}")
+        r = inject_from_url(args.url, args.priority, args.note, args.by, args.edition, args.show)
+        print(f"[{args.priority.upper()} / {args.edition.upper()}]: {r['story']['headline']}")
     elif args.text:
-        r = inject_from_text(args.text, args.priority, args.note, args.by, args.edition)
-        print(f"✅ [{args.priority.upper()} / {args.edition.upper()}]: {r['story']['headline']}")
+        r = inject_from_text(args.text, args.priority, args.note, args.by, args.edition, args.show)
+        print(f"[{args.priority.upper()} / {args.edition.upper()}]: {r['story']['headline']}")
     elif args.topic:
-        r = inject_from_topic(args.topic, args.priority, args.note, args.by, args.edition)
-        print(f"✅ [{args.priority.upper()} / {args.edition.upper()}]: {r['story']['headline']}")
+        r = inject_from_topic(args.topic, args.priority, args.note, args.by, args.edition, args.show)
+        print(f"[{args.priority.upper()} / {args.edition.upper()}]: {r['story']['headline']}")
     else:
         p.print_help()

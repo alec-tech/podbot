@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Show Admin</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #232733;
+      --border: #2d3140;
+      --text: #e4e6ed;
+      --text2: #8b8fa3;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #eab308;
+      --font: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; }
+    a { color: var(--accent2); text-decoration: none; }
+
+    /* Layout */
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
+    .header h1 { font-size: 18px; font-weight: 600; }
+    .header .show-tabs { display: flex; gap: 8px; }
+    .header .show-tab { padding: 6px 14px; border-radius: 6px; cursor: pointer; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); font-size: 13px; font-family: var(--font); }
+    .header .show-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .main { max-width: 1100px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+    /* Cards */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-header h2 { font-size: 15px; font-weight: 600; }
+    .card-body { padding: 18px; }
+
+    /* Forms */
+    label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    select, input[type="text"], input[type="date"], textarea {
+      width: 100%; padding: 8px 12px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text); font-family: var(--font); font-size: 13px; outline: none;
+    }
+    select:focus, input:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 100px; }
+    .form-row { display: flex; gap: 12px; margin-bottom: 12px; }
+    .form-row > * { flex: 1; }
+    .radio-group { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+    .radio-group label { display: flex; align-items: center; gap: 8px; color: var(--text); text-transform: none; letter-spacing: 0; cursor: pointer; font-size: 13px; }
+    .radio-group input[type="radio"] { accent-color: var(--accent); }
+
+    /* Buttons */
+    .btn { padding: 8px 18px; border-radius: 6px; border: none; cursor: pointer; font-family: var(--font); font-size: 13px; font-weight: 500; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); }
+    .btn-danger { background: var(--red); color: white; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+    .btn-group { display: flex; gap: 8px; margin-top: 12px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+    .tab { padding: 10px 16px; cursor: pointer; color: var(--text2); border-bottom: 2px solid transparent; font-size: 13px; }
+    .tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Log viewer */
+    .log-viewer { background: #0d0f14; border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-size: 12px; line-height: 1.6; max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; color: var(--text2); }
+    .log-viewer .log-info { color: var(--green); }
+    .log-viewer .log-warn { color: var(--yellow); }
+    .log-viewer .log-error { color: var(--red); }
+
+    /* Runs table */
+    .runs-table { width: 100%; border-collapse: collapse; }
+    .runs-table th, .runs-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .runs-table th { color: var(--text2); font-weight: 500; font-size: 11px; text-transform: uppercase; }
+    .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .status-running { background: rgba(99,102,241,0.2); color: var(--accent2); }
+    .status-success { background: rgba(34,197,94,0.2); color: var(--green); }
+    .status-failed { background: rgba(239,68,68,0.2); color: var(--red); }
+    .status-dry_run { background: rgba(234,179,8,0.2); color: var(--yellow); }
+
+    /* Host cards */
+    .host-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+    .host-card h3 { font-size: 14px; margin-bottom: 8px; }
+    .host-card .host-type { font-size: 11px; color: var(--text2); background: var(--bg); padding: 2px 6px; border-radius: 3px; margin-left: 8px; }
+    .host-card textarea { margin-top: 6px; }
+
+    /* Feed list */
+    .feed-category { margin-bottom: 16px; }
+    .feed-category h3 { font-size: 13px; color: var(--accent2); margin-bottom: 6px; }
+    .feed-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 12px; }
+    .feed-item input { flex: 1; }
+    .feed-item .btn-delete { background: none; border: none; color: var(--red); cursor: pointer; font-size: 14px; padding: 4px; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; font-size: 13px; z-index: 1000; animation: fadeIn 0.3s; }
+    .toast-success { background: var(--green); color: white; }
+    .toast-error { background: var(--red); color: white; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Show Admin</h1>
+  <div class="show-tabs" id="showTabs"></div>
+</div>
+
+<div class="main">
+  <!-- Run Pipeline -->
+  <div class="card">
+    <div class="card-header"><h2>Run Pipeline</h2></div>
+    <div class="card-body">
+      <div class="form-row">
+        <div>
+          <label>Show</label>
+          <select id="runShow"></select>
+        </div>
+        <div>
+          <label>Edition</label>
+          <select id="runEdition"></select>
+        </div>
+        <div>
+          <label>Date</label>
+          <input type="date" id="runDate">
+        </div>
+      </div>
+      <label>Start from</label>
+      <div class="radio-group">
+        <label><input type="radio" name="startFrom" value="curate" checked> Curation (full run)</label>
+        <label><input type="radio" name="startFrom" value="script"> Scriptwriting (reuse brief)</label>
+        <label><input type="radio" name="startFrom" value="audio"> Audio (reuse brief + script)</label>
+        <label><input type="radio" name="startFrom" value="publish"> Publishing (reuse everything)</label>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="startRun(false)">Run</button>
+        <button class="btn btn-secondary" onclick="startRun(true)">Dry Run</button>
+      </div>
+      <div id="logContainer" class="hidden" style="margin-top: 16px;">
+        <label>Live Output</label>
+        <div class="log-viewer" id="logViewer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Runs -->
+  <div class="card">
+    <div class="card-header"><h2>Recent Runs</h2></div>
+    <div class="card-body">
+      <table class="runs-table">
+        <thead><tr><th>Status</th><th>Show</th><th>Edition</th><th>Date</th><th>Started</th><th>Actions</th></tr></thead>
+        <tbody id="runsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Config Editor -->
+  <div class="card">
+    <div class="card-header"><h2>Show Config: <span id="configShowName">—</span></h2></div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchConfigTab('general')">General</div>
+      <div class="tab" onclick="switchConfigTab('hosts')">Hosts</div>
+      <div class="tab" onclick="switchConfigTab('feeds')">Feeds</div>
+      <div class="tab" onclick="switchConfigTab('prompts')">Prompts</div>
+      <div class="tab" onclick="switchConfigTab('sponsors')">Sponsors</div>
+    </div>
+    <div class="card-body">
+      <!-- General tab -->
+      <div id="tab-general" class="tab-content active">
+        <div class="form-row">
+          <div><label>Show Name</label><input type="text" id="cfgName"></div>
+          <div><label>Tagline</label><input type="text" id="cfgTagline"></div>
+        </div>
+        <div class="form-row">
+          <div><label>Category</label><input type="text" id="cfgCategory"></div>
+          <div><label>Language</label><input type="text" id="cfgLanguage"></div>
+        </div>
+        <label>Description</label>
+        <textarea id="cfgDescription" rows="3"></textarea>
+        <label style="margin-top:12px">Editions</label>
+        <div id="editionsDisplay" style="font-size:12px; color:var(--text2); margin-top:4px;"></div>
+        <label style="margin-top:12px">Story Quotas</label>
+        <div id="quotasDisplay" style="font-size:12px; color:var(--text2); margin-top:4px;"></div>
+        <div class="btn-group"><button class="btn btn-primary" onclick="saveGeneral()">Save</button></div>
+      </div>
+
+      <!-- Hosts tab -->
+      <div id="tab-hosts" class="tab-content">
+        <div id="hostsContainer"></div>
+        <div class="btn-group"><button class="btn btn-primary" onclick="savePersonas()">Save</button></div>
+      </div>
+
+      <!-- Feeds tab -->
+      <div id="tab-feeds" class="tab-content">
+        <div id="feedsContainer"></div>
+        <div class="btn-group"><button class="btn btn-primary" onclick="saveFeeds()">Save</button></div>
+      </div>
+
+      <!-- Prompts tab -->
+      <div id="tab-prompts" class="tab-content">
+        <div class="form-row">
+          <div><label>Prompt</label><select id="promptSelector" onchange="loadPrompt()"></select></div>
+        </div>
+        <textarea id="promptText" rows="20" style="font-size:12px;"></textarea>
+        <div class="btn-group"><button class="btn btn-primary" onclick="savePrompt()">Save</button></div>
+      </div>
+
+      <!-- Sponsors tab -->
+      <div id="tab-sponsors" class="tab-content">
+        <div id="sponsorsContainer"></div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="addSponsor()">+ Add Sponsor</button>
+          <button class="btn btn-primary" onclick="saveSponsors()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Story Injection -->
+  <div class="card">
+    <div class="card-header"><h2>Story Injection</h2></div>
+    <div class="card-body">
+      <div class="form-row">
+        <div><label>Show</label><select id="injectShow"></select></div>
+        <div><label>Edition</label><select id="injectEdition"><option value="all">All</option></select></div>
+        <div><label>Priority</label>
+          <select id="injectPriority">
+            <option value="must_include">Must Include</option>
+            <option value="consider" selected>Consider</option>
+            <option value="background">Background</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div style="flex:2"><label>URL</label><input type="text" id="injectUrl" placeholder="https://..."></div>
+        <div style="flex:1"><label>Note</label><input type="text" id="injectNote" placeholder="Optional context"></div>
+      </div>
+      <div class="btn-group"><button class="btn btn-primary" onclick="injectStory()">Inject</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────
+let shows = [];
+let currentShow = 'the-signal';
+let currentConfig = {};
+let currentPersonas = {};
+let currentFeeds = {};
+let currentSponsors = [];
+let logSource = null;
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+async function init() {
+  shows = await api('GET', '/api/shows');
+  renderShowTabs();
+  populateShowSelects();
+  document.getElementById('runDate').value = new Date().toISOString().split('T')[0];
+  await selectShow(currentShow);
+  loadRuns();
+}
+
+function renderShowTabs() {
+  const el = document.getElementById('showTabs');
+  el.innerHTML = shows.map(s =>
+    `<div class="show-tab ${s.slug === currentShow ? 'active' : ''}" onclick="selectShow('${s.slug}')">${s.name}</div>`
+  ).join('');
+}
+
+function populateShowSelects() {
+  ['runShow', 'injectShow'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = shows.map(s => `<option value="${s.slug}">${s.name}</option>`).join('');
+    sel.value = currentShow;
+  });
+}
+
+async function selectShow(slug) {
+  currentShow = slug;
+  renderShowTabs();
+
+  // Load config
+  currentConfig = await api('GET', `/api/shows/${slug}/config`);
+  currentPersonas = await api('GET', `/api/shows/${slug}/personas`);
+  currentFeeds = await api('GET', `/api/shows/${slug}/feeds`);
+  const sponsorData = await api('GET', `/api/shows/${slug}/sponsors`);
+  currentSponsors = sponsorData.sponsors || [];
+
+  // Update edition selectors
+  const editions = Object.keys(currentConfig.show?.editions || {});
+  ['runEdition', 'injectEdition'].forEach(id => {
+    const sel = document.getElementById(id);
+    const extra = id === 'injectEdition' ? '<option value="all">All</option>' : '';
+    sel.innerHTML = extra + editions.map(e => `<option value="${e}">${e.charAt(0).toUpperCase() + e.slice(1)}</option>`).join('');
+  });
+
+  document.getElementById('configShowName', slug);
+  document.getElementById('configShowName').textContent = currentConfig.show?.name || slug;
+
+  renderGeneral();
+  renderPersonas();
+  renderFeeds();
+  renderPromptSelector();
+  renderSponsors();
+}
+
+// ─── General Config ───────────────────────────────────────────────────────
+function renderGeneral() {
+  const s = currentConfig.show || {};
+  document.getElementById('cfgName').value = s.name || '';
+  document.getElementById('cfgTagline').value = s.tagline || '';
+  document.getElementById('cfgCategory').value = s.category || '';
+  document.getElementById('cfgLanguage').value = s.language || 'en';
+  document.getElementById('cfgDescription').value = s.description || '';
+
+  const editions = s.editions || {};
+  document.getElementById('editionsDisplay').innerHTML = Object.entries(editions)
+    .map(([k, v]) => `<strong>${k}</strong>: ${v.publish_time_est} EST, ${v.news_window_hours}hr window, ${v.target_duration_minutes} min target`)
+    .join('<br>');
+
+  const quotas = s.story_quotas || {};
+  document.getElementById('quotasDisplay').innerHTML = Object.entries(quotas)
+    .map(([k, v]) => `${k.replace('_', ' ')}: ${v}`)
+    .join(' | ');
+}
+
+async function saveGeneral() {
+  currentConfig.show.name = document.getElementById('cfgName').value;
+  currentConfig.show.tagline = document.getElementById('cfgTagline').value;
+  currentConfig.show.category = document.getElementById('cfgCategory').value;
+  currentConfig.show.language = document.getElementById('cfgLanguage').value;
+  currentConfig.show.description = document.getElementById('cfgDescription').value;
+  await api('PUT', `/api/shows/${currentShow}/config`, currentConfig);
+  toast('Config saved');
+}
+
+// ─── Personas ─────────────────────────────────────────────────────────────
+function renderPersonas() {
+  const el = document.getElementById('hostsContainer');
+  el.innerHTML = Object.entries(currentPersonas).map(([key, p]) => `
+    <div class="host-card">
+      <h3>${p.name} <span class="host-type">${p.type}</span> — ${p.role}</h3>
+      <label>Personality</label>
+      <textarea id="persona-${key}-personality" rows="2">${p.personality || ''}</textarea>
+      <label style="margin-top:8px">Speech Patterns (one per line)</label>
+      <textarea id="persona-${key}-speech" rows="3">${(p.speech_patterns || []).join('\n')}</textarea>
+      <label style="margin-top:8px">Avoid (one per line)</label>
+      <textarea id="persona-${key}-avoid" rows="2">${(p.avoid || []).join('\n')}</textarea>
+    </div>
+  `).join('');
+}
+
+async function savePersonas() {
+  for (const [key, p] of Object.entries(currentPersonas)) {
+    p.personality = document.getElementById(`persona-${key}-personality`).value;
+    p.speech_patterns = document.getElementById(`persona-${key}-speech`).value.split('\n').filter(x => x.trim());
+    p.avoid = document.getElementById(`persona-${key}-avoid`).value.split('\n').filter(x => x.trim());
+  }
+  await api('PUT', `/api/shows/${currentShow}/personas`, currentPersonas);
+  toast('Personas saved');
+}
+
+// ─── Feeds ────────────────────────────────────────────────────────────────
+function renderFeeds() {
+  const el = document.getElementById('feedsContainer');
+  el.innerHTML = Object.entries(currentFeeds).map(([cat, urls]) => `
+    <div class="feed-category">
+      <h3>${cat}</h3>
+      ${urls.map((url, i) => `
+        <div class="feed-item">
+          <input type="text" value="${url}" onchange="updateFeed('${cat}', ${i}, this.value)">
+          <button class="feed-item btn-delete" onclick="removeFeed('${cat}', ${i})">&#x2715;</button>
+        </div>
+      `).join('')}
+      <button class="btn btn-sm btn-secondary" onclick="addFeed('${cat}')" style="margin-top:4px">+ Add Feed</button>
+    </div>
+  `).join('');
+}
+
+function updateFeed(cat, idx, val) { currentFeeds[cat][idx] = val; }
+function removeFeed(cat, idx) { currentFeeds[cat].splice(idx, 1); renderFeeds(); }
+function addFeed(cat) { currentFeeds[cat].push(''); renderFeeds(); }
+
+async function saveFeeds() {
+  // Clean empty entries
+  for (const cat of Object.keys(currentFeeds)) {
+    currentFeeds[cat] = currentFeeds[cat].filter(u => u.trim());
+  }
+  await api('PUT', `/api/shows/${currentShow}/feeds`, currentFeeds);
+  toast('Feeds saved');
+}
+
+// ─── Prompts ──────────────────────────────────────────────────────────────
+function renderPromptSelector() {
+  const sel = document.getElementById('promptSelector');
+  const names = ['curator', 'scriptwriter', 'publisher'];
+  sel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('');
+  loadPrompt();
+}
+
+async function loadPrompt() {
+  const name = document.getElementById('promptSelector').value;
+  try {
+    const data = await api('GET', `/api/shows/${currentShow}/prompts/${name}`);
+    document.getElementById('promptText').value = data.text || '';
+  } catch {
+    document.getElementById('promptText').value = '';
+  }
+}
+
+async function savePrompt() {
+  const name = document.getElementById('promptSelector').value;
+  const text = document.getElementById('promptText').value;
+  await api('PUT', `/api/shows/${currentShow}/prompts/${name}`, { text });
+  toast(`Prompt "${name}" saved`);
+}
+
+// ─── Sponsors ─────────────────────────────────────────────────────────────
+function renderSponsors() {
+  const el = document.getElementById('sponsorsContainer');
+  if (!currentSponsors.length) {
+    el.innerHTML = '<p style="color:var(--text2);font-size:13px;">No sponsors configured.</p>';
+    return;
+  }
+  el.innerHTML = currentSponsors.map((s, i) => `
+    <div class="host-card">
+      <h3>${s.name || 'New Sponsor'} <button class="btn btn-sm btn-danger" onclick="removeSponsor(${i})">Remove</button></h3>
+      <div class="form-row">
+        <div><label>Name</label><input type="text" value="${s.name || ''}" onchange="currentSponsors[${i}].name=this.value"></div>
+        <div><label>Slot</label>
+          <select onchange="currentSponsors[${i}].slot=this.value">
+            <option value="pre-intro" ${s.slot==='pre-intro'?'selected':''}>Pre-Intro</option>
+            <option value="post-intro" ${s.slot==='post-intro'?'selected':''}>Post-Intro</option>
+            <option value="pre-outro" ${s.slot==='pre-outro'?'selected':''}>Pre-Outro</option>
+          </select>
+        </div>
+        <div><label>Voice</label><input type="text" value="${s.voice || ''}" onchange="currentSponsors[${i}].voice=this.value"></div>
+      </div>
+      <label>Script</label>
+      <textarea rows="2" onchange="currentSponsors[${i}].script=this.value">${s.script || ''}</textarea>
+      <div class="form-row" style="margin-top:8px">
+        <div><label>Start Date</label><input type="date" value="${s.start_date || ''}" onchange="currentSponsors[${i}].start_date=this.value"></div>
+        <div><label>End Date</label><input type="date" value="${s.end_date || ''}" onchange="currentSponsors[${i}].end_date=this.value"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addSponsor() {
+  currentSponsors.push({
+    id: 'sponsor-' + Date.now(),
+    name: '', slot: 'pre-outro', editions: Object.keys(currentConfig.show?.editions || {}),
+    voice: '', script: '', start_date: new Date().toISOString().split('T')[0],
+    end_date: '', active: true
+  });
+  renderSponsors();
+}
+
+function removeSponsor(i) { currentSponsors.splice(i, 1); renderSponsors(); }
+
+async function saveSponsors() {
+  await api('PUT', `/api/shows/${currentShow}/sponsors`, { sponsors: currentSponsors });
+  toast('Sponsors saved');
+}
+
+// ─── Config Tabs ──────────────────────────────────────────────────────────
+function switchConfigTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(`tab-${name}`).classList.add('active');
+}
+
+// ─── Pipeline Runs ────────────────────────────────────────────────────────
+async function startRun(dryRun) {
+  const body = {
+    show: document.getElementById('runShow').value,
+    edition: document.getElementById('runEdition').value,
+    start_from: document.querySelector('input[name="startFrom"]:checked').value,
+    dry_run: dryRun,
+    date: document.getElementById('runDate').value || null,
+  };
+
+  const result = await api('POST', '/api/runs', body);
+  if (!result.run_id) { toast('Failed to start run', true); return; }
+
+  // Show log viewer
+  const container = document.getElementById('logContainer');
+  const viewer = document.getElementById('logViewer');
+  container.classList.remove('hidden');
+  viewer.textContent = 'Starting pipeline...\n';
+
+  // Stream logs via SSE
+  if (logSource) logSource.close();
+  logSource = new EventSource(`/api/runs/${result.run_id}/logs`);
+  logSource.onmessage = (e) => {
+    if (e.data === '[END]') {
+      logSource.close();
+      logSource = null;
+      loadRuns();
+      return;
+    }
+    const line = e.data;
+    const span = document.createElement('span');
+    if (line.includes('[ERROR]') || line.includes('❌')) span.className = 'log-error';
+    else if (line.includes('[WARNING]') || line.includes('⚠️')) span.className = 'log-warn';
+    else if (line.includes('✅') || line.includes('SUCCESS')) span.className = 'log-info';
+    span.textContent = line + '\n';
+    viewer.appendChild(span);
+    viewer.scrollTop = viewer.scrollHeight;
+  };
+  logSource.onerror = () => { logSource.close(); logSource = null; loadRuns(); };
+
+  toast(`Run ${result.run_id} started`);
+  loadRuns();
+}
+
+async function loadRuns() {
+  const runs = await api('GET', '/api/runs?limit=10');
+  const body = document.getElementById('runsBody');
+  body.innerHTML = runs.map(r => {
+    const started = r.started_at ? new Date(r.started_at).toLocaleString('en-US', {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+    const showName = (shows.find(s => s.slug === r.show) || {}).name || r.show;
+    return `<tr>
+      <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+      <td>${showName}</td>
+      <td>${r.edition}</td>
+      <td>${r.date || '—'}</td>
+      <td>${started}</td>
+      <td>${r.status === 'failed' && r.error ? `<button class="btn btn-sm btn-secondary" onclick="resumeRun('${r.show}','${r.edition}','${r.date}')">Resume</button>` : ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function resumeRun(show, edition, date) {
+  document.getElementById('runShow').value = show;
+  document.getElementById('runEdition').value = edition;
+  if (date) document.getElementById('runDate').value = date;
+  // Default to resuming from audio
+  document.querySelectorAll('input[name="startFrom"]').forEach(r => r.checked = r.value === 'audio');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── Story Injection ──────────────────────────────────────────────────────
+async function injectStory() {
+  const slug = document.getElementById('injectShow').value;
+  const url = document.getElementById('injectUrl').value.trim();
+  if (!url) { toast('Enter a URL', true); return; }
+
+  try {
+    const result = await api('POST', `/api/shows/${slug}/inject`, {
+      url,
+      priority: document.getElementById('injectPriority').value,
+      edition: document.getElementById('injectEdition').value,
+      note: document.getElementById('injectNote').value,
+    });
+    toast(`Injected: ${result.headline}`);
+    document.getElementById('injectUrl').value = '';
+    document.getElementById('injectNote').value = '';
+  } catch (e) {
+    toast('Injection failed: ' + e.message, true);
+  }
+}
+
+// ─── API helper ───────────────────────────────────────────────────────────
+async function api(method, url, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const resp = await fetch(url, opts);
+  if (!resp.ok) {
+    const err = await resp.text();
+    throw new Error(err);
+  }
+  return resp.json();
+}
+
+function toast(msg, isError) {
+  const el = document.createElement('div');
+  el.className = `toast ${isError ? 'toast-error' : 'toast-success'}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

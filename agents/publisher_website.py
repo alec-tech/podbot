@@ -1,5 +1,5 @@
 """
-agents/publisher_website.py — Website Data Export Extension
+agents/publisher_website.py v5 — Multi-Show Website Data Export
 Generates episodes.json consumed by the podcast website
 """
 
@@ -16,25 +16,31 @@ client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 def generate_episode_json(brief: dict, script_data: dict, metadata: dict,
                           audio_url: str, episode_num: int, episode_date: str,
-                          edition: str = "morning") -> dict:
+                          edition: str = "morning", show=None) -> dict:
     """
     Generate the episode JSON record for the website.
-    Extracts companies, builds chapters, structures all story data.
     """
     sponsors = brief.get("sponsors", script_data.get("sponsors", []))
-
-    # Extract companies from all stories
-    companies = extract_companies_from_brief(brief)
-
-    # Build chapter list based on unified show structure
+    companies = extract_companies_from_brief(brief, show)
     chapters = build_chapters(sponsors)
 
-    # Estimate duration in seconds (12 min default for all editions)
     duration_seconds = int(script_data.get("estimated_minutes", 12) * 60)
     mins = duration_seconds // 60
     secs = duration_seconds % 60
 
-    return {
+    # Build story data from configured categories
+    story_data = {}
+    if show:
+        for cat_key in show.story_quotas.keys():
+            story_data[cat_key] = format_stories_for_web(brief.get(cat_key, []))
+    else:
+        story_data = {
+            "business_stories": format_stories_for_web(brief.get("business_stories", [])),
+            "overlap_stories": format_stories_for_web(brief.get("overlap_stories", [])),
+            "tech_stories": format_stories_for_web(brief.get("tech_stories", [])),
+        }
+
+    result = {
         "id": episode_num,
         "episode_num": episode_num,
         "date": episode_date,
@@ -45,12 +51,10 @@ def generate_episode_json(brief: dict, script_data: dict, metadata: dict,
         "duration_seconds": duration_seconds,
         "duration_display": f"{mins}:{secs:02d}",
         "theme": brief.get("show_theme", ""),
-        "categories": determine_categories(brief),
+        "categories": determine_categories(brief, show),
         "sponsors": format_sponsors_for_web(sponsors),
         "chapters": chapters,
-        "business_stories": format_stories_for_web(brief.get("business_stories", [])),
-        "overlap_stories": format_stories_for_web(brief.get("overlap_stories", [])),
-        "tech_stories": format_stories_for_web(brief.get("tech_stories", [])),
+        **story_data,
         "companies": companies,
         "crossover_host": script_data.get("crossover_host", ""),
         "transcript_url": metadata.get("TRANSCRIPT_URL", ""),
@@ -58,9 +62,13 @@ def generate_episode_json(brief: dict, script_data: dict, metadata: dict,
         "created_at": datetime.now().isoformat()
     }
 
+    if show:
+        result["show"] = show.slug
+
+    return result
+
 
 def build_chapters(sponsors: list) -> list:
-    """Build chapter timestamps based on unified show structure (all editions: ~12 min)"""
     chapters = []
 
     pre_intro = next((s for s in sponsors if s.get("slot") == "pre-intro"), None)
@@ -93,21 +101,37 @@ def build_chapters(sponsors: list) -> list:
     return chapters
 
 
-def determine_categories(brief: dict) -> list:
+def determine_categories(brief: dict, show=None) -> list:
+    if show:
+        cats = []
+        for cat_key in show.story_quotas.keys():
+            if brief.get(cat_key):
+                cats.append(cat_key.replace("_stories", ""))
+        return cats
     cats = ["business", "tech"]
     if brief.get("overlap_stories"):
         cats.append("overlap")
     return cats
 
 
-def extract_companies_from_brief(brief: dict) -> list:
+def extract_companies_from_brief(brief: dict, show=None) -> list:
     """Extract all company names from the brief using Claude"""
-    all_text = " ".join([
-        str(brief.get("show_theme", "")),
-        " ".join(s.get("podcast_headline","") + " " + s.get("context","") for s in brief.get("business_stories",[])),
-        " ".join(s.get("podcast_headline","") + " " + s.get("context","") for s in brief.get("tech_stories",[])),
-        " ".join(s.get("podcast_headline","") + " " + s.get("context","") for s in brief.get("overlap_stories",[])),
-    ])[:3000]
+    text_parts = [str(brief.get("show_theme", ""))]
+
+    if show:
+        for cat_key in show.story_quotas.keys():
+            text_parts.append(
+                " ".join(s.get("podcast_headline","") + " " + s.get("context","")
+                         for s in brief.get(cat_key, []))
+            )
+    else:
+        for cat in ["business_stories", "tech_stories", "overlap_stories"]:
+            text_parts.append(
+                " ".join(s.get("podcast_headline","") + " " + s.get("context","")
+                         for s in brief.get(cat, []))
+            )
+
+    all_text = " ".join(text_parts)[:3000]
 
     response = client.messages.create(
         model="claude-haiku-4-5-20251001",
@@ -131,8 +155,7 @@ TEXT: {all_text}"""
 
     try:
         return json.loads(text)
-    except:
-        # Fallback: simple extraction
+    except Exception:
         return []
 
 
@@ -153,11 +176,15 @@ def format_sponsors_for_web(sponsors: list) -> list:
     } for s in sponsors if s.get("name") and s.get("name") != "SPONSOR_PLACEHOLDER"]
 
 
-def update_episodes_json(new_episode: dict, json_path: str = "website/episodes.json"):
-    """
-    Add new episode to episodes.json and save.
-    Keeps most recent 200 episodes. Used by the website.
-    """
+def update_episodes_json(new_episode: dict, show=None,
+                         json_path: str = None):
+    """Add new episode to episodes.json and save."""
+    if json_path is None:
+        if show:
+            json_path = str(show.website_dir() / "episodes.json")
+        else:
+            json_path = "website/episodes.json"
+
     json_file = Path(json_path)
     json_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -167,13 +194,8 @@ def update_episodes_json(new_episode: dict, json_path: str = "website/episodes.j
     else:
         episodes = []
 
-    # Remove existing entry for same episode_num if re-running
     episodes = [e for e in episodes if e.get("episode_num") != new_episode["episode_num"]]
-
-    # Prepend new episode (newest first)
     episodes.insert(0, new_episode)
-
-    # Keep last 200 episodes max
     episodes = episodes[:200]
 
     with open(json_file, "w") as f:
@@ -183,39 +205,71 @@ def update_episodes_json(new_episode: dict, json_path: str = "website/episodes.j
     return json_file
 
 
-def generate_rss_feed(episodes: list, config: dict, output_path: str = "website/feed.xml"):
+def generate_rss_feed(episodes: list, show=None, config: dict = None,
+                      output_path: str = None):
     """Generate a full RSS 2.0 podcast feed from episode data"""
     from xml.sax.saxutils import escape
+
+    if output_path is None:
+        if show:
+            output_path = str(show.website_dir() / "feed.xml")
+        else:
+            output_path = "website/feed.xml"
+
+    if config is None and show:
+        config = {
+            "name": show.name,
+            "description": show.description,
+            "website_url": os.getenv("PODCAST_WEBSITE_URL", ""),
+        }
+    elif config is None:
+        config = {
+            "name": "Podcast",
+            "description": "",
+            "website_url": "",
+        }
 
     items = []
     for ep in episodes:
         duration_str = ep.get("duration_display", "12:00")
+        ep_num = ep.get("episode_num", 0)
+        guid_prefix = (show.slug if show else "episode").replace("-", "")
         items.append(f"""
     <item>
       <title>{escape(ep['title'])}</title>
       <description><![CDATA[{ep['description']}]]></description>
       <enclosure url="{ep['audio_url']}" length="0" type="audio/mpeg"/>
-      <guid isPermaLink="false">signal-ep-{ep['episode_num']}</guid>
+      <guid isPermaLink="false">{guid_prefix}-ep-{ep_num}</guid>
       <pubDate>{format_rss_date(ep['date'])}</pubDate>
-      <itunes:episode>{ep['episode_num']}</itunes:episode>
+      <itunes:episode>{ep_num}</itunes:episode>
       <itunes:duration>{duration_str}</itunes:duration>
       <itunes:summary>{escape(ep['description'])}</itunes:summary>
     </item>""")
+
+    show_category = show.category if show else "News > Business News"
+    cat_parts = show_category.split(" > ")
+    cat_xml = f'<itunes:category text="{escape(cat_parts[0])}">'
+    if len(cat_parts) > 1:
+        cat_xml += f'\n      <itunes:category text="{escape(cat_parts[1])}"/>'
+    cat_xml += "\n    </itunes:category>"
+
+    author = config.get("name", show.name if show else "Podcast")
+    explicit = "false"
+    if show:
+        explicit = "true" if show.config.get("show", {}).get("explicit", False) else "false"
 
     rss = f"""<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"
   xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
   xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>{escape(config.get('name', 'The Signal'))}</title>
-    <description>{escape(config.get('description', 'Three-daily business, tech, and policy news, curated by AI'))}</description>
+    <title>{escape(config.get('name', 'Podcast'))}</title>
+    <description>{escape(config.get('description', ''))}</description>
     <link>{config.get('website_url', '')}</link>
     <language>en-us</language>
-    <itunes:author>The Signal</itunes:author>
-    <itunes:category text="News">
-      <itunes:category text="Business News"/>
-    </itunes:category>
-    <itunes:explicit>false</itunes:explicit>
+    <itunes:author>{escape(author)}</itunes:author>
+    {cat_xml}
+    <itunes:explicit>{explicit}</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     {''.join(items)}
   </channel>

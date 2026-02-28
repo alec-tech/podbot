@@ -96,20 +96,20 @@ jobs:
       - run: pip install -r requirements.txt
 
       - name: Create runtime directories
-        run: mkdir -p outputs/{briefs,scripts,audio,metadata} database logs data assets
+        run: mkdir -p outputs/the-signal/{briefs,scripts,audio} database/the-signal logs/the-signal data/the-signal assets website/the-signal
 
       # ── Restore persistent state ───────────────────────────────────────────
       - uses: actions/cache@v4
         with:
-          path: database/
-          key: story-memory-${{ github.run_number }}
-          restore-keys: story-memory-
+          path: database/the-signal/
+          key: the-signal-story-memory-${{ github.run_number }}
+          restore-keys: the-signal-story-memory-
 
       - uses: actions/cache@v4
         with:
-          path: data/injected_stories.json
-          key: injections-${{ github.run_number }}
-          restore-keys: injections-
+          path: data/the-signal/injected_stories.json
+          key: the-signal-injections-${{ github.run_number }}
+          restore-keys: the-signal-injections-
 
       # ── Check for duplicate episode ──────────────────────────────────────
       - name: Check for recent episode on Buzzsprout
@@ -166,6 +166,7 @@ jobs:
           DRY_RUN:                      ${{ inputs.dry_run || 'false' }}
         run: |
           python orchestrator.py \
+            --show the-signal \
             --edition ${{ steps.detect.outputs.edition }} \
             ${{ inputs.dry_run == 'true' && '--dry-run' || '' }} \
             ${{ inputs.skip_audio == 'true' && '--skip-audio' || '' }} \
@@ -177,7 +178,7 @@ jobs:
         run: |
           git config user.name  "The Signal Bot"
           git config user.email "bot@thesignalpodcast.com"
-          git add website/episodes.json website/feed.xml || true
+          git add website/the-signal/episodes.json website/the-signal/feed.xml || true
           git diff --staged --quiet || \
             git commit -m "${{ steps.detect.outputs.edition }} $(date +%Y-%m-%d)"
           git push || true
@@ -188,9 +189,9 @@ jobs:
         with:
           name: episode-${{ steps.detect.outputs.edition }}-${{ github.run_number }}
           path: |
-            outputs/briefs/
-            outputs/scripts/
-            logs/
+            outputs/the-signal/briefs/
+            outputs/the-signal/scripts/
+            logs/the-signal/
           retention-days: 30
 
       # ── Slack ─────────────────────────────────────────────────────────────

@@ -1,10 +1,8 @@
 """
-agents/story_memory.py v4 — Edition-Aware Story Coverage Memory
+agents/story_memory.py v5 — Multi-Show Edition-Aware Story Coverage Memory
 
-Tracks stories by edition (morning/midday/evening) so:
-  • Later editions get context about what earlier editions covered (soft dedup)
-  • 3-day cooldown applies across all editions combined
-  • Same-day stories can be revisited with UPDATE framing
+Per-show database paths: database/{slug}/story_memory.db
+Dynamic edition order from ShowConfig.
 """
 
 import os
@@ -17,14 +15,20 @@ from datetime import datetime, timedelta
 from anthropic import Anthropic
 
 log = logging.getLogger("story_memory")
-DB_PATH = Path("database/story_memory.db")
-
-EDITION_ORDER = ["morning", "midday", "evening"]
 
 
-def init_db():
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
+def _get_db_path(show=None) -> Path:
+    if show:
+        db_dir = show.database_dir()
+    else:
+        db_dir = Path("database")
+    db_dir.mkdir(parents=True, exist_ok=True)
+    return db_dir / "story_memory.db"
+
+
+def init_db(show=None):
+    db_path = _get_db_path(show)
+    conn = sqlite3.connect(db_path)
     conn.execute("""
         CREATE TABLE IF NOT EXISTS covered_stories (
             id                INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +42,6 @@ def init_db():
             covered_at        TEXT
         )
     """)
-    # Migrate old DBs that lack the edition column
     cols = [r[1] for r in conn.execute("PRAGMA table_info(covered_stories)").fetchall()]
     if "edition" not in cols:
         conn.execute("ALTER TABLE covered_stories ADD COLUMN edition TEXT DEFAULT 'unknown'")
@@ -48,15 +51,27 @@ def init_db():
 
 # ─── Write ────────────────────────────────────────────────────────────────────
 
-def record_covered_stories(brief: dict, episode_num: int, episode_date: str, edition: str):
+def record_covered_stories(brief: dict, episode_num: int, episode_date: str,
+                           edition: str, show=None):
     """Persist all curated stories for this edition to the memory DB."""
-    init_db()
-    conn = sqlite3.connect(DB_PATH)
-    all_stories = (
-        [(s, "business") for s in brief.get("business_stories", [])]
-        + [(s, "tech")    for s in brief.get("tech_stories", [])]
-        + [(s, "overlap") for s in brief.get("overlap_stories", [])]
-    )
+    init_db(show)
+    db_path = _get_db_path(show)
+    conn = sqlite3.connect(db_path)
+
+    # Collect stories from all configured categories
+    all_stories = []
+    if show:
+        for cat_key in show.story_quotas.keys():
+            cat_label = cat_key.replace("_stories", "")
+            for s in brief.get(cat_key, []):
+                all_stories.append((s, cat_label))
+    else:
+        all_stories = (
+            [(s, "business") for s in brief.get("business_stories", [])]
+            + [(s, "tech")    for s in brief.get("tech_stories", [])]
+            + [(s, "overlap") for s in brief.get("overlap_stories", [])]
+        )
+
     for story, category in all_stories:
         headline    = story.get("podcast_headline", story.get("headline", ""))
         companies   = json.dumps(story.get("companies_mentioned", []))
@@ -76,11 +91,12 @@ def record_covered_stories(brief: dict, episode_num: int, episode_date: str, edi
 
 # ─── Read ─────────────────────────────────────────────────────────────────────
 
-def get_recently_covered(days: int = 5, edition: str = None) -> list:
+def get_recently_covered(days: int = 5, edition: str = None, show=None) -> list:
     """Stories from the last N days, optionally filtered by edition."""
-    init_db()
+    init_db(show)
+    db_path = _get_db_path(show)
     cutoff = (datetime.now() - timedelta(days=days)).isoformat()
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path)
     if edition:
         rows = conn.execute(
             """SELECT episode_date, edition, headline, category, companies
@@ -103,23 +119,26 @@ def get_recently_covered(days: int = 5, edition: str = None) -> list:
     ]
 
 
-def get_earlier_edition_headlines(episode_date: str, current_edition: str) -> list:
+def get_earlier_edition_headlines(episode_date: str, current_edition: str, show=None) -> list:
     """
     Return headlines from earlier editions on the same day.
-    Used to provide context (not exclusion) to later edition curators.
-
-    For morning: returns nothing (it's the first edition).
-    For midday: returns morning headlines.
-    For evening: returns morning + midday headlines.
+    Edition order is read from show config (dynamic per show).
     """
-    init_db()
-    current_idx = EDITION_ORDER.index(current_edition.lower()) if current_edition.lower() in EDITION_ORDER else 0
-    earlier_editions = EDITION_ORDER[:current_idx]
+    init_db(show)
+    db_path = _get_db_path(show)
+
+    if show:
+        edition_order = show.edition_order
+    else:
+        edition_order = ["morning", "midday", "evening"]
+
+    current_idx = edition_order.index(current_edition.lower()) if current_edition.lower() in edition_order else 0
+    earlier_editions = edition_order[:current_idx]
 
     if not earlier_editions:
         return []
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path)
     placeholders = ",".join("?" for _ in earlier_editions)
     rows = conn.execute(
         f"""SELECT headline, edition FROM covered_stories
@@ -131,9 +150,9 @@ def get_earlier_edition_headlines(episode_date: str, current_edition: str) -> li
     return [{"headline": r[0], "edition": r[1]} for r in rows]
 
 
-def build_recently_covered_summary(days: int = 3) -> str:
+def build_recently_covered_summary(days: int = 3, show=None) -> str:
     """Formatted string for the curator prompt (all editions combined)."""
-    recent = get_recently_covered(days)
+    recent = get_recently_covered(days, show=show)
     if not recent:
         return "No recent episode history available."
     lines = [f"RECENTLY COVERED (last {days} days — avoid repeating these topics):"]
@@ -145,21 +164,28 @@ def build_recently_covered_summary(days: int = 3) -> str:
         lines.append(f"\n  {key}:")
         for s in stories:
             co = f" [{', '.join(s['companies'][:3])}]" if s["companies"] else ""
-            lines.append(f"    • [{s['category'].upper()}] {s['headline']}{co}")
+            lines.append(f"    * [{s['category'].upper()}] {s['headline']}{co}")
     return "\n".join(lines)
 
 
-def get_callback_opportunities(brief: dict) -> list:
+def get_callback_opportunities(brief: dict, show=None) -> list:
     """Find connections between today's stories and past coverage."""
-    init_db()
-    recent = get_recently_covered(days=7)
+    init_db(show)
+    recent = get_recently_covered(days=7, show=show)
     if not recent:
         return []
-    all_current = (
-        brief.get("business_stories", [])
-        + brief.get("tech_stories", [])
-        + brief.get("overlap_stories", [])
-    )
+
+    all_current = []
+    if show:
+        for cat_key in show.story_quotas.keys():
+            all_current.extend(brief.get(cat_key, []))
+    else:
+        all_current = (
+            brief.get("business_stories", [])
+            + brief.get("tech_stories", [])
+            + brief.get("overlap_stories", [])
+        )
+
     current_text = json.dumps([s.get("podcast_headline", "") for s in all_current], indent=2)
     recent_text  = json.dumps([r["headline"] for r in recent[:15]], indent=2)
 

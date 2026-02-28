@@ -20,18 +20,20 @@ venv/
 env/
 
 # Generated outputs — don't commit audio/scripts to git
-outputs/audio/
-outputs/scripts/
-outputs/briefs/
+outputs/
 logs/
 
 # Database
-database/*.db
-database/*.db-shm
-database/*.db-wal
+database/
 
-# Injection archive (generated at runtime)
+# Injection data and archive (generated at runtime)
+data/*/injected_stories.json
+data/*/injection_archive/
+data/admin/
+
+# Legacy flat paths (pre-multi-show)
 data/injection_archive/
+data/injected_stories.json
 
 # OS
 .DS_Store

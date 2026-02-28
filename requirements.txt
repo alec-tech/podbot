@@ -25,6 +25,10 @@ Pillow>=10.0.0
 # ── Utilities ────────────────────────────────────────────────────────────────
 python-dotenv>=1.0.0
 
+# ── Admin Server ─────────────────────────────────────────────────────────────
+fastapi>=0.115.0
+uvicorn>=0.34.0
+
 # ── Optional: better article extraction from URLs ────────────────────────────
 # trafilatura>=1.8.0   # Uncomment for much better URL content extraction
 # newspaper3k>=0.2.8   # Alternative article extractor
