@@ -279,6 +279,7 @@ function populateShowSelects() {
     const sel = document.getElementById(id);
     sel.innerHTML = shows.map(s => `<option value="${s.slug}">${s.name}</option>`).join('');
     sel.value = currentShow;
+    sel.onchange = () => selectShow(sel.value);
   });
 }
 
@@ -286,14 +287,24 @@ async function selectShow(slug) {
   currentShow = slug;
   renderShowTabs();
 
-  // Load config
-  currentConfig = await api('GET', `/api/shows/${slug}/config`);
-  currentPersonas = await api('GET', `/api/shows/${slug}/personas`);
-  currentFeeds = await api('GET', `/api/shows/${slug}/feeds`);
-  const sponsorData = await api('GET', `/api/shows/${slug}/sponsors`);
-  currentSponsors = sponsorData.sponsors || [];
+  // Sync all show dropdowns to the selected show
+  ['runShow', 'injectShow'].forEach(id => {
+    document.getElementById(id).value = slug;
+  });
 
-  // Update edition selectors
+  // Load config
+  try {
+    currentConfig = await api('GET', `/api/shows/${slug}/config`);
+    currentPersonas = await api('GET', `/api/shows/${slug}/personas`);
+    currentFeeds = await api('GET', `/api/shows/${slug}/feeds`);
+    const sponsorData = await api('GET', `/api/shows/${slug}/sponsors`);
+    currentSponsors = sponsorData.sponsors || [];
+  } catch (e) {
+    toast('Failed to load show config: ' + e.message, true);
+    return;
+  }
+
+  // Update edition selectors to match this show's editions
   const editions = Object.keys(currentConfig.show?.editions || {});
   ['runEdition', 'injectEdition'].forEach(id => {
     const sel = document.getElementById(id);
@@ -301,7 +312,6 @@ async function selectShow(slug) {
     sel.innerHTML = extra + editions.map(e => `<option value="${e}">${e.charAt(0).toUpperCase() + e.slice(1)}</option>`).join('');
   });
 
-  document.getElementById('configShowName', slug);
   document.getElementById('configShowName').textContent = currentConfig.show?.name || slug;
 
   renderGeneral();
