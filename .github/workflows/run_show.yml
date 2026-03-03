@@ -1,16 +1,29 @@
 # ============================================================
 # PodBot — Run Show Episode Pipeline
 # ============================================================
-# Generic workflow that produces an episode for any show.
-# Trigger manually via workflow_dispatch with show + edition inputs.
-# To schedule, uncomment the cron block below and set your times.
+# Two ways to run:
+#
+# 1. MANUAL: Go to Actions → Run Show → Run workflow.
+#    Enter your show slug and edition.
+#
+# 2. SCHEDULED: Uncomment the schedule block below and set
+#    DEFAULT_SHOW / DEFAULT_EDITION to your show's values.
+#    Add multiple cron lines for multiple editions — use the
+#    EDITION_SCHEDULE to map each UTC hour to the right edition.
+#
+# All times are UTC. Convert from your timezone:
+#   EST = UTC - 5  (e.g. 7:00 AM EST = 12:00 UTC)
+#   PST = UTC - 8  (e.g. 7:00 AM PST = 15:00 UTC)
 # ============================================================
 
 name: Run Show
 
 on:
+  # ── Uncomment to enable scheduled runs ──────────────────────
   # schedule:
-  #   - cron: '0 12 * * 1-5'   # Example: weekdays at 12:00 UTC
+  #   - cron: '0 12 * * 1-5'   # Morning: 7:00 AM EST, weekdays
+  #   - cron: '0 18 * * 1-5'   # Midday:  1:00 PM EST, weekdays
+  #   - cron: '0 22 * * 1-5'   # Evening: 5:00 PM EST, weekdays
 
   workflow_dispatch:
     inputs:
@@ -34,15 +47,57 @@ on:
 env:
   PYTHON_VERSION: '3.11'
 
+  # ── Set these for scheduled (cron) runs ─────────────────────
+  # Cron triggers don't have inputs, so the workflow uses these
+  # defaults instead. Change them to match your show.
+  DEFAULT_SHOW: 'example-show'
+
+  # Map UTC hours to editions for scheduled runs.
+  # Format: space-separated "HOUR=edition" pairs.
+  # When a cron fires, the workflow checks the current UTC hour
+  # against this map to determine which edition to produce.
+  # If no match is found, DEFAULT_EDITION is used.
+  EDITION_SCHEDULE: '12=morning 18=midday 22=evening'
+  DEFAULT_EDITION: 'morning'
+
 jobs:
   produce_episode:
     runs-on: ubuntu-latest
     timeout-minutes: 75
     concurrency:
-      group: episode-${{ inputs.show }}-${{ inputs.edition }}
+      group: episode-${{ inputs.show || 'scheduled' }}-${{ inputs.edition || 'auto' }}
       cancel-in-progress: false
 
     steps:
+      # ── Determine show and edition ───────────────────────────────
+      - name: Determine show and edition
+        id: params
+        run: |
+          if [ -n "${{ inputs.show }}" ]; then
+            # Manual dispatch — use inputs directly
+            echo "show=${{ inputs.show }}" >> $GITHUB_OUTPUT
+            echo "edition=${{ inputs.edition }}" >> $GITHUB_OUTPUT
+            echo "dry_run=${{ inputs.dry_run || 'false' }}" >> $GITHUB_OUTPUT
+            echo "date_flag=${{ inputs.episode_date != '' && format('--date {0}', inputs.episode_date) || '' }}" >> $GITHUB_OUTPUT
+          else
+            # Scheduled run — determine edition from current UTC hour
+            HOUR=$(date -u +%-H)
+            EDITION="$DEFAULT_EDITION"
+            for entry in $EDITION_SCHEDULE; do
+              H="${entry%%=*}"
+              E="${entry##*=}"
+              if [ "$HOUR" = "$H" ]; then
+                EDITION="$E"
+                break
+              fi
+            done
+            echo "show=$DEFAULT_SHOW" >> $GITHUB_OUTPUT
+            echo "edition=$EDITION" >> $GITHUB_OUTPUT
+            echo "dry_run=false" >> $GITHUB_OUTPUT
+            echo "date_flag=" >> $GITHUB_OUTPUT
+            echo "Scheduled run: show=$DEFAULT_SHOW edition=$EDITION (UTC hour=$HOUR)"
+          fi
+
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -61,24 +116,24 @@ jobs:
 
       - name: Create runtime directories
         run: |
-          SHOW="${{ inputs.show }}"
+          SHOW="${{ steps.params.outputs.show }}"
           mkdir -p outputs/$SHOW/{briefs,scripts,audio} database/$SHOW logs/$SHOW data/$SHOW assets website/$SHOW
 
       # ── Restore persistent state ───────────────────────────────────────────
       - uses: actions/cache@v4
         with:
-          path: database/${{ inputs.show }}/
-          key: ${{ inputs.show }}-story-memory-${{ github.run_number }}
-          restore-keys: ${{ inputs.show }}-story-memory-
+          path: database/${{ steps.params.outputs.show }}/
+          key: ${{ steps.params.outputs.show }}-story-memory-${{ github.run_number }}
+          restore-keys: ${{ steps.params.outputs.show }}-story-memory-
 
       - uses: actions/cache@v4
         with:
-          path: data/${{ inputs.show }}/injected_stories.json
-          key: ${{ inputs.show }}-injections-${{ github.run_number }}
-          restore-keys: ${{ inputs.show }}-injections-
+          path: data/${{ steps.params.outputs.show }}/injected_stories.json
+          key: ${{ steps.params.outputs.show }}-injections-${{ github.run_number }}
+          restore-keys: ${{ steps.params.outputs.show }}-injections-
 
       # ── Run pipeline ──────────────────────────────────────────────────────
-      - name: Run ${{ inputs.edition }} pipeline for ${{ inputs.show }}
+      - name: Run ${{ steps.params.outputs.edition }} pipeline for ${{ steps.params.outputs.show }}
         env:
           ANTHROPIC_API_KEY:            ${{ secrets.ANTHROPIC_API_KEY }}
           CARTESIA_API_KEY:             ${{ secrets.CARTESIA_API_KEY }}
@@ -99,47 +154,46 @@ jobs:
           AWS_S3_BUCKET:                ${{ secrets.AWS_S3_BUCKET }}
           AWS_REGION:                   ${{ secrets.AWS_REGION }}
           PODCAST_WEBSITE_URL:          ${{ secrets.PODCAST_WEBSITE_URL }}
-          DRY_RUN:                      ${{ inputs.dry_run || 'false' }}
         run: |
           python orchestrator.py \
-            --show ${{ inputs.show }} \
-            --edition ${{ inputs.edition }} \
-            ${{ inputs.dry_run == 'true' && '--dry-run' || '' }} \
-            ${{ inputs.episode_date != '' && format('--date {0}', inputs.episode_date) || '' }}
+            --show ${{ steps.params.outputs.show }} \
+            --edition ${{ steps.params.outputs.edition }} \
+            ${{ steps.params.outputs.dry_run == 'true' && '--dry-run' || '' }} \
+            ${{ steps.params.outputs.date_flag }}
 
       # ── Commit website data ────────────────────────────────────────────────
       - name: Commit website data
-        if: inputs.dry_run != 'true'
+        if: steps.params.outputs.dry_run != 'true'
         run: |
-          SHOW="${{ inputs.show }}"
+          SHOW="${{ steps.params.outputs.show }}"
           git config user.name  "PodBot"
           git config user.email "bot@podbot.example.com"
           git add website/$SHOW/episodes.json website/$SHOW/feed.xml || true
           git diff --staged --quiet || \
-            git commit -m "${{ inputs.edition }} $(date +%Y-%m-%d) [$SHOW]"
+            git commit -m "${{ steps.params.outputs.edition }} $(date +%Y-%m-%d) [$SHOW]"
           git push || true
 
       # ── Artifacts ─────────────────────────────────────────────────────────
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ inputs.show }}-${{ inputs.edition }}-${{ github.run_number }}
+          name: ${{ steps.params.outputs.show }}-${{ steps.params.outputs.edition }}-${{ github.run_number }}
           path: |
-            outputs/${{ inputs.show }}/briefs/
-            outputs/${{ inputs.show }}/scripts/
-            logs/${{ inputs.show }}/
+            outputs/${{ steps.params.outputs.show }}/briefs/
+            outputs/${{ steps.params.outputs.show }}/scripts/
+            logs/${{ steps.params.outputs.show }}/
           retention-days: 30
 
       # ── Notifications ─────────────────────────────────────────────────────
       - name: Notify success
-        if: success() && inputs.dry_run != 'true'
+        if: success() && steps.params.outputs.dry_run != 'true'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           if [ -n "$SLACK_WEBHOOK_URL" ]; then
             curl -s -X POST "$SLACK_WEBHOOK_URL" \
               -H 'Content-type: application/json' \
-              -d "{\"text\":\"✅ *${{ inputs.show }}* ${{ inputs.edition }} published — $(date +'%A %B %-d')\"}"
+              -d "{\"text\":\"✅ *${{ steps.params.outputs.show }}* ${{ steps.params.outputs.edition }} published — $(date +'%A %B %d')\"}"
           fi
 
       - name: Notify failure
@@ -150,5 +204,5 @@ jobs:
           if [ -n "$SLACK_WEBHOOK_URL" ]; then
             curl -s -X POST "$SLACK_WEBHOOK_URL" \
               -H 'Content-type: application/json' \
-              -d "{\"text\":\"🚨 *${{ inputs.show }}* ${{ inputs.edition }} FAILED — run #${{ github.run_number }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
+              -d "{\"text\":\"🚨 *${{ steps.params.outputs.show }}* ${{ steps.params.outputs.edition }} FAILED — run #${{ github.run_number }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
           fi

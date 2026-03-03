@@ -114,7 +114,7 @@ class ScriptwriterAgent:
                 "name": "SPONSOR_PLACEHOLDER",
                 "tagline": "Built for the way you work.",
                 "product_description": "A productivity and workflow tool used by top companies",
-                "cta": f"Get started free at {self.show.slug.replace('-','')}.com/sponsor",
+                "cta": "Get started free at sponsor.example.com/podcast",
             },
         ]
 

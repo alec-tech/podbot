@@ -58,6 +58,7 @@
     }
   },
   "voices": {
+    "_voice_id_help": "Cartesia and ElevenLabs voice IDs must be obtained from their dashboards (https://play.cartesia.ai, https://elevenlabs.io/voice-library). OpenAI voices work out of the box with the preset names below. Leave voice_id empty to skip that provider — the TTS fallback chain will use the next available provider.",
     "chuck": {
       "description": "Business anchor — analytical, measured, confident, authoritative",
       "type": "static",

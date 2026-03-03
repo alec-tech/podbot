@@ -67,9 +67,14 @@ print_ok "All dependencies installed"
 
 # ── Create directory structure ────────────────────────────────
 print_step "Creating runtime directories"
-mkdir -p outputs/{briefs,scripts,audio,metadata}
-mkdir -p database logs data assets
-print_ok "Directories ready"
+# Per-show directories are created automatically at runtime.
+# Create top-level dirs and example-show dirs for the included demo.
+mkdir -p outputs/example-show/{briefs,scripts,audio}
+mkdir -p database/example-show
+mkdir -p logs/example-show
+mkdir -p data/example-show
+mkdir -p assets
+print_ok "Directories ready (per-show dirs are created automatically at runtime)"
 
 # ── Copy .env ─────────────────────────────────────────────────
 print_step "Setting up environment file"

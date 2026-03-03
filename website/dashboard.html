@@ -1186,82 +1186,84 @@ let sponsors = [];
 let editingSponsorIdx = null;
 let ghSettings = JSON.parse(localStorage.getItem('gh_settings') || '{}');
 
+// Sample briefs shown when no real episode data is loaded yet.
+// These use fictional companies and stories for demonstration purposes.
 const SAMPLE_BRIEF = {
   episode_date: new Date().toISOString().split('T')[0],
-  show_theme: "AI infrastructure spending hits an inflection point as enterprise adoption accelerates and Big Tech redraws the capex map",
+  show_theme: "Sample brief — run your first episode to replace this with real data",
   business_stories: [
     {
       rank: 1, type: "deep",
-      podcast_headline: "Microsoft's $80B AI Capex Plan Is a Bet Against Every Analyst Consensus",
-      source: "Financial Times",
+      podcast_headline: "Acme Corp Announces $5B Expansion Into Renewable Manufacturing",
+      source: "Example Business Daily",
       url: "#",
-      context: "Microsoft has quietly committed to $80 billion in AI infrastructure investment for fiscal 2026 — a figure that exceeds the entire annual revenue of most Fortune 500 companies. The majority flows to data center buildout in the US, reversing a multi-year trend of offshoring compute infrastructure.",
-      extrapolation: "This signals that the hyperscalers believe AI monetization will be transformational on a 3-5 year horizon, not iterative. Competitors will face pressure to match the spend or cede the enterprise market.",
-      talking_points: ["Why $80B when ROI timelines are still uncertain?", "US data center buildout is a geopolitical play, not just economic", "Nvidia's order book implications", "How does this change Azure's competitive position vs AWS?"],
+      context: "Acme Corp, the industrial conglomerate, committed $5 billion to building three new solar panel factories across the midwest, creating an estimated 12,000 jobs.",
+      extrapolation: "This signals a broader trend of legacy manufacturers pivoting to green energy supply chains as federal incentives reshape the economics.",
+      talking_points: ["Why legacy manufacturers are pivoting now", "Federal incentive structure", "Supply chain implications", "Regional economic impact"],
       estimated_minutes: 5, lead_host: "chuck", injected: false
     },
     {
       rank: 2, type: "medium",
-      podcast_headline: "Goldman's AI Job Displacement Report Is Finally Out — and It's Worse Than Predicted",
-      source: "Bloomberg",
+      podcast_headline: "Global Widget Demand Surges 40% as Consumer Electronics Cycle Begins",
+      source: "Example Tech Review",
       url: "#",
-      context: "Goldman Sachs published its long-awaited sector analysis on AI-driven labor displacement. The headline: 300 million jobs globally could be affected within a decade, with knowledge workers hit harder than manual roles — inverting the historical pattern of automation.",
-      extrapolation: "The political implications are enormous. This analysis will fuel both regulatory action and corporate hedging strategies around AI deployment timelines.",
-      talking_points: ["Which sectors are most exposed?", "The 'complement vs. replace' debate finally has data", "What does this mean for AI adoption pace?", "Policy implications"],
+      context: "The widget market is experiencing unprecedented demand as a new generation of consumer devices enters production. Manufacturers are scrambling to secure supply.",
+      extrapolation: "Supply chain bottlenecks from the widget shortage could ripple across the consumer electronics industry for the next 18 months.",
+      talking_points: ["Which sectors are most exposed?", "Inventory strategy shifts", "Pricing pressure on manufacturers"],
       estimated_minutes: 4, lead_host: "chuck", injected: false
     },
     {
       rank: 3, type: "quick",
-      podcast_headline: "Stripe Achieves Profitability for the First Time — and Keeps Its IPO Ambiguous",
-      source: "TechCrunch",
+      podcast_headline: "Startup FooBar Raises $200M Series C at $2B Valuation",
+      source: "Example Venture News",
       url: "#",
-      context: "Stripe announced its first profitable quarter, generating $1.4B in net income on $14B in annual revenue.",
-      extrapolation: "The IPO question just got more complex — profitable companies have less urgency to go public, but the secondary market pressure is building.",
-      talking_points: ["Fintech profitability milestone", "IPO market signals"],
+      context: "FooBar, the enterprise productivity platform, closed a $200M round led by Example Ventures. The company has tripled revenue year-over-year.",
+      extrapolation: "The round signals continued investor appetite for enterprise SaaS despite broader market uncertainty.",
+      talking_points: ["Enterprise SaaS valuations", "Growth vs. profitability debate"],
       estimated_minutes: 2, lead_host: "jessica", injected: false
     }
   ],
   overlap_stories: [
     {
       rank: 1, type: "deep",
-      podcast_headline: "Every Major Bank Is Building an LLM — None of Them Can Talk to Each Other",
-      source: "Reuters",
+      podcast_headline: "New Industry Report: 80% of Companies Plan AI Integration Within 2 Years",
+      source: "Example Research Institute",
       url: "#",
-      context: "An exclusive survey of 47 major financial institutions finds that 91% are developing proprietary large language models for internal use. The problem: zero interoperability standards, creating fragmented AI infrastructure that could amplify systemic risk.",
-      extrapolation: "Regulators are now aware and circling. This is both the biggest AI business story and the biggest AI tech story of the quarter.",
-      talking_points: ["Why banks went proprietary instead of commercial APIs", "Systemic risk from fragmented AI", "Regulatory response trajectory", "The winner if a standard emerges"],
+      context: "A survey of 500 enterprises finds that AI integration plans have accelerated dramatically, with most companies now treating it as a near-term priority rather than a long-term aspiration.",
+      extrapolation: "The shift from experimental to operational AI adoption is creating massive demand for infrastructure, talent, and tooling.",
+      talking_points: ["Adoption timelines by sector", "Infrastructure demand implications", "Talent market impact", "Tooling ecosystem growth"],
       estimated_minutes: 5, lead_host: "chuck", injected: false
     }
   ],
   tech_stories: [
     {
       rank: 1, type: "deep",
-      podcast_headline: "Anthropic's New Interpretability Finding Changes What We Know About How LLMs 'Think'",
-      source: "MIT Technology Review",
+      podcast_headline: "Open-Source LLM Benchmark Shows Dramatic Quality Improvements in Latest Models",
+      source: "Example AI Weekly",
       url: "#",
-      context: "Anthropic's mechanistic interpretability team published findings showing that LLMs use fundamentally different computational paths for different types of reasoning — spatial, linguistic, mathematical — with minimal overlap.",
-      extrapolation: "This is the most significant AI safety and capability research in months. It has direct implications for both AI alignment approaches and for how models are fine-tuned.",
-      talking_points: ["What 'thinking differently' means architecturally", "Implications for AI alignment research", "Why this matters for enterprise AI buyers", "Competitive moat for interpretability leaders"],
+      context: "The latest round of open-source language model benchmarks shows a 30% improvement in reasoning tasks compared to six months ago, narrowing the gap with proprietary models.",
+      extrapolation: "As open-source models close the quality gap, enterprise buyers face a build-vs-buy decision that could reshape the AI vendor landscape.",
+      talking_points: ["Benchmark methodology", "Open-source vs. proprietary tradeoffs", "Enterprise implications", "What this means for AI startups"],
       estimated_minutes: 5, lead_host: "jessica", injected: false
     },
     {
       rank: 2, type: "medium",
-      podcast_headline: "Samsung's 3nm Yield Crisis Could Delay Every AI Chip Roadmap by 18 Months",
-      source: "IEEE Spectrum",
+      podcast_headline: "New Chip Architecture Promises 3x Efficiency for Edge AI Workloads",
+      source: "Example Hardware Journal",
       url: "#",
-      context: "Samsung's advanced node yields at its Austin fab are reportedly below 40%, creating a capacity crisis for any chip designer not using TSMC.",
-      extrapolation: "NVIDIA, Qualcomm, and AMD are all reassessing supply chain dependencies. This is a geopolitical leverage point for Taiwan.",
-      talking_points: ["Who's most exposed beyond Nvidia?", "TSMC's pricing power implications", "US fab buildout urgency"],
+      context: "A research team unveiled a novel chip architecture optimized for running AI models on edge devices with dramatically lower power consumption.",
+      extrapolation: "Edge AI could unlock use cases in IoT, automotive, and mobile that are currently bottlenecked by compute constraints.",
+      talking_points: ["Power efficiency breakthrough", "Edge vs. cloud tradeoffs", "Manufacturing timeline"],
       estimated_minutes: 4, lead_host: "jessica", injected: false
     },
     {
       rank: 3, type: "quick",
-      podcast_headline: "Meta's 'Memory Layer' Update Makes AI Assistants Finally Feel Persistent",
-      source: "The Verge",
+      podcast_headline: "Popular Dev Tool Hits 10 Million Users as Developer Productivity Market Heats Up",
+      source: "Example Dev News",
       url: "#",
-      context: "Meta deployed a cross-session memory feature to its AI assistant across Messenger, Instagram, and WhatsApp simultaneously.",
-      extrapolation: "This is the feature that converts AI assistants from novelties to habits. Engagement metrics will tell us if it works.",
-      talking_points: ["UX implications", "Privacy tradeoffs"],
+      context: "The developer tool reached a major adoption milestone, reflecting growing demand for AI-assisted development workflows.",
+      extrapolation: "Developer tools are becoming the fastest path to AI adoption in enterprises — bottom-up rather than top-down.",
+      talking_points: ["Developer adoption patterns", "Enterprise implications"],
       estimated_minutes: 2, lead_host: "jessica", injected: false
     }
   ]
@@ -1270,60 +1272,60 @@ const SAMPLE_BRIEF = {
 const SAMPLE_BRIEF_PM = {
   episode_date: new Date().toISOString().split('T')[0],
   edition: "midday",
-  show_theme: "Evening wrap: the biggest moves from today's markets and the tech stories that will carry into tomorrow",
+  show_theme: "Sample midday brief — run your show to replace this with real curated stories",
   business_stories: [
     {
       rank: 1, type: "quick",
-      podcast_headline: "Markets Close Mixed as Fed Minutes Reveal Internal Disagreement on Rate Path",
-      source: "Reuters",
+      podcast_headline: "Markets Close Mixed Amid Uncertainty Over Upcoming Policy Decisions",
+      source: "Example Market Watch",
       url: "#",
-      context: "The S&P 500 finished flat while the Nasdaq gained 0.4% after Fed minutes showed a 7-5 split on the pace of future rate adjustments. Bond yields dipped slightly on the dovish lean.",
-      extrapolation: "The split signals uncertainty, not direction — markets will remain volatile until the March meeting clarifies the committee's stance.",
-      talking_points: ["Why the 7-5 split matters more than the consensus statement", "Bond market reaction vs. equity reaction"],
+      context: "Major indices finished the day with mixed results as investors weighed new economic data against upcoming central bank decisions.",
+      extrapolation: "Volatility is likely to persist until the next policy meeting provides clearer direction.",
+      talking_points: ["Sector rotation patterns", "Fixed income vs. equity signals"],
       estimated_minutes: 2, lead_host: "chuck", injected: false
     },
     {
       rank: 2, type: "quick",
-      podcast_headline: "Stripe's Profitability Announcement Reshapes the Late-Stage Startup Landscape",
-      source: "TechCrunch",
+      podcast_headline: "Acme Corp Expansion Plan Sends Ripples Through Industrial Supply Chain",
+      source: "Example Business Daily",
       url: "#",
-      context: "Stripe's first profitable quarter ($1.4B net income) is sending ripples through the late-stage startup world. Secondary market prices for other pre-IPO unicorns moved within hours.",
-      extrapolation: "This creates a new benchmark: if Stripe can be profitable without going public, the IPO pressure valve loosens for every well-run private company.",
-      talking_points: ["Secondary market implications", "What this means for other unicorns"],
+      context: "Following this morning's announcement, Acme Corp's suppliers and competitors are adjusting their strategies. Three rival firms announced accelerated timelines for their own green initiatives.",
+      extrapolation: "The competitive response confirms this is a sector-wide shift, not a one-off corporate strategy play.",
+      talking_points: ["Competitive response", "Supply chain ripple effects"],
       estimated_minutes: 2, lead_host: "chuck", injected: false
     }
   ],
   overlap_stories: [
     {
       rank: 1, type: "quick",
-      podcast_headline: "Microsoft's $80B AI Capex Commitment Is Now Officially the Largest Single Corporate Infrastructure Bet in History",
-      source: "Financial Times",
+      podcast_headline: "Industry AI Adoption Survey Draws Skepticism from Analysts",
+      source: "Example Research Institute",
       url: "#",
-      context: "Following this morning's deep dive, the market has now fully digested Microsoft's announcement. Azure forward bookings are reportedly up 30% since the news broke.",
-      extrapolation: "The AM edition covered the 'why' — the PM update is the 'so what': enterprise customers are voting with their wallets.",
-      talking_points: ["AM follow-up: market reaction", "Azure booking surge"],
+      context: "Following this morning's deep dive on the AI adoption report, several analysts have published responses questioning the survey methodology and timeline assumptions.",
+      extrapolation: "The debate highlights the gap between stated AI intentions and actual deployment readiness.",
+      talking_points: ["AM follow-up: analyst pushback", "Intent vs. execution gap"],
       estimated_minutes: 2, lead_host: "chuck", injected: false
     }
   ],
   tech_stories: [
     {
       rank: 1, type: "quick",
-      podcast_headline: "Anthropic's Interpretability Paper Gets 10,000 Citations in 8 Hours — Fastest in AI History",
-      source: "MIT Technology Review",
+      podcast_headline: "Open-Source AI Community Responds to Benchmark Results with New Collaboration Initiative",
+      source: "Example AI Weekly",
       url: "#",
-      context: "The paper from this morning's AM edition is now the fastest-cited AI research paper ever. Multiple labs have already announced follow-up research directions.",
-      extrapolation: "This validates the interpretability-first approach and may redirect significant research funding toward mechanistic understanding.",
-      talking_points: ["Speed of academic response", "Research funding implications"],
+      context: "Following this morning's benchmark coverage, several open-source AI labs announced a joint effort to standardize evaluation methods and share training infrastructure.",
+      extrapolation: "Collaboration could accelerate open-source AI progress even further, putting additional pressure on proprietary model providers.",
+      talking_points: ["Open-source collaboration models", "Standardization benefits"],
       estimated_minutes: 2, lead_host: "jessica", injected: false
     },
     {
       rank: 2, type: "quick",
-      podcast_headline: "Meta's Memory Layer Update Hits 100M Users in First 6 Hours of Rollout",
-      source: "The Verge",
+      podcast_headline: "Edge AI Chip Startup Secures Major Automotive Partnership",
+      source: "Example Hardware Journal",
       url: "#",
-      context: "The cross-session memory feature covered in today's AM edition has already been activated by over 100 million users across Messenger, Instagram, and WhatsApp.",
-      extrapolation: "Adoption speed suggests users want persistent AI — the privacy debate is about to get much louder.",
-      talking_points: ["Adoption metrics", "Privacy backlash potential"],
+      context: "The chip architecture team from this morning's coverage has secured a partnership with a major automotive manufacturer for in-vehicle AI processing.",
+      extrapolation: "Automotive is likely the first mass-market edge AI use case — whoever wins there sets the standard for everything else.",
+      talking_points: ["Automotive AI timeline", "Edge compute market sizing"],
       estimated_minutes: 2, lead_host: "jessica", injected: false
     }
   ]
@@ -1773,7 +1775,7 @@ function showSponsorForm(idx) {
         </div>
         <div class="inject-form-group">
           <label class="inject-label">URL</label>
-          <input type="url" class="inject-input" id="sp-url" value="${escapeHtml(s.url || '')}" placeholder="https://notion.so/signal" />
+          <input type="url" class="inject-input" id="sp-url" value="${escapeHtml(s.url || '')}" placeholder="https://sponsor.example.com" />
         </div>
         <div class="inject-form-group sponsor-form-full">
           <label class="inject-label">Tagline</label>
@@ -1785,7 +1787,7 @@ function showSponsorForm(idx) {
         </div>
         <div class="inject-form-group sponsor-form-full">
           <label class="inject-label">CTA Line</label>
-          <input type="text" class="inject-input" id="sp-cta" value="${escapeHtml(s.cta || '')}" placeholder="Try Notion free at notion.so/signal" />
+          <input type="text" class="inject-input" id="sp-cta" value="${escapeHtml(s.cta || '')}" placeholder="Try it free at sponsor.example.com/podcast" />
         </div>
         <div class="inject-form-group">
           <label class="inject-label">Slot</label>

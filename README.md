@@ -10,27 +10,122 @@ A fully autonomous, open-source AI podcast platform. Define your show — hosts,
 
 [Apple Podcasts](https://podcasts.apple.com/us/podcast/the-signal/id1879902505) · [Spotify](https://open.spotify.com/show/04pO5buMHJjZljvgGK1dQs) · [Amazon Music](https://music.amazon.com/podcasts/3b8c2c9c-7c7c-495a-84ce-63a9f70722c2/the-signal)
 
-## Quick Start
+---
+
+## Prerequisites
+
+Before you start, make sure you have:
+
+- **Python 3.10+** — [python.org/downloads](https://www.python.org/downloads/)
+- **FFmpeg** — Required for audio assembly
+  - macOS: `brew install ffmpeg`
+  - Ubuntu/Debian: `sudo apt-get install -y ffmpeg`
+  - Windows: [ffmpeg.org/download](https://ffmpeg.org/download.html)
+- **API keys** — See the [API Keys](#api-keys) section below
+
+## Setup
+
+### 1. Clone and install
 
 ```bash
-# Clone and setup
-git clone https://github.com/your-org/podbot.git
+git clone https://github.com/alec-tech/podbot.git
 cd podbot
 chmod +x setup.sh && ./setup.sh
+```
 
-# Configure API keys
-# Edit .env with at least ANTHROPIC_API_KEY and one TTS provider key
+The setup script creates a virtual environment, installs dependencies, sets up runtime directories, and copies `.env.example` to `.env`.
 
-# Dry run (curation only — no TTS cost, no publishing)
+### 2. Configure your API keys
+
+Open `.env` in your editor and add your keys. At minimum you need:
+
+```bash
+# Required — nothing runs without this
+ANTHROPIC_API_KEY=sk-ant-...
+
+# Required for publishing — skip if just testing with --dry-run
+BUZZSPROUT_API_KEY=...
+BUZZSPROUT_PODCAST_ID=...
+
+# TTS — at least one is required for audio production
+# The pipeline tries them in order: Cartesia → OpenAI → ElevenLabs
+CARTESIA_API_KEY=...     # or
+OPENAI_API_KEY=...       # or
+ELEVENLABS_API_KEY=...
+```
+
+See the full [API Keys](#api-keys) reference below for where to get each key.
+
+### 3. Run a dry run
+
+A dry run executes only the curation stage — it gathers news and builds an editorial brief without generating audio or publishing. No TTS cost.
+
+```bash
 source .venv/bin/activate
 python orchestrator.py --show example-show --edition morning --dry-run
+```
 
-# Full episode
+The output brief is saved to `outputs/example-show/briefs/`. Open it to see the curated stories and editorial structure.
+
+### 4. Run a full episode
+
+Once your TTS and Buzzsprout keys are configured:
+
+```bash
 python orchestrator.py --show example-show --edition morning
+```
 
-# Admin dashboard
+This runs all 4 stages: curation, scriptwriting, voice production, and publishing. The final MP3 is saved to `outputs/example-show/audio/` and uploaded to Buzzsprout.
+
+### 5. Open the admin dashboard (optional)
+
+```bash
 python admin.py   # http://localhost:8000
 ```
+
+The admin dashboard lets you manage shows, edit configs, trigger pipeline runs, and monitor logs — all from a browser UI.
+
+---
+
+## API Keys
+
+### Required
+
+| Key | What it does | Where to get it |
+|-----|-------------|----------------|
+| `ANTHROPIC_API_KEY` | Powers all AI tasks (curation, scriptwriting, metadata) | [console.anthropic.com](https://console.anthropic.com) |
+| `BUZZSPROUT_API_KEY` | Uploads episodes to your podcast host | [buzzsprout.com](https://www.buzzsprout.com/) — Settings → API |
+| `BUZZSPROUT_PODCAST_ID` | Identifies which podcast to publish to | Your Buzzsprout URL: `buzzsprout.com/YOUR_ID` |
+
+### TTS Providers (at least one required)
+
+The voice producer tries providers in order and falls back automatically. You only need one, but having multiple gives you redundancy.
+
+| Key | Provider | Where to get it | Notes |
+|-----|----------|-----------------|-------|
+| `CARTESIA_API_KEY` | Cartesia (primary) | [play.cartesia.ai](https://play.cartesia.ai) | Highest quality; requires voice IDs in `show.json` |
+| `OPENAI_API_KEY` | OpenAI (fallback 1) | [platform.openai.com](https://platform.openai.com) | Works out of the box with preset voice names |
+| `ELEVENLABS_API_KEY` | ElevenLabs (fallback 2) | [elevenlabs.io](https://elevenlabs.io) | Requires voice IDs in `show.json` |
+
+**Voice IDs:** OpenAI uses preset names (`onyx`, `nova`, `echo`, etc.) that work immediately. Cartesia and ElevenLabs require you to browse their voice libraries, pick voices, and paste the IDs into your show's `show.json` under `voices → {host} → providers → {provider} → voice_id`. Leave `voice_id` empty to skip that provider.
+
+### Recommended
+
+| Key | What it does | Where to get it |
+|-----|-------------|----------------|
+| `NEWS_API_KEY` | Supplements RSS feeds with trending stories | [newsapi.org](https://newsapi.org) — free tier: 100 req/day |
+| `SLACK_WEBHOOK_URL` | Sends alerts on failures and must-include injections | [Slack Incoming Webhooks](https://api.slack.com/messaging/webhooks) |
+
+### Optional
+
+| Key | What it does | Where to get it |
+|-----|-------------|----------------|
+| `TWITTER_API_KEY`, `TWITTER_API_SECRET`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_TOKEN_SECRET` | Auto-posts episodes to Twitter/X | [developer.twitter.com](https://developer.twitter.com) (Elevated access) |
+| `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_PERSON_ID` | Auto-posts episodes to LinkedIn | [linkedin.com/developers](https://www.linkedin.com/developers) |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_BUCKET` | Cloud audio storage (instead of Buzzsprout-only) | [AWS Console](https://aws.amazon.com/s3/) |
+| `PODCAST_WEBSITE_URL` | Your podcast's website URL for RSS feed metadata | — |
+
+---
 
 ## Create Your Show
 
@@ -117,29 +212,34 @@ python admin.py
 
 ### GitHub Actions
 
-The included `.github/workflows/run_show.yml` workflow runs any show via `workflow_dispatch`:
+The included `.github/workflows/run_show.yml` workflow supports both manual and scheduled runs.
 
-1. Set your API keys as GitHub Secrets
+**Manual runs:**
+
+1. Add your API keys as repository Secrets (Settings → Secrets and variables → Actions). Use the same variable names from your `.env` file.
 2. Go to Actions → Run Show → Run workflow
 3. Enter your show slug and edition
 
-To schedule automated runs, uncomment the `schedule` block in the workflow file and set your cron times.
+**Scheduled runs (cron):**
+
+To run episodes automatically on a schedule, edit `.github/workflows/run_show.yml`:
+
+1. Set `DEFAULT_SHOW` to your show slug (e.g. `my-show`)
+2. Set `EDITION_SCHEDULE` to map UTC hours to editions (e.g. `12=morning 18=midday 22=evening`)
+3. Uncomment the `schedule` block and set your cron times to match:
+
+```yaml
+schedule:
+  - cron: '0 12 * * 1-5'   # Morning: 7:00 AM EST, weekdays
+  - cron: '0 18 * * 1-5'   # Midday:  1:00 PM EST, weekdays
+  - cron: '0 22 * * 1-5'   # Evening: 5:00 PM EST, weekdays
+```
+
+When a cron fires, the workflow checks the current UTC hour against `EDITION_SCHEDULE` to determine which edition to produce. All times are UTC — convert from your timezone (EST = UTC - 5, PST = UTC - 8).
 
 ### Netlify
 
 The `website/` directory deploys as a static site via Netlify. Per-show `episodes.json` and `feed.xml` are committed to git and auto-deployed.
-
-## Environment Variables
-
-**Required:** `ANTHROPIC_API_KEY`, `BUZZSPROUT_API_KEY`, `BUZZSPROUT_PODCAST_ID`
-
-**TTS (at least one):** `CARTESIA_API_KEY`, `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`
-
-**Recommended:** `NEWS_API_KEY`, `SLACK_WEBHOOK_URL`
-
-**Optional:** Twitter credentials, LinkedIn credentials, AWS S3/R2 for audio storage
-
-See `.env.example` for the full list.
 
 ## Cost Estimate (Per Episode)
 
@@ -159,11 +259,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing, and PR pr
 
 AGPLv3 — see [LICENSE](LICENSE).
 
-## Next Steps After Forking
+## After Forking
 
-1. **Replace placeholder URLs** — Update `your-org/podbot` in this README and `website/index.html` with your actual GitHub repo
+1. **Update GitHub links** — Replace `alec-tech/podbot` in `website/index.html` with your fork's repo URL
 2. **Create your first show** — Use the admin wizard or copy `shows/example-show/`
-3. **Configure TTS voices** — Add Cartesia/ElevenLabs voice IDs to your show's `show.json` (OpenAI voices work out of the box)
+3. **Configure TTS voices** — Browse [Cartesia](https://play.cartesia.ai) or [ElevenLabs](https://elevenlabs.io/voice-library) voice libraries and add IDs to your show's `show.json` (OpenAI voices work out of the box)
 4. **Set up GitHub Actions** — Add API keys as repo secrets, uncomment the cron schedule in `.github/workflows/run_show.yml`
 5. **Deploy the website** — Connect `website/` to Netlify (or any static host)
-6. **Tag v1.0.0** — Create your first release once your show is publishing
