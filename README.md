@@ -33,26 +33,18 @@ cd podbot
 chmod +x setup.sh && ./setup.sh
 ```
 
-The setup script creates a virtual environment, installs dependencies, sets up runtime directories, and copies `.env.example` to `.env`.
+The setup script creates a virtual environment, installs dependencies, and sets up runtime directories.
 
 ### 2. Configure your API keys
 
-Open `.env` in your editor and add your keys. At minimum you need:
+Add your API keys as **GitHub repository Secrets** (Settings → Secrets and variables → Actions). The pipeline runs via GitHub Actions, so keys live there — not in a local `.env` file. At minimum you need:
 
-```bash
-# Required — nothing runs without this
-ANTHROPIC_API_KEY=sk-ant-...
-
-# Required for publishing — skip if just testing with --dry-run
-BUZZSPROUT_API_KEY=...
-BUZZSPROUT_PODCAST_ID=...
-
-# TTS — at least one is required for audio production
-# The pipeline tries them in order: Cartesia → OpenAI → ElevenLabs
-CARTESIA_API_KEY=...     # or
-OPENAI_API_KEY=...       # or
-ELEVENLABS_API_KEY=...
-```
+| Secret | Required? |
+|--------|-----------|
+| `ANTHROPIC_API_KEY` | Yes — powers all AI tasks |
+| `BUZZSPROUT_API_KEY` | Yes for publishing (skip if just testing with `--dry-run`) |
+| `BUZZSPROUT_PODCAST_ID` | Yes for publishing |
+| `CARTESIA_API_KEY` or `OPENAI_API_KEY` or `ELEVENLABS_API_KEY` | At least one — TTS provider for audio production |
 
 See the full [API Keys](#api-keys) reference below for where to get each key.
 
@@ -69,7 +61,7 @@ The output brief is saved to `outputs/example-show/briefs/`. Open it to see the 
 
 ### 4. Run a full episode
 
-Once your TTS and Buzzsprout keys are configured:
+Once your TTS and Buzzsprout keys are configured in GitHub Secrets:
 
 ```bash
 python orchestrator.py --show example-show --edition morning
@@ -85,7 +77,7 @@ python admin.py
 
 Opens at **http://localhost:8000** (API docs at `/docs`). The admin panel requires no API keys — it works entirely with local config files. Use it to manage shows, edit configs, manage sponsors, trigger pipeline runs, and monitor logs. Sponsor management is done exclusively through the admin panel.
 
-> **Note:** API keys in `.env` are only needed when the pipeline actually runs (curation, TTS, publishing). The admin panel itself reads and writes JSON files on disk and needs no credentials.
+> **Note:** API keys (stored in GitHub Secrets) are only used when the pipeline actually runs (curation, TTS, publishing). The admin panel itself reads and writes JSON files on disk and needs no credentials.
 
 ---
 
@@ -216,7 +208,7 @@ python admin.py
 
 The included `.github/workflows/run_show.yml` workflow supports both manual and scheduled runs.
 
-**Setup:** Add your API keys as **repository Secrets** (Settings → Secrets and variables → Actions). Use the same variable names from your `.env` file. The pipeline runs in CI, so keys must be in GitHub Secrets — a local `.env` file is not used by Actions.
+**Setup:** Your API keys should already be configured as repository Secrets (see [step 2](#2-configure-your-api-keys) above). The variable names match those in `.env.example` for reference.
 
 **Manual runs:**
 
