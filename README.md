@@ -44,6 +44,8 @@ python admin.py
 
 Opens at **http://localhost:8000** (API docs at `/docs`). No API keys needed — the admin panel works entirely with local config files. Use it to create and configure shows, manage hosts and personas, set up RSS feeds, manage sponsors, and trigger pipeline runs. Sponsor management is done exclusively through the admin panel.
 
+The admin panel can also trigger dry runs and full pipeline runs directly from the browser, so **steps 4 and 5 below are optional** — they're the CLI equivalents if you prefer the command line.
+
 ### 3. Configure your API keys
 
 Add your API keys as **GitHub repository Secrets** (Settings → Secrets and variables → Actions). The pipeline runs via GitHub Actions, so keys live there — not in a local file. At minimum you need:
@@ -57,9 +59,9 @@ Add your API keys as **GitHub repository Secrets** (Settings → Secrets and var
 
 See the full [API Keys](#api-keys) reference below for where to get each key.
 
-### 4. Run a dry run
+### 4. Run a dry run (CLI alternative)
 
-A dry run executes only the curation stage — it gathers news and builds an editorial brief without generating audio or publishing. No TTS cost.
+A dry run executes only the curation stage — it gathers news and builds an editorial brief without generating audio or publishing. No TTS cost. You can also trigger this from the admin panel.
 
 ```bash
 python orchestrator.py --show example-show --edition morning --dry-run
@@ -67,9 +69,9 @@ python orchestrator.py --show example-show --edition morning --dry-run
 
 The output brief is saved to `outputs/example-show/briefs/`. Open it to see the curated stories and editorial structure.
 
-### 5. Run a full episode
+### 5. Run a full episode (CLI alternative)
 
-Once your TTS and Buzzsprout keys are configured in GitHub Secrets:
+Once your TTS and Buzzsprout keys are configured in GitHub Secrets. You can also trigger this from the admin panel.
 
 ```bash
 python orchestrator.py --show example-show --edition morning
