@@ -4,7 +4,7 @@ A fully autonomous, open-source AI podcast platform. Define your show — hosts,
 
 **License:** AGPLv3
 
-### Built With PodBot
+### Example of a REAL podcast Built With PodBot as a Proof of Concept
 
 **[The Signal](https://podcasts.apple.com/us/podcast/the-signal/id1879902505)** — Three-daily AI business & tech news. Fully autonomous, zero human intervention.
 
