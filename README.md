@@ -77,13 +77,15 @@ python orchestrator.py --show example-show --edition morning
 
 This runs all 4 stages: curation, scriptwriting, voice production, and publishing. The final MP3 is saved to `outputs/example-show/audio/` and uploaded to Buzzsprout.
 
-### 5. Open the admin dashboard (optional)
+### 5. Open the admin panel (optional)
 
 ```bash
-python admin.py   # http://localhost:8000
+python admin.py
 ```
 
-The admin dashboard lets you manage shows, edit configs, trigger pipeline runs, and monitor logs — all from a browser UI.
+Opens at **http://localhost:8000** (API docs at `/docs`). The admin panel requires no API keys — it works entirely with local config files. Use it to manage shows, edit configs, manage sponsors, trigger pipeline runs, and monitor logs. Sponsor management is done exclusively through the admin panel.
+
+> **Note:** API keys in `.env` are only needed when the pipeline actually runs (curation, TTS, publishing). The admin panel itself reads and writes JSON files on disk and needs no credentials.
 
 ---
 
@@ -214,11 +216,12 @@ python admin.py
 
 The included `.github/workflows/run_show.yml` workflow supports both manual and scheduled runs.
 
+**Setup:** Add your API keys as **repository Secrets** (Settings → Secrets and variables → Actions). Use the same variable names from your `.env` file. The pipeline runs in CI, so keys must be in GitHub Secrets — a local `.env` file is not used by Actions.
+
 **Manual runs:**
 
-1. Add your API keys as repository Secrets (Settings → Secrets and variables → Actions). Use the same variable names from your `.env` file.
-2. Go to Actions → Run Show → Run workflow
-3. Enter your show slug and edition
+1. Go to Actions → Run Show → Run workflow
+2. Enter your show slug and edition
 
 **Scheduled runs (cron):**
 
