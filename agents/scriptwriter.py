@@ -9,6 +9,8 @@ import json
 import logging
 from anthropic import Anthropic
 
+from agents.show_loader import safe_format
+
 log = logging.getLogger("scriptwriter")
 
 
@@ -58,7 +60,7 @@ class ScriptwriterAgent:
     def __init__(self, show=None):
         if show is None:
             from agents.show_loader import load_show
-            show = load_show("the-signal")
+            show = load_show()
         self.show = show
 
     def run(self, brief: dict, episode_num: int, episode_date: str, edition: str) -> dict:
@@ -143,10 +145,16 @@ class ScriptwriterAgent:
 
         word_target = int(target * wpm)
 
+        # Build dynamic content blocks for generic templates
+        content_blocks, pre_outro_ts, signoff_ts = self._build_content_blocks(
+            static_1, static_2, guest, crossover_host, target,
+        )
+
         # Load prompt template
         system_template = self.show.prompts.get("scriptwriter", "")
         if system_template:
-            system_prompt = system_template.format(
+            system_prompt = safe_format(
+                system_template,
                 show_name=self.show.name,
                 show_tagline=self.show.tagline,
                 edition_label=edition_label,
@@ -165,6 +173,9 @@ class ScriptwriterAgent:
                 other_host_business=static_2.get("name", "Host 2"),
                 lead_host_tech=static_2.get("name", "Host 2"),
                 other_host_tech=static_1.get("name", "Host 1"),
+                content_blocks=content_blocks,
+                pre_outro_timestamp=pre_outro_ts,
+                signoff_start=signoff_ts,
             )
         else:
             system_prompt = f"You are the head writer for {self.show.name}. Write a {target}-minute podcast script."
@@ -212,6 +223,61 @@ Begin immediately with the intro dialogue (or pre-intro sponsor if one is provid
             messages=[{"role": "user", "content": prompt}],
         )
         return response.content[0].text
+
+    def _build_content_blocks(self, static_1: dict, static_2: dict,
+                               guest: dict, guest_key: str, target: int) -> tuple[str, str, str]:
+        """Build dynamic content block instructions from story_quotas.
+
+        Returns (content_blocks_text, pre_outro_timestamp, signoff_start).
+        """
+        quotas = self.show.story_quotas
+        items = list(quotas.items())
+        if not items:
+            return ("", f"{target-1.5:.0f}:00", f"{target-1:.0f}:00")
+
+        # Allocate ~2 min per story, starting at 1:30 (after intro)
+        current_min = 1.5
+        blocks = []
+        mid_idx = len(items) // 2  # Middle block gets the guest crossover
+
+        for i, (cat_key, count) in enumerate(items):
+            label = cat_key.replace("_", " ").upper()
+            block_minutes = count * 2
+            start_ts = f"{int(current_min)}:{int((current_min % 1) * 60):02d}"
+            end_min = current_min + block_minutes
+            end_ts = f"{int(end_min)}:{int((end_min % 1) * 60):02d}"
+            words = int(block_minutes * self.show.pipeline_config.get("wpm", 140))
+
+            if i == mid_idx and len(items) > 1:
+                # Crossover block — guest joins
+                block_text = (
+                    f"[{label} (CROSSOVER) — {start_ts}–{end_ts} — ~{words} words]\n"
+                    f"{count} stories, ~2 min each. {guest['name']} joins for this segment.\n"
+                    f"This is the segment where the guest brings their specialty. At least ONE real disagreement.\n"
+                    f"{static_1.get('name', 'Host 1')} or {static_2.get('name', 'Host 2')} can push back."
+                )
+            elif i == 0:
+                # First block — static host 1 leads
+                block_text = (
+                    f"[{label} — {start_ts}–{end_ts} — ~{words} words]\n"
+                    f"{count} stories, ~2 min each. {static_1.get('name', 'Host 1')} leads each one.\n"
+                    f"Format per story: headline -> key fact or number -> debate with {static_2.get('name', 'Host 2')} -> so-what."
+                )
+            else:
+                # Later blocks — static host 2 leads
+                block_text = (
+                    f"[{label} — {start_ts}–{end_ts} — ~{words} words]\n"
+                    f"{count} stories, ~2 min each. {static_2.get('name', 'Host 2')} leads each one.\n"
+                    f"Format per story: headline -> key detail -> {static_1.get('name', 'Host 1')} reacts -> wrap."
+                )
+            blocks.append(block_text)
+            current_min = end_min
+
+        pre_outro_ts = f"{int(current_min)}:{int((current_min % 1) * 60):02d}"
+        signoff_min = current_min + 0.5
+        signoff_ts = f"{int(signoff_min)}:{int((signoff_min % 1) * 60):02d}"
+
+        return ("\n\n".join(blocks), pre_outro_ts, signoff_ts)
 
     def _estimate_duration(self, script: str, wpm: int = 140) -> float:
         import re

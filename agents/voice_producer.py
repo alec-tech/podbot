@@ -20,7 +20,7 @@ class VoiceProducerAgent:
     def __init__(self, show=None):
         if show is None:
             from agents.show_loader import load_show
-            show = load_show("the-signal")
+            show = load_show()
         self.show = show
         self.chain = FallbackTTSChain(show.config)
         self.known_hosts = set(show.voices.keys())

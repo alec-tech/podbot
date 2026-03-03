@@ -20,22 +20,28 @@ def _get_client():
     return Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 PRIORITY_LEVELS = {"must_include", "consider", "background"}
-EDITION_VALUES = {"morning", "midday", "evening", "daily", "all"}
 
 
-def _injections_file(show_slug: str = "the-signal") -> Path:
-    return Path("data") / show_slug / "injected_stories.json"
+def _require_show_slug(show_slug: str = None) -> str:
+    """Return show_slug or raise with a helpful message."""
+    if show_slug:
+        return show_slug
+    raise ValueError("show_slug is required. Pass --show <slug> or provide show_slug argument.")
 
 
-def _archive_dir(show_slug: str = "the-signal") -> Path:
-    return Path("data") / show_slug / "injection_archive"
+def _injections_file(show_slug: str = None) -> Path:
+    return Path("data") / _require_show_slug(show_slug) / "injected_stories.json"
+
+
+def _archive_dir(show_slug: str = None) -> Path:
+    return Path("data") / _require_show_slug(show_slug) / "injection_archive"
 
 
 # ─── Public API ───────────────────────────────────────────────────────────────
 
 def inject_from_url(url: str, priority: str = "consider", note: str = "",
                     submitted_by: str = "producer", edition: str = "all",
-                    show_slug: str = "the-signal") -> dict:
+                    show_slug: str = None) -> dict:
     priority = _validate_priority(priority)
     edition  = _validate_edition(edition)
     raw      = _fetch_url_content(url)
@@ -48,7 +54,7 @@ def inject_from_url(url: str, priority: str = "consider", note: str = "",
 
 def inject_from_text(text: str, priority: str = "consider", note: str = "",
                      submitted_by: str = "producer", edition: str = "all",
-                     show_slug: str = "the-signal") -> dict:
+                     show_slug: str = None) -> dict:
     priority = _validate_priority(priority)
     edition  = _validate_edition(edition)
     enriched = _enrich_story(text, url="", note=note)
@@ -60,7 +66,7 @@ def inject_from_text(text: str, priority: str = "consider", note: str = "",
 
 def inject_from_topic(topic: str, priority: str = "consider", note: str = "",
                       submitted_by: str = "producer", edition: str = "all",
-                      show_slug: str = "the-signal") -> dict:
+                      show_slug: str = None) -> dict:
     priority = _validate_priority(priority)
     edition  = _validate_edition(edition)
     enriched = _research_topic(topic, note)
@@ -71,7 +77,7 @@ def inject_from_topic(topic: str, priority: str = "consider", note: str = "",
 
 
 def get_pending_injections(episode_date: str, edition: str = "all",
-                           show_slug: str = "the-signal") -> list:
+                           show_slug: str = None) -> list:
     """Return injections relevant to this date + edition."""
     _archive_old_injections(show_slug)
     inj_file = _injections_file(show_slug)
@@ -93,7 +99,7 @@ def get_pending_injections(episode_date: str, edition: str = "all",
 
 
 def mark_injections_used(episode_date: str, edition: str,
-                         show_slug: str = "the-signal"):
+                         show_slug: str = None):
     """Mark matching injections as consumed by this edition."""
     inj_file = _injections_file(show_slug)
     if not inj_file.exists():
@@ -116,7 +122,7 @@ def mark_injections_used(episode_date: str, edition: str,
 
 
 def list_pending_injections(episode_date: str = None, edition: str = "all",
-                            show_slug: str = "the-signal"):
+                            show_slug: str = None):
     target = episode_date or str(date.today())
     pending = get_pending_injections(target, edition, show_slug)
     if not pending:
@@ -139,7 +145,7 @@ def list_pending_injections(episode_date: str = None, edition: str = "all",
 def _fetch_url_content(url: str) -> str:
     try:
         resp = requests.get(url, timeout=15,
-                            headers={"User-Agent": "Mozilla/5.0 (TheSignalBot/3.0)"})
+                            headers={"User-Agent": "Mozilla/5.0 (PodBot/1.0)"})
         from html.parser import HTMLParser
         class _Strip(HTMLParser):
             def __init__(self): super().__init__(); self.text = []
@@ -226,7 +232,7 @@ def _build_record(enriched: dict, priority: str, submitted_by: str, edition: str
     }
 
 
-def _save_injection(record: dict, show_slug: str = "the-signal"):
+def _save_injection(record: dict, show_slug: str = None):
     inj_file = _injections_file(show_slug)
     inj_file.parent.mkdir(parents=True, exist_ok=True)
     injections = []
@@ -240,7 +246,7 @@ def _save_injection(record: dict, show_slug: str = "the-signal"):
         _send_must_include_alert(record)
 
 
-def _archive_old_injections(show_slug: str = "the-signal"):
+def _archive_old_injections(show_slug: str = None):
     inj_file = _injections_file(show_slug)
     if not inj_file.exists():
         return
@@ -284,8 +290,8 @@ def _validate_priority(p: str) -> str:
 
 def _validate_edition(e: str) -> str:
     e = e.lower()
-    if e not in EDITION_VALUES:
-        raise ValueError(f"Edition must be one of {EDITION_VALUES}")
+    if not e:
+        raise ValueError("Edition is required")
     return e
 
 
@@ -303,12 +309,11 @@ if __name__ == "__main__":
     grp.add_argument("--topic", help="Inject by topic (AI researches)")
     grp.add_argument("--list",  action="store_true", help="List pending injections")
 
-    p.add_argument("--show", default="the-signal",
-                   help="Show slug (default: the-signal)")
+    p.add_argument("--show", required=True,
+                   help="Show slug (e.g. example-show)")
     p.add_argument("--priority", default="consider",
                    choices=["must_include", "consider", "background"])
     p.add_argument("--edition", default="all",
-                   choices=["morning", "midday", "evening", "daily", "all"],
                    help="Which edition to target (default: all)")
     p.add_argument("--note", default="")
     p.add_argument("--by",   default="producer")

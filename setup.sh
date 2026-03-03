@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# The Signal — One-Command Setup Script
+# PodBot — One-Command Setup Script
 # Run this once after cloning the repo:
 #   chmod +x setup.sh && ./setup.sh
 # ============================================================
@@ -20,7 +20,7 @@ print_warn() { echo -e "${YELLOW}  ⚠ $1${NC}"; }
 print_err()  { echo -e "${RED}  ✗ $1${NC}"; }
 
 echo -e "\n${BOLD}╔══════════════════════════════════════════╗${NC}"
-echo -e "${BOLD}║        THE SIGNAL — Setup Script         ║${NC}"
+echo -e "${BOLD}║          PODBOT — Setup Script           ║${NC}"
 echo -e "${BOLD}╚══════════════════════════════════════════╝${NC}"
 
 # ── Check Python ─────────────────────────────────────────────
@@ -105,15 +105,15 @@ echo -e "  ${YELLOW}2.${NC} Add intro/outro music to ${BOLD}assets/${NC}"
 echo -e "  ${YELLOW}3.${NC} Run a dry run to test curation:"
 echo ""
 echo -e "     ${BLUE}source .venv/bin/activate"
-echo -e "     python orchestrator.py --dry-run${NC}"
+echo -e "     python orchestrator.py --show example-show --dry-run${NC}"
 echo ""
 echo -e "  ${YELLOW}4.${NC} Run your first full episode:"
 echo ""
-echo -e "     ${BLUE}python orchestrator.py${NC}"
+echo -e "     ${BLUE}python orchestrator.py --show example-show${NC}"
 echo ""
 echo -e "  ${YELLOW}5.${NC} Inject a story into today's episode:"
 echo ""
-echo -e "     ${BLUE}python agents/inject_stories.py --url 'https://...' --priority consider${NC}"
+echo -e "     ${BLUE}python agents/inject_stories.py --show example-show --url 'https://...' --priority consider${NC}"
 echo ""
 echo -e "  ${YELLOW}6.${NC} Open the dashboard: ${BOLD}website/dashboard.html${NC} in your browser"
 echo ""

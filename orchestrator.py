@@ -1,7 +1,7 @@
 """
 orchestrator.py — Multi-Show Podcast Pipeline
 
-Supports multiple shows (e.g., the-signal, the-rough) via --show flag.
+Supports multiple shows via --show flag.
 Supports partial re-runs via --start-from flag.
 """
 
@@ -150,10 +150,12 @@ def run_pipeline(
             brief = curator.run(episode_date, edition)
             _save_json(brief, brief_path)
 
-            b = len(brief.get("business_stories", []))
-            t = len(brief.get("tech_stories", []))
-            o = len(brief.get("overlap_stories", []))
-            log.info(f"  ✅ Brief: {b} business + {t} tech + {o} overlap")
+            story_counts = []
+            for cat_key in show.story_quotas.keys():
+                count = len(brief.get(cat_key, []))
+                label = cat_key.replace("_stories", "").replace("_", " ")
+                story_counts.append(f"{count} {label}")
+            log.info(f"  ✅ Brief: {' + '.join(story_counts)}")
             log.info(f"  📖 Theme : {brief.get('show_theme', 'N/A')}")
             log.info(f"  🏷️  Hook  : {brief.get('episode_hook', 'N/A')}")
             if brief.get("editorial_note"):
@@ -381,8 +383,8 @@ if __name__ == "__main__":
     import argparse
 
     p = argparse.ArgumentParser(description="Run podcast episode pipeline")
-    p.add_argument("--show", default="the-signal",
-                   help="Show slug (default: the-signal)")
+    p.add_argument("--show", default=None,
+                   help="Show slug (default: auto-detect first available show)")
     p.add_argument("--edition",
                    help="Edition to produce (default: auto-detect from clock)")
     p.add_argument("--start-from", choices=STAGES, default="curate",
@@ -397,7 +399,7 @@ if __name__ == "__main__":
                    help="Override episode number")
     args = p.parse_args()
 
-    show = load_show(args.show)
+    show = load_show(args.show) if args.show else load_show()
 
     run_pipeline(
         show=show,

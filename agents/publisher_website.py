@@ -25,7 +25,7 @@ def generate_episode_json(brief: dict, script_data: dict, metadata: dict,
     """
     sponsors = brief.get("sponsors", script_data.get("sponsors", []))
     companies = extract_companies_from_brief(brief, show)
-    chapters = build_chapters(sponsors)
+    chapters = build_chapters(sponsors, show)
 
     duration_seconds = int(script_data.get("estimated_minutes", 12) * 60)
     mins = duration_seconds // 60
@@ -37,11 +37,7 @@ def generate_episode_json(brief: dict, script_data: dict, metadata: dict,
         for cat_key in show.story_quotas.keys():
             story_data[cat_key] = format_stories_for_web(brief.get(cat_key, []))
     else:
-        story_data = {
-            "business_stories": format_stories_for_web(brief.get("business_stories", [])),
-            "overlap_stories": format_stories_for_web(brief.get("overlap_stories", [])),
-            "tech_stories": format_stories_for_web(brief.get("tech_stories", [])),
-        }
+        story_data = {}
 
     result = {
         "id": episode_num,
@@ -71,7 +67,7 @@ def generate_episode_json(brief: dict, script_data: dict, metadata: dict,
     return result
 
 
-def build_chapters(sponsors: list) -> list:
+def build_chapters(sponsors: list, show=None) -> list:
     chapters = []
 
     pre_intro = next((s for s in sponsors if s.get("slot") == "pre-intro"), None)
@@ -90,16 +86,25 @@ def build_chapters(sponsors: list) -> list:
         chapters.append({"time": t, "label": f"Post-Intro: {post_intro['name']}"})
         t += 30
 
-    chapters.append({"time": t, "label": "Business Block"})
-    chapters.append({"time": t + 180, "label": "Crossover Segment"})
-    chapters.append({"time": t + 360, "label": "Tech Block"})
-
-    pre_outro_time = t + 540
-    if pre_outro and pre_outro.get("name") != "SPONSOR_PLACEHOLDER":
-        chapters.append({"time": pre_outro_time, "label": f"Pre-Outro: {pre_outro['name']}"})
-        chapters.append({"time": pre_outro_time + 30, "label": "Wrap & Signoff"})
+    # Build content block chapters dynamically from story quotas
+    if show:
+        items = list(show.story_quotas.items())
+        mid_idx = len(items) // 2
+        for i, (cat_key, count) in enumerate(items):
+            label = cat_key.replace("_stories", "").replace("_", " ").title()
+            if i == mid_idx and len(items) > 1:
+                label += " (Crossover)"
+            chapters.append({"time": t, "label": f"{label} Block"})
+            t += count * 120  # ~2 min per story
     else:
-        chapters.append({"time": pre_outro_time, "label": "Wrap & Signoff"})
+        chapters.append({"time": t, "label": "Stories"})
+        t += 540
+
+    if pre_outro and pre_outro.get("name") != "SPONSOR_PLACEHOLDER":
+        chapters.append({"time": t, "label": f"Pre-Outro: {pre_outro['name']}"})
+        chapters.append({"time": t + 30, "label": "Wrap & Signoff"})
+    else:
+        chapters.append({"time": t, "label": "Wrap & Signoff"})
 
     return chapters
 
@@ -111,10 +116,7 @@ def determine_categories(brief: dict, show=None) -> list:
             if brief.get(cat_key):
                 cats.append(cat_key.replace("_stories", ""))
         return cats
-    cats = ["business", "tech"]
-    if brief.get("overlap_stories"):
-        cats.append("overlap")
-    return cats
+    return ["general"]
 
 
 def extract_companies_from_brief(brief: dict, show=None) -> list:
@@ -128,11 +130,7 @@ def extract_companies_from_brief(brief: dict, show=None) -> list:
                          for s in brief.get(cat_key, []))
             )
     else:
-        for cat in ["business_stories", "tech_stories", "overlap_stories"]:
-            text_parts.append(
-                " ".join(s.get("podcast_headline","") + " " + s.get("context","")
-                         for s in brief.get(cat, []))
-            )
+        pass  # No show config — use just the theme text
 
     all_text = " ".join(text_parts)[:3000]
 

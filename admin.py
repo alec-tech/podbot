@@ -34,7 +34,12 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uvicorn
 
-from agents.show_loader import load_show, list_shows, save_show_config, ShowConfig
+from agents.show_loader import (
+    load_show, list_shows, save_show_config, ShowConfig,
+    create_show, build_default_config, build_default_personas,
+    show_exists, delete_show, validate_slug,
+    DEFAULT_CURATOR_PROMPT, DEFAULT_SCRIPTWRITER_PROMPT, DEFAULT_PUBLISHER_PROMPT,
+)
 
 log = logging.getLogger("admin")
 
@@ -75,8 +80,8 @@ def _update_run(run_id: str, updates: dict):
 # ─── Pydantic models ─────────────────────────────────────────────────────────
 
 class RunRequest(BaseModel):
-    show: str = "the-signal"
-    edition: str = "morning"
+    show: str = ""
+    edition: str = ""
     start_from: str = "curate"
     dry_run: bool = False
     date: Optional[str] = None
@@ -89,6 +94,49 @@ class InjectRequest(BaseModel):
     priority: str = "consider"
     edition: str = "all"
     note: str = ""
+
+
+class HostVoiceProvider(BaseModel):
+    provider: str  # "openai", "cartesia", "elevenlabs"
+    voice_id: str = "alloy"
+    instructions: str = ""
+    speed: float = 1.0
+
+
+class HostInput(BaseModel):
+    name: str
+    key: Optional[str] = None
+    role: str = "Host"
+    type: str = "static"  # "static" or "rotating"
+    personality: str = ""
+    speech_patterns: list[str] = []
+    avoid: list[str] = []
+    topic_keywords: list[str] = []
+    voice_providers: list[HostVoiceProvider] = []
+
+
+class EditionInput(BaseModel):
+    name: str
+    publish_time_est: str = "06:00"
+    target_duration_minutes: int = 12
+    min_duration_minutes: int = 10
+    max_duration_minutes: int = 15
+    news_window_hours: int = 24
+
+
+class CreateShowRequest(BaseModel):
+    slug: str
+    name: str
+    tagline: str = ""
+    description: str = ""
+    category: str = "News"
+    subcategory: str = ""
+    topic_domains: list[str] = ["general"]
+    story_quotas: dict[str, int] = {}
+    newsapi: Optional[dict] = None
+    editions: list[EditionInput] = []
+    hosts: list[HostInput] = []
+    feeds: dict[str, list[str]] = {}
 
 
 # ─── Show management endpoints ───────────────────────────────────────────────
@@ -110,6 +158,126 @@ def api_list_shows():
         except Exception as e:
             shows.append({"slug": slug, "name": slug, "error": str(e)})
     return shows
+
+
+@app.post("/api/shows")
+def api_create_show(req: CreateShowRequest):
+    """Create a new show from wizard input."""
+    # Validate slug
+    err = validate_slug(req.slug)
+    if err:
+        raise HTTPException(400, err)
+    if show_exists(req.slug):
+        raise HTTPException(409, f"Show already exists: {req.slug}")
+
+    # Validate basic requirements
+    if len(req.name) < 2 or len(req.name) > 100:
+        raise HTTPException(400, "Name must be 2-100 characters")
+    static_hosts = [h for h in req.hosts if h.type == "static"]
+    if len(static_hosts) < 2:
+        raise HTTPException(400, "At least 2 static hosts are required")
+
+    # Build editions dict from list
+    editions_dict = {}
+    if req.editions:
+        for ed in req.editions:
+            editions_dict[ed.name] = {
+                "publish_time_est": ed.publish_time_est,
+                "target_duration_minutes": ed.target_duration_minutes,
+                "min_duration_minutes": ed.min_duration_minutes,
+                "max_duration_minutes": ed.max_duration_minutes,
+                "news_window_hours": ed.news_window_hours,
+                "title_format": "{date} - {hook}",
+                "includes_recap": False,
+            }
+    else:
+        editions_dict = None  # build_default_config will use defaults
+
+    # Convert hosts to dicts for builder
+    hosts_data = [h.model_dump() for h in req.hosts]
+    for h in hosts_data:
+        h["voice_providers"] = [vp for vp in h["voice_providers"]]
+
+    # Build config
+    config = build_default_config(
+        name=req.name,
+        slug=req.slug,
+        tagline=req.tagline,
+        description=req.description,
+        category=req.category,
+        subcategory=req.subcategory,
+        topic_domains=req.topic_domains,
+        story_quotas=req.story_quotas or None,
+        newsapi=req.newsapi,
+        editions=editions_dict,
+        hosts=hosts_data,
+    )
+
+    # Build personas
+    personas = build_default_personas(hosts_data)
+
+    # Build prompts (use defaults)
+    prompts = {
+        "curator": DEFAULT_CURATOR_PROMPT,
+        "scriptwriter": DEFAULT_SCRIPTWRITER_PROMPT,
+        "publisher": DEFAULT_PUBLISHER_PROMPT,
+    }
+
+    # Create the show
+    show = create_show(
+        slug=req.slug,
+        config=config,
+        personas=personas,
+        feeds=req.feeds,
+        prompts=prompts,
+    )
+
+    # Git commit
+    _git_commit_show(req.slug, "initial creation")
+
+    return {
+        "slug": show.slug,
+        "name": show.name,
+        "editions": list(show.valid_editions),
+        "hosts": len(show.personas),
+    }
+
+
+@app.get("/api/shows/{slug}/exists")
+def api_show_exists(slug: str):
+    """Check if a show slug already exists."""
+    return {"exists": show_exists(slug)}
+
+
+@app.delete("/api/shows/{slug}")
+def api_delete_show(slug: str):
+    """Delete a show's config directory."""
+    if not show_exists(slug):
+        raise HTTPException(404, f"Show not found: {slug}")
+
+    try:
+        delete_show(slug)
+        # Git commit the deletion
+        try:
+            import subprocess
+            subprocess.run(
+                ["git", "add", "-A", f"shows/{slug}/"],
+                capture_output=True, timeout=10,
+            )
+            subprocess.run(
+                ["git", "commit", "-m", f"Delete show: {slug}"],
+                capture_output=True, timeout=10,
+            )
+            subprocess.run(
+                ["git", "push"],
+                capture_output=True, timeout=30,
+            )
+        except Exception as e:
+            log.warning(f"Git commit/push after deletion failed: {e}")
+
+        return {"status": "deleted", "slug": slug}
+    except Exception as e:
+        raise HTTPException(500, str(e))
 
 
 @app.get("/api/shows/{slug}/config")

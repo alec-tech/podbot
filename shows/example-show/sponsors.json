@@ -1,0 +1,19 @@
+{
+  "sponsors": [
+    {
+      "id": "example-sponsor-001",
+      "name": "Acme Corp",
+      "tagline": "Building the future, one widget at a time",
+      "product_description": "Example sponsor — replace with your real sponsors",
+      "cta": "Visit acme.example.com to learn more",
+      "url": "https://acme.example.com",
+      "slot": "pre-outro",
+      "editions": ["morning", "midday", "evening"],
+      "voice": "chuck",
+      "script": "This episode is brought to you by Acme Corp. Acme makes the best widgets in the business. Visit acme.example.com and use code PODCAST for twenty percent off your first order.",
+      "start_date": "2025-01-01",
+      "end_date": "2025-12-31",
+      "active": false
+    }
+  ]
+}

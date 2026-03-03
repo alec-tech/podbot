@@ -26,7 +26,7 @@
     /* Layout */
     .header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
     .header h1 { font-size: 18px; font-weight: 600; }
-    .header .show-tabs { display: flex; gap: 8px; }
+    .header .show-tabs { display: flex; gap: 8px; align-items: center; }
     .header .show-tab { padding: 6px 14px; border-radius: 6px; cursor: pointer; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); font-size: 13px; font-family: var(--font); }
     .header .show-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
     .main { max-width: 1100px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
@@ -39,7 +39,7 @@
 
     /* Forms */
     label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-    select, input[type="text"], input[type="date"], textarea {
+    select, input[type="text"], input[type="number"], input[type="time"], input[type="date"], textarea {
       width: 100%; padding: 8px 12px; background: var(--surface2); border: 1px solid var(--border);
       border-radius: 6px; color: var(--text); font-family: var(--font); font-size: 13px; outline: none;
     }
@@ -58,8 +58,10 @@
     .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
     .btn-secondary:hover { border-color: var(--accent); }
     .btn-danger { background: var(--red); color: white; }
+    .btn-danger:hover { background: #dc2626; }
     .btn-sm { padding: 4px 10px; font-size: 12px; }
     .btn-group { display: flex; gap: 8px; margin-top: 12px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* Tabs */
     .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
@@ -98,12 +100,126 @@
     .feed-item .btn-delete { background: none; border: none; color: var(--red); cursor: pointer; font-size: 14px; padding: 4px; }
 
     /* Toast */
-    .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; font-size: 13px; z-index: 1000; animation: fadeIn 0.3s; }
+    .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; font-size: 13px; z-index: 2000; animation: fadeIn 0.3s; }
     .toast-success { background: var(--green); color: white; }
     .toast-error { background: var(--red); color: white; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     .hidden { display: none !important; }
+
+    /* ─── Wizard Modal ──────────────────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      width: 720px; max-height: 85vh; display: flex; flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .modal-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h2 { font-size: 16px; }
+    .modal-close { background: none; border: none; color: var(--text2); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+    .modal-footer {
+      padding: 14px 20px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    /* Wizard steps indicator */
+    .wizard-steps {
+      display: flex; gap: 4px; align-items: center; padding: 0 20px 0 20px;
+      margin-top: -8px; padding-top: 12px;
+    }
+    .wizard-step {
+      display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2);
+      padding: 6px 10px; border-radius: 4px;
+    }
+    .wizard-step.active { color: var(--accent2); background: rgba(99,102,241,0.1); }
+    .wizard-step.done { color: var(--green); }
+    .wizard-step-num {
+      width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 10px; font-weight: 700;
+      border: 1px solid var(--border); color: var(--text2);
+    }
+    .wizard-step.active .wizard-step-num { border-color: var(--accent); color: var(--accent2); background: rgba(99,102,241,0.15); }
+    .wizard-step.done .wizard-step-num { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.15); }
+    .wizard-step-sep { width: 16px; height: 1px; background: var(--border); }
+
+    /* Wizard form specifics */
+    .wiz-section { margin-bottom: 16px; }
+    .wiz-section > label:first-child { margin-bottom: 6px; }
+    .slug-status { font-size: 11px; margin-top: 2px; height: 16px; }
+    .slug-ok { color: var(--green); }
+    .slug-taken { color: var(--red); }
+    .slug-checking { color: var(--text2); }
+
+    /* Tag input */
+    .tag-input-wrap {
+      display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 8px;
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+      min-height: 36px; cursor: text;
+    }
+    .tag-input-wrap:focus-within { border-color: var(--accent); }
+    .tag-input-wrap .tag {
+      display: flex; align-items: center; gap: 4px; padding: 2px 8px;
+      background: rgba(99,102,241,0.15); color: var(--accent2); border-radius: 4px; font-size: 12px;
+    }
+    .tag-input-wrap .tag .tag-remove {
+      background: none; border: none; color: var(--accent2); cursor: pointer; font-size: 14px;
+      padding: 0; line-height: 1;
+    }
+    .tag-input-wrap input {
+      border: none; background: none; outline: none; color: var(--text);
+      font-family: var(--font); font-size: 13px; flex: 1; min-width: 80px;
+      padding: 2px 4px; width: auto;
+    }
+
+    /* Dynamic row */
+    .dynamic-row {
+      display: flex; gap: 8px; align-items: center; margin-bottom: 6px;
+      padding: 8px 10px; background: var(--bg); border-radius: 6px;
+    }
+    .dynamic-row input, .dynamic-row select { flex: 1; }
+    .dynamic-row .row-remove { background: none; border: none; color: var(--red); cursor: pointer; font-size: 16px; padding: 2px 6px; }
+
+    /* Wizard host card */
+    .wiz-host-card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      margin-bottom: 10px; overflow: hidden;
+    }
+    .wiz-host-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; cursor: pointer; user-select: none;
+    }
+    .wiz-host-header:hover { background: var(--surface2); }
+    .wiz-host-body { padding: 12px 14px; border-top: 1px solid var(--border); }
+    .wiz-host-body.collapsed { display: none; }
+
+    /* Review summary */
+    .review-section { margin-bottom: 14px; }
+    .review-section h4 { font-size: 13px; color: var(--accent2); margin-bottom: 4px; }
+    .review-section p, .review-section ul { font-size: 12px; color: var(--text2); line-height: 1.6; }
+    .review-section ul { padding-left: 18px; }
+    .review-warning { color: var(--yellow); font-size: 12px; margin-top: 4px; }
+
+    /* Confirm modal */
+    .confirm-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 1500; align-items: center; justify-content: center;
+    }
+    .confirm-overlay.active { display: flex; }
+    .confirm-box {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 24px; max-width: 400px; width: 100%;
+    }
+    .confirm-box h3 { font-size: 15px; margin-bottom: 10px; }
+    .confirm-box p { font-size: 13px; color: var(--text2); margin-bottom: 16px; }
   </style>
 </head>
 <body>
@@ -111,6 +227,47 @@
 <div class="header">
   <h1>Show Admin</h1>
   <div class="show-tabs" id="showTabs"></div>
+</div>
+
+<!-- New Show Wizard Modal -->
+<div class="modal-overlay" id="wizardOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Create New Show</h2>
+      <button class="modal-close" onclick="closeWizard()">&times;</button>
+    </div>
+    <div class="wizard-steps" id="wizardSteps">
+      <div class="wizard-step active" data-step="1"><span class="wizard-step-num">1</span> Identity</div>
+      <div class="wizard-step-sep"></div>
+      <div class="wizard-step" data-step="2"><span class="wizard-step-num">2</span> Topics</div>
+      <div class="wizard-step-sep"></div>
+      <div class="wizard-step" data-step="3"><span class="wizard-step-num">3</span> Schedule</div>
+      <div class="wizard-step-sep"></div>
+      <div class="wizard-step" data-step="4"><span class="wizard-step-num">4</span> Hosts</div>
+      <div class="wizard-step-sep"></div>
+      <div class="wizard-step" data-step="5"><span class="wizard-step-num">5</span> Review</div>
+    </div>
+    <div class="modal-body" id="wizardBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="wizPrev" onclick="wizardPrev()">Back</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" onclick="closeWizard()">Cancel</button>
+        <button class="btn btn-primary" id="wizNext" onclick="wizardNext()">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="confirm-overlay" id="deleteConfirmOverlay">
+  <div class="confirm-box">
+    <h3>Delete Show</h3>
+    <p id="deleteConfirmText">Are you sure you want to delete this show? This removes the show configuration. Output files and databases are not affected.</p>
+    <div class="btn-group" style="justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeDeleteConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="deleteConfirmBtn" onclick="confirmDeleteShow()">Delete</button>
+    </div>
+  </div>
 </div>
 
 <div class="main">
@@ -188,7 +345,10 @@
         <div id="editionsDisplay" style="font-size:12px; color:var(--text2); margin-top:4px;"></div>
         <label style="margin-top:12px">Story Quotas</label>
         <div id="quotasDisplay" style="font-size:12px; color:var(--text2); margin-top:4px;"></div>
-        <div class="btn-group"><button class="btn btn-primary" onclick="saveGeneral()">Save</button></div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="saveGeneral()">Save</button>
+          <button class="btn btn-danger btn-sm" onclick="showDeleteConfirm()" style="margin-left:auto;">Delete Show</button>
+        </div>
       </div>
 
       <!-- Hosts tab -->
@@ -250,7 +410,7 @@
 <script>
 // ─── State ────────────────────────────────────────────────────────────────
 let shows = [];
-let currentShow = 'the-signal';
+let currentShow = '';
 let currentConfig = {};
 let currentPersonas = {};
 let currentFeeds = {};
@@ -263,7 +423,9 @@ async function init() {
   renderShowTabs();
   populateShowSelects();
   document.getElementById('runDate').value = new Date().toISOString().split('T')[0];
-  await selectShow(currentShow);
+  if (shows.length) {
+    await selectShow(shows[0].slug);
+  }
   loadRuns();
 }
 
@@ -271,7 +433,7 @@ function renderShowTabs() {
   const el = document.getElementById('showTabs');
   el.innerHTML = shows.map(s =>
     `<div class="show-tab ${s.slug === currentShow ? 'active' : ''}" onclick="selectShow('${s.slug}')">${s.name}</div>`
-  ).join('');
+  ).join('') + `<div class="show-tab" onclick="openWizard()" style="color:var(--green);border-color:var(--green);">+ New Show</div>`;
 }
 
 function populateShowSelects() {
@@ -349,6 +511,33 @@ async function saveGeneral() {
   currentConfig.show.description = document.getElementById('cfgDescription').value;
   await api('PUT', `/api/shows/${currentShow}/config`, currentConfig);
   toast('Config saved');
+}
+
+// ─── Delete Show ──────────────────────────────────────────────────────────
+function showDeleteConfirm() {
+  document.getElementById('deleteConfirmText').textContent =
+    `Are you sure you want to delete "${currentConfig.show?.name || currentShow}"? This removes the show configuration. Output files and databases are not affected.`;
+  document.getElementById('deleteConfirmOverlay').classList.add('active');
+}
+
+function closeDeleteConfirm() {
+  document.getElementById('deleteConfirmOverlay').classList.remove('active');
+}
+
+async function confirmDeleteShow() {
+  try {
+    await api('DELETE', `/api/shows/${currentShow}`);
+    toast(`Show "${currentShow}" deleted`);
+    closeDeleteConfirm();
+    shows = await api('GET', '/api/shows');
+    renderShowTabs();
+    populateShowSelects();
+    if (shows.length) {
+      await selectShow(shows[0].slug);
+    }
+  } catch (e) {
+    toast('Delete failed: ' + e.message, true);
+  }
 }
 
 // ─── Personas ─────────────────────────────────────────────────────────────
@@ -525,9 +714,9 @@ async function startRun(dryRun) {
     }
     const line = e.data;
     const span = document.createElement('span');
-    if (line.includes('[ERROR]') || line.includes('❌')) span.className = 'log-error';
-    else if (line.includes('[WARNING]') || line.includes('⚠️')) span.className = 'log-warn';
-    else if (line.includes('✅') || line.includes('SUCCESS')) span.className = 'log-info';
+    if (line.includes('[ERROR]') || line.includes('\u274c')) span.className = 'log-error';
+    else if (line.includes('[WARNING]') || line.includes('\u26a0')) span.className = 'log-warn';
+    else if (line.includes('\u2705') || line.includes('SUCCESS')) span.className = 'log-info';
     span.textContent = line + '\n';
     viewer.appendChild(span);
     viewer.scrollTop = viewer.scrollHeight;
@@ -542,13 +731,13 @@ async function loadRuns() {
   const runs = await api('GET', '/api/runs?limit=10');
   const body = document.getElementById('runsBody');
   body.innerHTML = runs.map(r => {
-    const started = r.started_at ? new Date(r.started_at).toLocaleString('en-US', {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+    const started = r.started_at ? new Date(r.started_at).toLocaleString('en-US', {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '\u2014';
     const showName = (shows.find(s => s.slug === r.show) || {}).name || r.show;
     return `<tr>
       <td><span class="status-badge status-${r.status}">${r.status}</span></td>
       <td>${showName}</td>
       <td>${r.edition}</td>
-      <td>${r.date || '—'}</td>
+      <td>${r.date || '\u2014'}</td>
       <td>${started}</td>
       <td>${r.status === 'failed' && r.error ? `<button class="btn btn-sm btn-secondary" onclick="resumeRun('${r.show}','${r.edition}','${r.date}')">Resume</button>` : ''}</td>
     </tr>`;
@@ -584,6 +773,686 @@ async function injectStory() {
     toast('Injection failed: ' + e.message, true);
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ─── NEW SHOW WIZARD ──────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+
+let wizStep = 1;
+let wizData = {};
+let slugCheckTimer = null;
+
+const OPENAI_VOICES = ['alloy', 'ash', 'coral', 'echo', 'nova', 'onyx', 'sage', 'shimmer'];
+
+function openWizard() {
+  wizStep = 1;
+  wizData = {
+    name: '', slug: '', tagline: '', description: '', category: 'News', subcategory: '',
+    topic_domains: [], story_quotas: [],
+    newsapi_mode: 'categories', newsapi_values: [],
+    editions: [{ name: 'daily', publish_time_est: '06:00', target_duration_minutes: 12, min_duration_minutes: 10, max_duration_minutes: 15, news_window_hours: 24 }],
+    hosts: [
+      { name: '', key: '', role: '', type: 'static', personality: '', speech_patterns: [], avoid: [], topic_keywords: [], voice_providers: [{ provider: 'openai', voice_id: 'alloy', instructions: '' }] },
+      { name: '', key: '', role: '', type: 'static', personality: '', speech_patterns: [], avoid: [], topic_keywords: [], voice_providers: [{ provider: 'openai', voice_id: 'nova', instructions: '' }] },
+    ],
+    feeds: {},
+  };
+  document.getElementById('wizardOverlay').classList.add('active');
+  renderWizardStep();
+}
+
+function closeWizard() {
+  document.getElementById('wizardOverlay').classList.remove('active');
+}
+
+function renderWizardStep() {
+  // Update step indicators
+  document.querySelectorAll('.wizard-step').forEach(el => {
+    const s = parseInt(el.dataset.step);
+    el.classList.toggle('active', s === wizStep);
+    el.classList.toggle('done', s < wizStep);
+  });
+
+  // Update buttons
+  document.getElementById('wizPrev').style.visibility = wizStep === 1 ? 'hidden' : 'visible';
+  const nextBtn = document.getElementById('wizNext');
+  nextBtn.textContent = wizStep === 5 ? 'Create Show' : 'Next';
+  if (wizStep === 5) {
+    nextBtn.classList.remove('btn-primary');
+    nextBtn.classList.add('btn-primary');
+  }
+
+  const body = document.getElementById('wizardBody');
+  switch (wizStep) {
+    case 1: renderWizStep1(body); break;
+    case 2: renderWizStep2(body); break;
+    case 3: renderWizStep3(body); break;
+    case 4: renderWizStep4(body); break;
+    case 5: renderWizStep5(body); break;
+  }
+}
+
+function collectCurrentStep() {
+  switch (wizStep) {
+    case 1: return collectStep1();
+    case 2: return collectStep2();
+    case 3: return collectStep3();
+    case 4: return collectStep4();
+    default: return true;
+  }
+}
+
+function wizardNext() {
+  if (!collectCurrentStep()) return;
+  if (wizStep === 5) {
+    submitWizard();
+    return;
+  }
+  wizStep++;
+  renderWizardStep();
+}
+
+function wizardPrev() {
+  if (wizStep > 1) {
+    collectCurrentStep();
+    wizStep--;
+    renderWizardStep();
+  }
+}
+
+// ─── Step 1: Identity ─────────────────────────────────────────────────────
+function renderWizStep1(body) {
+  body.innerHTML = `
+    <div class="wiz-section">
+      <label>Show Name</label>
+      <input type="text" id="wizName" value="${esc(wizData.name)}" placeholder="e.g. Ice Fishing Weekly" oninput="autoSlug()">
+    </div>
+    <div class="wiz-section">
+      <label>Slug (URL-friendly ID)</label>
+      <input type="text" id="wizSlug" value="${esc(wizData.slug)}" placeholder="e.g. ice-fishing-weekly" oninput="checkSlug()">
+      <div class="slug-status" id="slugStatus"></div>
+    </div>
+    <div class="wiz-section">
+      <label>Tagline</label>
+      <input type="text" id="wizTagline" value="${esc(wizData.tagline)}" placeholder="e.g. Daily ice fishing intelligence">
+    </div>
+    <div class="wiz-section">
+      <label>Description</label>
+      <textarea id="wizDescription" rows="3" placeholder="Describe your show in 1-2 sentences...">${esc(wizData.description)}</textarea>
+    </div>
+    <div class="form-row">
+      <div class="wiz-section">
+        <label>Category</label>
+        <select id="wizCategory">
+          ${['News', 'Sports', 'Technology', 'Business', 'Science', 'Health', 'Entertainment', 'Education', 'Society & Culture', 'Comedy', 'Arts', 'Music'].map(c =>
+            `<option ${wizData.category === c ? 'selected' : ''}>${c}</option>`
+          ).join('')}
+        </select>
+      </div>
+      <div class="wiz-section">
+        <label>Subcategory (optional)</label>
+        <input type="text" id="wizSubcategory" value="${esc(wizData.subcategory)}" placeholder="e.g. Business News">
+      </div>
+    </div>
+  `;
+  if (wizData.slug) checkSlug();
+}
+
+function autoSlug() {
+  const name = document.getElementById('wizName').value;
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50);
+  document.getElementById('wizSlug').value = slug;
+  checkSlug();
+}
+
+function checkSlug() {
+  const slug = document.getElementById('wizSlug').value.trim();
+  const el = document.getElementById('slugStatus');
+  if (!slug || slug.length < 3) {
+    el.className = 'slug-status';
+    el.textContent = slug ? 'Slug must be at least 3 characters' : '';
+    return;
+  }
+  if (!/^[a-z0-9-]+$/.test(slug)) {
+    el.className = 'slug-status slug-taken';
+    el.textContent = 'Only lowercase letters, numbers, and hyphens';
+    return;
+  }
+  el.className = 'slug-status slug-checking';
+  el.textContent = 'Checking...';
+  clearTimeout(slugCheckTimer);
+  slugCheckTimer = setTimeout(async () => {
+    try {
+      const res = await api('GET', `/api/shows/${slug}/exists`);
+      if (res.exists) {
+        el.className = 'slug-status slug-taken';
+        el.textContent = 'Slug already taken';
+      } else {
+        el.className = 'slug-status slug-ok';
+        el.textContent = 'Available';
+      }
+    } catch {
+      el.className = 'slug-status';
+      el.textContent = '';
+    }
+  }, 300);
+}
+
+function collectStep1() {
+  wizData.name = document.getElementById('wizName').value.trim();
+  wizData.slug = document.getElementById('wizSlug').value.trim();
+  wizData.tagline = document.getElementById('wizTagline').value.trim();
+  wizData.description = document.getElementById('wizDescription').value.trim();
+  wizData.category = document.getElementById('wizCategory').value;
+  wizData.subcategory = document.getElementById('wizSubcategory').value.trim();
+
+  if (!wizData.name || wizData.name.length < 2) { toast('Show name is required (2+ chars)', true); return false; }
+  if (!wizData.slug || wizData.slug.length < 3) { toast('Slug is required (3+ chars)', true); return false; }
+  if (!/^[a-z0-9-]+$/.test(wizData.slug)) { toast('Slug must be lowercase letters, numbers, and hyphens', true); return false; }
+  return true;
+}
+
+// ─── Step 2: Topics ───────────────────────────────────────────────────────
+function renderWizStep2(body) {
+  const quotaRows = wizData.story_quotas.length ? wizData.story_quotas :
+    [{ label: 'main_stories', count: 2 }, { label: 'crossover_stories', count: 1 }, { label: 'secondary_stories', count: 2 }];
+  wizData.story_quotas = quotaRows;
+
+  body.innerHTML = `
+    <div class="wiz-section">
+      <label>Topic Domains</label>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:6px;">What topics does your show cover? Press Enter to add.</p>
+      <div class="tag-input-wrap" id="topicTagWrap" onclick="this.querySelector('input').focus()">
+        ${wizData.topic_domains.map((t, i) => `<span class="tag">${esc(t)}<button class="tag-remove" onclick="removeWizTag('topic',${i})">&times;</button></span>`).join('')}
+        <input type="text" id="topicTagInput" placeholder="e.g. ice fishing" onkeydown="wizTagKeydown(event,'topic')">
+      </div>
+    </div>
+    <div class="wiz-section">
+      <label>Story Quotas <span style="font-weight:400;text-transform:none;letter-spacing:0;">(categories and count per episode)</span></label>
+      <div id="quotaRows">
+        ${quotaRows.map((q, i) => `
+          <div class="dynamic-row">
+            <input type="text" value="${esc(q.label)}" placeholder="category_key" data-qi="${i}" data-qf="label" onchange="wizData.story_quotas[${i}].label=this.value">
+            <input type="number" value="${q.count}" min="1" max="5" style="width:70px;flex:none;" data-qi="${i}" data-qf="count" onchange="wizData.story_quotas[${i}].count=parseInt(this.value)||1;updateQuotaTotal()">
+            <button class="row-remove" onclick="removeQuotaRow(${i})">&times;</button>
+          </div>
+        `).join('')}
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+        <button class="btn btn-sm btn-secondary" onclick="addQuotaRow()">+ Add Category</button>
+        <span style="font-size:12px;color:var(--text2);">Total: <strong id="quotaTotal">${quotaRows.reduce((s, q) => s + q.count, 0)}</strong> stories/episode</span>
+      </div>
+    </div>
+    <div class="wiz-section">
+      <label>NewsAPI Mode</label>
+      <div class="form-row">
+        <div>
+          <select id="wizNewsapiMode" onchange="toggleNewsapiInputs()">
+            <option value="categories" ${wizData.newsapi_mode === 'categories' ? 'selected' : ''}>Categories (headline topics)</option>
+            <option value="keywords" ${wizData.newsapi_mode === 'keywords' ? 'selected' : ''}>Keywords (niche search)</option>
+          </select>
+        </div>
+      </div>
+      <div id="newsapiInputs"></div>
+    </div>
+  `;
+  toggleNewsapiInputs();
+}
+
+function toggleNewsapiInputs() {
+  const mode = document.getElementById('wizNewsapiMode').value;
+  const el = document.getElementById('newsapiInputs');
+  if (mode === 'categories') {
+    const cats = ['business', 'technology', 'science', 'health', 'sports', 'entertainment', 'general'];
+    const selected = wizData.newsapi_values.length ? wizData.newsapi_values : [];
+    el.innerHTML = `
+      <p style="font-size:11px;color:var(--text2);margin-bottom:6px;">Select NewsAPI categories:</p>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${cats.map(c => `
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;text-transform:none;letter-spacing:0;cursor:pointer;padding:4px 8px;background:var(--surface2);border-radius:4px;border:1px solid var(--border);">
+            <input type="checkbox" value="${c}" ${selected.includes(c) ? 'checked' : ''} onchange="collectNewsapi()"> ${c}
+          </label>
+        `).join('')}
+      </div>
+    `;
+  } else {
+    el.innerHTML = `
+      <p style="font-size:11px;color:var(--text2);margin-bottom:6px;">Enter search queries (press Enter to add):</p>
+      <div class="tag-input-wrap" id="newsapiTagWrap" onclick="this.querySelector('input').focus()">
+        ${(wizData.newsapi_values || []).map((t, i) => `<span class="tag">${esc(t)}<button class="tag-remove" onclick="removeWizTag('newsapi',${i})">&times;</button></span>`).join('')}
+        <input type="text" id="newsapiTagInput" placeholder="e.g. PGA Tour golf" onkeydown="wizTagKeydown(event,'newsapi')">
+      </div>
+    `;
+  }
+}
+
+function collectNewsapi() {
+  const mode = document.getElementById('wizNewsapiMode').value;
+  if (mode === 'categories') {
+    wizData.newsapi_values = [...document.querySelectorAll('#newsapiInputs input[type="checkbox"]:checked')].map(c => c.value);
+  }
+}
+
+function addQuotaRow() {
+  wizData.story_quotas.push({ label: '', count: 1 });
+  renderWizStep2(document.getElementById('wizardBody'));
+}
+
+function removeQuotaRow(i) {
+  wizData.story_quotas.splice(i, 1);
+  renderWizStep2(document.getElementById('wizardBody'));
+}
+
+function updateQuotaTotal() {
+  const total = wizData.story_quotas.reduce((s, q) => s + (parseInt(q.count) || 0), 0);
+  const el = document.getElementById('quotaTotal');
+  if (el) el.textContent = total;
+}
+
+function collectStep2() {
+  // Topics already collected via tag input
+  wizData.newsapi_mode = document.getElementById('wizNewsapiMode').value;
+  collectNewsapi();
+
+  // Collect quotas from DOM
+  document.querySelectorAll('#quotaRows .dynamic-row').forEach((row, i) => {
+    const inputs = row.querySelectorAll('input');
+    if (wizData.story_quotas[i]) {
+      wizData.story_quotas[i].label = inputs[0].value.trim();
+      wizData.story_quotas[i].count = parseInt(inputs[1].value) || 1;
+    }
+  });
+  wizData.story_quotas = wizData.story_quotas.filter(q => q.label.trim());
+
+  if (!wizData.topic_domains.length) { toast('Add at least one topic domain', true); return false; }
+  if (wizData.story_quotas.length < 2) { toast('Need at least 2 story categories', true); return false; }
+  const total = wizData.story_quotas.reduce((s, q) => s + q.count, 0);
+  if (total < 3 || total > 10) { toast('Total stories must be 3-10', true); return false; }
+  return true;
+}
+
+// ─── Step 3: Schedule ─────────────────────────────────────────────────────
+function renderWizStep3(body) {
+  body.innerHTML = `
+    <div class="wiz-section">
+      <label>Editions</label>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:8px;">How many episodes per day? Most shows have 1 "daily" edition.</p>
+      <div id="editionRows">
+        ${wizData.editions.map((ed, i) => `
+          <div class="dynamic-row" style="flex-wrap:wrap;">
+            <div style="flex:1;min-width:100px;">
+              <label style="font-size:10px;">Name</label>
+              <input type="text" value="${esc(ed.name)}" placeholder="daily" data-ei="${i}" data-ef="name">
+            </div>
+            <div style="width:90px;flex:none;">
+              <label style="font-size:10px;">Time (EST)</label>
+              <input type="time" value="${ed.publish_time_est}" data-ei="${i}" data-ef="publish_time_est">
+            </div>
+            <div style="width:80px;flex:none;">
+              <label style="font-size:10px;">Duration</label>
+              <input type="number" value="${ed.target_duration_minutes}" min="5" max="25" data-ei="${i}" data-ef="target_duration_minutes">
+            </div>
+            <div style="width:80px;flex:none;">
+              <label style="font-size:10px;">News Window</label>
+              <input type="number" value="${ed.news_window_hours}" min="1" max="72" data-ei="${i}" data-ef="news_window_hours">
+            </div>
+            <button class="row-remove" onclick="removeEdition(${i})" ${wizData.editions.length <= 1 ? 'disabled style="opacity:0.3"' : ''}>&times;</button>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn btn-sm btn-secondary" onclick="addEdition()" style="margin-top:6px;" ${wizData.editions.length >= 5 ? 'disabled' : ''}>+ Add Edition</button>
+    </div>
+  `;
+}
+
+function addEdition() {
+  if (wizData.editions.length >= 5) return;
+  wizData.editions.push({ name: '', publish_time_est: '12:00', target_duration_minutes: 12, min_duration_minutes: 10, max_duration_minutes: 15, news_window_hours: 12 });
+  renderWizStep3(document.getElementById('wizardBody'));
+}
+
+function removeEdition(i) {
+  if (wizData.editions.length <= 1) return;
+  wizData.editions.splice(i, 1);
+  renderWizStep3(document.getElementById('wizardBody'));
+}
+
+function collectStep3() {
+  const rows = document.querySelectorAll('#editionRows .dynamic-row');
+  wizData.editions = [];
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const ed = {
+      name: inputs[0].value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_') || 'daily',
+      publish_time_est: inputs[1].value || '06:00',
+      target_duration_minutes: parseInt(inputs[2].value) || 12,
+      min_duration_minutes: Math.max(5, (parseInt(inputs[2].value) || 12) - 2),
+      max_duration_minutes: Math.min(25, (parseInt(inputs[2].value) || 12) + 3),
+      news_window_hours: parseInt(inputs[3].value) || 24,
+    };
+    wizData.editions.push(ed);
+  });
+
+  if (!wizData.editions.length) { toast('Need at least one edition', true); return false; }
+  for (const ed of wizData.editions) {
+    if (!ed.name) { toast('Each edition needs a name', true); return false; }
+    if (ed.target_duration_minutes < 5 || ed.target_duration_minutes > 25) { toast('Duration must be 5-25 minutes', true); return false; }
+  }
+  return true;
+}
+
+// ─── Step 4: Hosts ────────────────────────────────────────────────────────
+function renderWizStep4(body) {
+  const staticCount = wizData.hosts.filter(h => h.type === 'static').length;
+  const rotatingCount = wizData.hosts.filter(h => h.type === 'rotating').length;
+
+  body.innerHTML = `
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">
+      <strong>${staticCount}</strong> static host${staticCount !== 1 ? 's' : ''} (in every episode) &bull;
+      <strong>${rotatingCount}</strong> rotating guest${rotatingCount !== 1 ? 's' : ''} (topic-matched)
+      ${staticCount < 2 ? '<span style="color:var(--red);"> — need at least 2 static hosts</span>' : ''}
+    </div>
+    <div id="wizHostCards">
+      ${wizData.hosts.map((h, i) => renderWizHostCard(h, i)).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn btn-sm btn-secondary" onclick="addWizHost('static')">+ Static Host</button>
+      <button class="btn btn-sm btn-secondary" onclick="addWizHost('rotating')">+ Rotating Guest</button>
+    </div>
+  `;
+}
+
+function renderWizHostCard(h, i) {
+  const expanded = h._expanded !== false;
+  return `
+    <div class="wiz-host-card">
+      <div class="wiz-host-header" onclick="toggleWizHost(${i})">
+        <span>
+          <strong>${h.name || `Host ${i + 1}`}</strong>
+          <span class="host-type">${h.type}</span>
+          ${h.role ? ` — ${h.role}` : ''}
+        </span>
+        <span style="display:flex;gap:6px;align-items:center;">
+          <span style="font-size:18px;">${expanded ? '\u25B4' : '\u25BE'}</span>
+          ${wizData.hosts.length > 2 ? `<button class="row-remove" onclick="event.stopPropagation();removeWizHost(${i})">&times;</button>` : ''}
+        </span>
+      </div>
+      <div class="wiz-host-body ${expanded ? '' : 'collapsed'}">
+        <div class="form-row">
+          <div><label>Name</label><input type="text" value="${esc(h.name)}" placeholder="Full Name" data-hi="${i}" data-hf="name"></div>
+          <div><label>Role</label><input type="text" value="${esc(h.role)}" placeholder="e.g. Business anchor" data-hi="${i}" data-hf="role"></div>
+          <div><label>Type</label>
+            <select data-hi="${i}" data-hf="type">
+              <option value="static" ${h.type === 'static' ? 'selected' : ''}>Static</option>
+              <option value="rotating" ${h.type === 'rotating' ? 'selected' : ''}>Rotating</option>
+            </select>
+          </div>
+        </div>
+        <div class="wiz-section">
+          <label>Personality</label>
+          <textarea rows="2" data-hi="${i}" data-hf="personality" placeholder="Describe their personality...">${esc(h.personality)}</textarea>
+        </div>
+        <div class="form-row">
+          <div class="wiz-section">
+            <label>Speech Patterns (one per line)</label>
+            <textarea rows="2" data-hi="${i}" data-hf="speech_patterns" placeholder="Catchphrases, verbal habits...">${(h.speech_patterns || []).join('\n')}</textarea>
+          </div>
+          <div class="wiz-section">
+            <label>Avoid (one per line)</label>
+            <textarea rows="2" data-hi="${i}" data-hf="avoid" placeholder="Things this host should never say...">${(h.avoid || []).join('\n')}</textarea>
+          </div>
+        </div>
+        ${h.type === 'rotating' ? `
+          <div class="wiz-section">
+            <label>Topic Keywords (comma-separated)</label>
+            <input type="text" value="${(h.topic_keywords || []).join(', ')}" data-hi="${i}" data-hf="topic_keywords" placeholder="e.g. trade, tariff, sanctions">
+          </div>
+        ` : ''}
+        <div class="wiz-section">
+          <label>Voice (OpenAI TTS)</label>
+          <div class="form-row">
+            <div>
+              <select data-hi="${i}" data-hf="voice_id">
+                ${OPENAI_VOICES.map(v => `<option value="${v}" ${(h.voice_providers?.[0]?.voice_id || 'alloy') === v ? 'selected' : ''}>${v}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <input type="text" value="${esc(h.voice_providers?.[0]?.instructions || '')}" data-hi="${i}" data-hf="voice_instructions" placeholder="Voice instructions (optional)">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleWizHost(i) {
+  wizData.hosts[i]._expanded = wizData.hosts[i]._expanded === false ? true : false;
+  collectStep4Quiet();
+  renderWizStep4(document.getElementById('wizardBody'));
+}
+
+function addWizHost(type) {
+  const voiceIdx = wizData.hosts.length % OPENAI_VOICES.length;
+  wizData.hosts.push({
+    name: '', key: '', role: '', type,
+    personality: '', speech_patterns: [], avoid: [], topic_keywords: [],
+    voice_providers: [{ provider: 'openai', voice_id: OPENAI_VOICES[voiceIdx], instructions: '' }],
+    _expanded: true,
+  });
+  collectStep4Quiet();
+  renderWizStep4(document.getElementById('wizardBody'));
+}
+
+function removeWizHost(i) {
+  if (wizData.hosts.length <= 2) return;
+  collectStep4Quiet();
+  wizData.hosts.splice(i, 1);
+  renderWizStep4(document.getElementById('wizardBody'));
+}
+
+function collectStep4Quiet() {
+  document.querySelectorAll('[data-hi]').forEach(el => {
+    const i = parseInt(el.dataset.hi);
+    const f = el.dataset.hf;
+    if (!wizData.hosts[i]) return;
+    const val = el.tagName === 'TEXTAREA' ? el.value : el.value;
+    if (f === 'speech_patterns' || f === 'avoid') {
+      wizData.hosts[i][f] = val.split('\n').filter(x => x.trim());
+    } else if (f === 'topic_keywords') {
+      wizData.hosts[i][f] = val.split(',').map(x => x.trim()).filter(Boolean);
+    } else if (f === 'voice_id') {
+      if (!wizData.hosts[i].voice_providers) wizData.hosts[i].voice_providers = [{ provider: 'openai', voice_id: 'alloy', instructions: '' }];
+      wizData.hosts[i].voice_providers[0].voice_id = val;
+    } else if (f === 'voice_instructions') {
+      if (!wizData.hosts[i].voice_providers) wizData.hosts[i].voice_providers = [{ provider: 'openai', voice_id: 'alloy', instructions: '' }];
+      wizData.hosts[i].voice_providers[0].instructions = val;
+    } else {
+      wizData.hosts[i][f] = val;
+    }
+  });
+}
+
+function collectStep4() {
+  collectStep4Quiet();
+  // Generate keys from first names
+  wizData.hosts.forEach(h => {
+    if (!h.key && h.name) h.key = h.name.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
+  });
+
+  const statics = wizData.hosts.filter(h => h.type === 'static');
+  if (statics.length < 2) { toast('Need at least 2 static hosts', true); return false; }
+  for (const h of wizData.hosts) {
+    if (!h.name.trim()) { toast('Every host needs a name', true); return false; }
+    if (!h.role.trim()) { toast(`Host "${h.name}" needs a role`, true); return false; }
+  }
+  return true;
+}
+
+// ─── Step 5: Review ───────────────────────────────────────────────────────
+function renderWizStep5(body) {
+  const totalStories = wizData.story_quotas.reduce((s, q) => s + q.count, 0);
+  const statics = wizData.hosts.filter(h => h.type === 'static');
+  const rotating = wizData.hosts.filter(h => h.type === 'rotating');
+
+  // Feeds section — let user add RSS feed categories
+  const feedCats = wizData.topic_domains.length ? wizData.topic_domains : ['general'];
+
+  body.innerHTML = `
+    <div class="review-section">
+      <h4>Identity</h4>
+      <p><strong>${esc(wizData.name)}</strong> (${esc(wizData.slug)})</p>
+      <p>${esc(wizData.tagline)}</p>
+      <p style="font-size:11px;">${esc(wizData.category)}${wizData.subcategory ? ' > ' + esc(wizData.subcategory) : ''}</p>
+    </div>
+    <div class="review-section">
+      <h4>Topics &amp; Stories</h4>
+      <p>Domains: ${wizData.topic_domains.map(t => `<strong>${esc(t)}</strong>`).join(', ')}</p>
+      <ul>${wizData.story_quotas.map(q => `<li>${esc(q.label)}: ${q.count} stories</li>`).join('')}</ul>
+      <p>Total: <strong>${totalStories}</strong> stories/episode</p>
+    </div>
+    <div class="review-section">
+      <h4>Schedule</h4>
+      <ul>${wizData.editions.map(ed =>
+        `<li><strong>${esc(ed.name)}</strong>: ${ed.publish_time_est} EST, ${ed.target_duration_minutes} min, ${ed.news_window_hours}hr window</li>`
+      ).join('')}</ul>
+    </div>
+    <div class="review-section">
+      <h4>Hosts (${wizData.hosts.length})</h4>
+      <ul>
+        ${statics.map(h => `<li><strong>${esc(h.name)}</strong> — ${esc(h.role)} (static)</li>`).join('')}
+        ${rotating.map(h => `<li><strong>${esc(h.name)}</strong> — ${esc(h.role)} (rotating)</li>`).join('')}
+      </ul>
+    </div>
+    <div class="review-section">
+      <h4>RSS Feeds (optional)</h4>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:6px;">Add RSS feeds by category. You can also add these after creation.</p>
+      <div id="wizFeedSection">
+        ${feedCats.map(cat => `
+          <div style="margin-bottom:8px;">
+            <label style="font-size:11px;color:var(--accent2);">${esc(cat)}</label>
+            <div class="feed-item" style="margin-top:2px;">
+              <input type="text" value="${(wizData.feeds[cat] || []).join(', ')}" placeholder="RSS feed URLs (comma-separated)" data-feedcat="${esc(cat)}">
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      ${!Object.values(wizData.feeds).some(f => f.length) ? '<div class="review-warning">No RSS feeds configured. The show will use NewsAPI only.</div>' : ''}
+    </div>
+  `;
+}
+
+// ─── Submit ───────────────────────────────────────────────────────────────
+async function submitWizard() {
+  // Collect feeds from review step
+  document.querySelectorAll('[data-feedcat]').forEach(el => {
+    const cat = el.dataset.feedcat;
+    const urls = el.value.split(',').map(u => u.trim()).filter(Boolean);
+    if (urls.length) wizData.feeds[cat] = urls;
+    else delete wizData.feeds[cat];
+  });
+
+  // Build story_quotas as dict
+  const quotasDict = {};
+  wizData.story_quotas.forEach(q => {
+    const key = q.label.trim().replace(/\s+/g, '_').toLowerCase();
+    if (key) quotasDict[key] = q.count;
+  });
+
+  // Build newsapi config
+  let newsapi = null;
+  if (wizData.newsapi_mode === 'categories' && wizData.newsapi_values.length) {
+    newsapi = { mode: 'categories', categories: wizData.newsapi_values };
+  } else if (wizData.newsapi_mode === 'keywords' && wizData.newsapi_values.length) {
+    newsapi = { mode: 'keywords', queries: wizData.newsapi_values };
+  }
+
+  const payload = {
+    slug: wizData.slug,
+    name: wizData.name,
+    tagline: wizData.tagline,
+    description: wizData.description,
+    category: wizData.category,
+    subcategory: wizData.subcategory,
+    topic_domains: wizData.topic_domains,
+    story_quotas: quotasDict,
+    newsapi,
+    editions: wizData.editions.map(ed => ({
+      name: ed.name,
+      publish_time_est: ed.publish_time_est,
+      target_duration_minutes: ed.target_duration_minutes,
+      min_duration_minutes: ed.min_duration_minutes,
+      max_duration_minutes: ed.max_duration_minutes,
+      news_window_hours: ed.news_window_hours,
+    })),
+    hosts: wizData.hosts.map(h => ({
+      name: h.name,
+      key: h.key || h.name.split(' ')[0].toLowerCase().replace(/[^a-z]/g, ''),
+      role: h.role,
+      type: h.type,
+      personality: h.personality,
+      speech_patterns: h.speech_patterns || [],
+      avoid: h.avoid || [],
+      topic_keywords: h.topic_keywords || [],
+      voice_providers: (h.voice_providers || []).map(vp => ({
+        provider: vp.provider || 'openai',
+        voice_id: vp.voice_id || 'alloy',
+        instructions: vp.instructions || h.role || '',
+      })),
+    })),
+    feeds: wizData.feeds,
+  };
+
+  const nextBtn = document.getElementById('wizNext');
+  nextBtn.disabled = true;
+  nextBtn.textContent = 'Creating...';
+
+  try {
+    const result = await api('POST', '/api/shows', payload);
+    closeWizard();
+    toast(`Show "${result.name}" created! Run a dry test to verify.`);
+
+    // Refresh shows list and select the new show
+    shows = await api('GET', '/api/shows');
+    renderShowTabs();
+    populateShowSelects();
+    await selectShow(result.slug);
+  } catch (e) {
+    toast('Failed to create show: ' + e.message, true);
+    nextBtn.disabled = false;
+    nextBtn.textContent = 'Create Show';
+  }
+}
+
+// ─── Tag Input Helpers ────────────────────────────────────────────────────
+function wizTagKeydown(e, type) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const val = e.target.value.trim();
+  if (!val) return;
+  if (type === 'topic') {
+    if (!wizData.topic_domains.includes(val)) wizData.topic_domains.push(val);
+    e.target.value = '';
+    renderWizStep2(document.getElementById('wizardBody'));
+  } else if (type === 'newsapi') {
+    if (!wizData.newsapi_values.includes(val)) wizData.newsapi_values.push(val);
+    e.target.value = '';
+    toggleNewsapiInputs();
+  }
+}
+
+function removeWizTag(type, i) {
+  if (type === 'topic') {
+    wizData.topic_domains.splice(i, 1);
+    renderWizStep2(document.getElementById('wizardBody'));
+  } else if (type === 'newsapi') {
+    wizData.newsapi_values.splice(i, 1);
+    toggleNewsapiInputs();
+  }
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────
+function esc(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 // ─── API helper ───────────────────────────────────────────────────────────
 async function api(method, url, body) {

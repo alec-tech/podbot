@@ -11,6 +11,8 @@ import requests
 from anthropic import Anthropic
 from datetime import datetime
 
+from agents.show_loader import safe_format
+
 log = logging.getLogger("publisher")
 
 
@@ -23,7 +25,7 @@ class PublisherAgent:
     def __init__(self, show=None):
         if show is None:
             from agents.show_loader import load_show
-            show = load_show("the-signal")
+            show = load_show()
         self.show = show
 
     def generate_metadata(self, brief: dict, script_data: dict, episode_num: int,
@@ -43,7 +45,8 @@ class PublisherAgent:
         # Load prompt template
         prompt_template = self.show.prompts.get("publisher", "")
         if prompt_template:
-            prompt = prompt_template.format(
+            prompt = safe_format(
+                prompt_template,
                 show_name=self.show.name,
                 episode_num=episode_num,
                 edition_label=edition_label,

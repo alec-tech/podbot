@@ -1,4 +1,4 @@
-# The Signal — Git Ignore
+# PodBot — Git Ignore
 # ============================================================
 
 # Environment & secrets — NEVER commit these
@@ -46,7 +46,5 @@ Thumbs.db
 *.swp
 
 # Per-show website data IS committed (it's the website data source)
-# website/the-signal/episodes.json  ← DO commit this
-# website/the-signal/feed.xml       ← DO commit this
-# website/the-rough/episodes.json   ← DO commit this
-# website/the-rough/feed.xml        ← DO commit this
+# website/{show-slug}/episodes.json  ← DO commit this
+# website/{show-slug}/feed.xml       ← DO commit this

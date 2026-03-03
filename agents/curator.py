@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from agents.inject_stories import get_pending_injections, mark_injections_used
+from agents.show_loader import safe_format
 from agents.story_memory import (
     build_recently_covered_summary,
     get_earlier_edition_headlines,
@@ -32,7 +33,7 @@ class CuratorAgent:
     def __init__(self, show=None):
         if show is None:
             from agents.show_loader import load_show
-            show = load_show("the-signal")
+            show = load_show()
         self.show = show
 
     def run(self, episode_date: str, edition: str) -> dict:
@@ -88,7 +89,7 @@ class CuratorAgent:
         for category, feeds in self.show.feeds.items():
             for feed_url in feeds:
                 try:
-                    feed = feedparser.parse(feed_url, request_headers={"User-Agent": "TheSignalBot/4.0"})
+                    feed = feedparser.parse(feed_url, request_headers={"User-Agent": "PodBot/1.0"})
                     for entry in feed.entries[:12]:
                         published = self._parse_date(entry.get("published", ""))
                         if published and published < cutoff:
@@ -215,14 +216,36 @@ class CuratorAgent:
         h_12 = h_int if h_int <= 12 else h_int - 12
         publish_time = f"{h_12}:{m} {ampm}"
 
+        # Build expanded template variables for generic prompts
+        quotas = self.show.story_quotas
+        total_stories = sum(quotas.values())
+        quota_lines = []
+        for key, count in quotas.items():
+            label = key.replace("_", " ")
+            quota_lines.append(f"  {label}: exactly {count} stories (each ~2 min)")
+        quota_block = "\n".join(quota_lines)
+        topic_summary = ", ".join(self.show.topic_domains[:-1]) + (
+            f", and {self.show.topic_domains[-1]}" if len(self.show.topic_domains) > 1
+            else self.show.topic_domains[0] if self.show.topic_domains else "general"
+        )
+        target_duration = edition_config.get(
+            "target_duration_minutes",
+            self.show.pipeline_config.get("target_duration_minutes", 12),
+        )
+
         # Load system prompt from show config
         system_template = self.show.prompts.get("curator", "")
         if system_template:
-            system_prompt = system_template.format(
+            system_prompt = safe_format(
+                system_template,
                 show_name=self.show.name,
                 show_tagline=self.show.tagline,
                 edition_label=edition_label,
                 publish_time=publish_time,
+                target_duration=target_duration,
+                total_stories=total_stories,
+                topic_summary=topic_summary,
+                quota_block=quota_block,
             )
         else:
             system_prompt = f"You are the editorial producer for {self.show.name}. Curate stories for the {edition_label} edition."

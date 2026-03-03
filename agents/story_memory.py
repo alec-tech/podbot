@@ -66,11 +66,7 @@ def record_covered_stories(brief: dict, episode_num: int, episode_date: str,
             for s in brief.get(cat_key, []):
                 all_stories.append((s, cat_label))
     else:
-        all_stories = (
-            [(s, "business") for s in brief.get("business_stories", [])]
-            + [(s, "tech")    for s in brief.get("tech_stories", [])]
-            + [(s, "overlap") for s in brief.get("overlap_stories", [])]
-        )
+        all_stories = []
 
     for story, category in all_stories:
         headline    = story.get("podcast_headline", story.get("headline", ""))
@@ -130,7 +126,7 @@ def get_earlier_edition_headlines(episode_date: str, current_edition: str, show=
     if show:
         edition_order = show.edition_order
     else:
-        edition_order = ["morning", "midday", "evening"]
+        edition_order = []
 
     current_idx = edition_order.index(current_edition.lower()) if current_edition.lower() in edition_order else 0
     earlier_editions = edition_order[:current_idx]
@@ -180,11 +176,7 @@ def get_callback_opportunities(brief: dict, show=None) -> list:
         for cat_key in show.story_quotas.keys():
             all_current.extend(brief.get(cat_key, []))
     else:
-        all_current = (
-            brief.get("business_stories", [])
-            + brief.get("tech_stories", [])
-            + brief.get("overlap_stories", [])
-        )
+        all_current = []
 
     current_text = json.dumps([s.get("podcast_headline", "") for s in all_current], indent=2)
     recent_text  = json.dumps([r["headline"] for r in recent[:15]], indent=2)
