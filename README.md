@@ -35,9 +35,18 @@ chmod +x setup.sh && ./setup.sh
 
 The setup script creates a virtual environment, installs dependencies, and sets up runtime directories.
 
-### 2. Configure your API keys
+### 2. Open the admin panel
 
-Add your API keys as **GitHub repository Secrets** (Settings → Secrets and variables → Actions). The pipeline runs via GitHub Actions, so keys live there — not in a local `.env` file. At minimum you need:
+```bash
+source .venv/bin/activate
+python admin.py
+```
+
+Opens at **http://localhost:8000** (API docs at `/docs`). No API keys needed — the admin panel works entirely with local config files. Use it to create and configure shows, manage hosts and personas, set up RSS feeds, manage sponsors, and trigger pipeline runs. Sponsor management is done exclusively through the admin panel.
+
+### 3. Configure your API keys
+
+Add your API keys as **GitHub repository Secrets** (Settings → Secrets and variables → Actions). The pipeline runs via GitHub Actions, so keys live there — not in a local file. At minimum you need:
 
 | Secret | Required? |
 |--------|-----------|
@@ -48,18 +57,17 @@ Add your API keys as **GitHub repository Secrets** (Settings → Secrets and var
 
 See the full [API Keys](#api-keys) reference below for where to get each key.
 
-### 3. Run a dry run
+### 4. Run a dry run
 
 A dry run executes only the curation stage — it gathers news and builds an editorial brief without generating audio or publishing. No TTS cost.
 
 ```bash
-source .venv/bin/activate
 python orchestrator.py --show example-show --edition morning --dry-run
 ```
 
 The output brief is saved to `outputs/example-show/briefs/`. Open it to see the curated stories and editorial structure.
 
-### 4. Run a full episode
+### 5. Run a full episode
 
 Once your TTS and Buzzsprout keys are configured in GitHub Secrets:
 
@@ -68,16 +76,6 @@ python orchestrator.py --show example-show --edition morning
 ```
 
 This runs all 4 stages: curation, scriptwriting, voice production, and publishing. The final MP3 is saved to `outputs/example-show/audio/` and uploaded to Buzzsprout.
-
-### 5. Open the admin panel (optional)
-
-```bash
-python admin.py
-```
-
-Opens at **http://localhost:8000** (API docs at `/docs`). The admin panel requires no API keys — it works entirely with local config files. Use it to manage shows, edit configs, manage sponsors, trigger pipeline runs, and monitor logs. Sponsor management is done exclusively through the admin panel.
-
-> **Note:** API keys (stored in GitHub Secrets) are only used when the pipeline actually runs (curation, TTS, publishing). The admin panel itself reads and writes JSON files on disk and needs no credentials.
 
 ---
 
