@@ -1,0 +1,103 @@
+{
+  "show": {
+    "name": "Jeffery Epstien: Monster in a Suit",
+    "tagline": "",
+    "description": "",
+    "host_names": [
+      "asdfsd",
+      "asdf"
+    ],
+    "sponsor_slots": 3,
+    "language": "en",
+    "explicit": false,
+    "category": "Entertainment",
+    "subcategory": "",
+    "topic_domains": [
+      "People listed in Jeffery Epstein Files"
+    ],
+    "story_quotas": {
+      "character_2": 5,
+      "character_1": 5
+    },
+    "edition_order": [
+      "weekly"
+    ],
+    "newsapi": {
+      "mode": "keywords",
+      "queries": [
+        "business",
+        "science"
+      ]
+    },
+    "source_tiers": {
+      "tier1": [],
+      "tier2": []
+    },
+    "editions": {
+      "weekly": {
+        "publish_time_est": "06:00",
+        "target_duration_minutes": 25,
+        "min_duration_minutes": 23,
+        "max_duration_minutes": 25,
+        "news_window_hours": 24,
+        "title_format": "{date} - {hook}",
+        "includes_recap": false,
+        "publish_time_utc": "11:00"
+      }
+    }
+  },
+  "voices": {
+    "asdfsd": {
+      "description": "asdfas",
+      "type": "static",
+      "providers": {
+        "openai": {
+          "voice_id": "coral",
+          "model": "gpt-4o-mini-tts",
+          "instructions": "asdfs"
+        }
+      }
+    },
+    "asdf": {
+      "description": "asdfas",
+      "type": "static",
+      "providers": {
+        "openai": {
+          "voice_id": "nova",
+          "model": "gpt-4o-mini-tts",
+          "instructions": "asdfsda"
+        }
+      }
+    }
+  },
+  "tts": {
+    "provider_order": [
+      "openai"
+    ],
+    "retries_per_provider": [
+      3
+    ]
+  },
+  "audio": {
+    "output_format": "mp3",
+    "bitrate": "192k",
+    "sample_rate": 44100,
+    "target_lufs": -16,
+    "true_peak_dbtp": -1.5,
+    "intro_music_duration_seconds": 8,
+    "outro_music_duration_seconds": 10,
+    "silence_between_lines_seconds": 0.35
+  },
+  "pipeline": {
+    "min_duration_minutes": 10,
+    "max_duration_minutes": 15,
+    "target_duration_minutes": 12,
+    "retry_attempts": 3,
+    "story_cooldown_days": 3,
+    "fallback_to_previous_brief": true,
+    "stories_per_episode": 10,
+    "wpm": 140,
+    "audio_min_duration_minutes": 7,
+    "audio_max_duration_minutes": 18
+  }
+}

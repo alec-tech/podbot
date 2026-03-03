@@ -1,0 +1,26 @@
+{
+  "asdfsd": {
+    "name": "asdfsd",
+    "role": "asdfas",
+    "type": "static",
+    "personality": "asdfasdf",
+    "speech_patterns": [
+      "asdfasdfs"
+    ],
+    "avoid": [
+      "asfdasdfsd"
+    ]
+  },
+  "asdf": {
+    "name": "asdf",
+    "role": "asdfas",
+    "type": "static",
+    "personality": "asdfasdf",
+    "speech_patterns": [
+      "asdfsad"
+    ],
+    "avoid": [
+      "sadfsad"
+    ]
+  }
+}
